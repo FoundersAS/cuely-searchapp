@@ -52,7 +52,7 @@ export default class App extends Component {
         e.target.value = '';
         this.setState({ searchResults: [], selectedIndex: -1 });
       } else {
-        ipcRenderer.send('quit');
+        ipcRenderer.send('hide-search');
       }
     } else if (e.key === 'ArrowDown') {
       e.preventDefault();
@@ -78,7 +78,7 @@ export default class App extends Component {
   handleClick(e) {
     e.preventDefault();
     shell.openExternal(e.target.href);
-    ipcRenderer.send('quit');
+    ipcRenderer.send('hide-search');
   }
 
   renderItem(item, i) {

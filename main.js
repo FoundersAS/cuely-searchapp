@@ -1,18 +1,80 @@
 import electron, { ipcMain } from 'electron';
 import { search } from './src/external/intra';
 
-const { app, BrowserWindow } = electron;
+const { app, BrowserWindow, Tray, globalShortcut} = electron;
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let mainWindow;
 
+// This method will be called when Electron has finished
+// initialization and is ready to create browser windows.
+// Some APIs can only be used after this event occurs.
+app.on('ready', () => {
+  const p = process.platform;
+  const imageDir = __dirname + '/assets/images';
+  let trayImage;
+  if (p === 'darwin') {
+    trayImage = imageDir + '/osx/cuelyTemplate.png';
+  } else if (p === 'win32') {
+    trayImage = imageDir + '/win/cuely.ico';
+  }
+
+  // init tray
+  const tray = new Tray(trayImage);
+  tray.setToolTip('Cuely search')
+  if (p === 'darwin') {
+    tray.setPressedImage(imageDir + '/osx/cuelyHighlight.png');
+  }
+  tray.on('click', () => {
+    toggleHideOrCreate();
+  });
+  // init global shortcut
+  const ret = globalShortcut.register('CommandOrControl+Backspace', () => {
+    toggleHideOrCreate();
+  })
+
+  console.log(ret ? 'Registered global shurtcut' : 'Could not register global shortcut');
+});
+
+app.on('window-all-closed', function () {
+  app.quit();
+});
+
+app.on('will-quit', function () {
+  globalShortcut.unregisterAll();
+});
+
+app.on('activate', function () {
+  // On OS X it's common to re-create a window in the app when the
+  // dock icon is clicked and there are no other windows open.
+  if (mainWindow === null) {
+    createWindow();
+  }
+});
+
+// ipc communication
+ipcMain.on('hide-search', () => {
+  toggleHide();
+});
+
+ipcMain.on('search', (event, arg) => {
+  event.sender.send('searchResult', search(arg));
+});
+
+ipcMain.on('search_rendered', (event, arg) => {
+  // Resize the window as well, due to weird GUI artifacts when resizing <ul> component
+  // (probably because of frameless transparent window).
+  mainWindow.setSize(mainWindow.getSize()[0], arg.height + 50, false);
+});
+
+//----------- UTILITY FUNCTIONS
 function getScreenCenter() {
   const {width, height} = electron.screen.getPrimaryDisplay().workAreaSize;
   return {x: Math.round(width/2), y: Math.round(height/2)};
 }
 
-function createWindow () {
+function createWindow() {
   const center = getScreenCenter();
   // Create the browser window.
   mainWindow = new BrowserWindow({
@@ -43,39 +105,21 @@ function createWindow () {
   });
 };
 
-// This method will be called when Electron has finished
-// initialization and is ready to create browser windows.
-// Some APIs can only be used after this event occurs.
-app.on('ready', createWindow);
-
-// Quit when all windows are closed.
-app.on('window-all-closed', function () {
-  // On OS X it is common for applications and their menu bar
-  // to stay active until the user quits explicitly with Cmd + Q
-  if (process.platform !== 'darwin') {
-    app.quit();
+function toggleHide() {
+  if (mainWindow.isVisible()) {
+    mainWindow.hide();
+    if (process.platform === 'darwin') {
+      app.hide();
+    }
+  } else {
+    mainWindow.show();
   }
-});
+}
 
-app.on('activate', function () {
-  // On OS X it's common to re-create a window in the app when the
-  // dock icon is clicked and there are no other windows open.
-  if (mainWindow === null) {
+function toggleHideOrCreate() {
+  if (mainWindow) {
+    toggleHide();
+  } else {
     createWindow();
   }
-});
-
-// ipc communication
-ipcMain.on('quit', () => {
-  app.quit();
-});
-
-ipcMain.on('search', (event, arg) => {
-  event.sender.send('searchResult', search(arg));
-});
-
-ipcMain.on('search_rendered', (event, arg) => {
-  // Resize the window as well, due to weird GUI artifacts when resizing <ul> component
-  // (probably because of frameless transparent window).
-  mainWindow.setSize(mainWindow.getSize()[0], arg.height + 50, false);
-});
+}
