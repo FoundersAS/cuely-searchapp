@@ -6,8 +6,13 @@ export default class SearchBar extends Component {
     ReactDOM.findDOMNode(this.refs.input).focus();
   }
 
+  componentDidUpdate() {
+    if (this.props.selectedIndex < 0) {
+      ReactDOM.findDOMNode(this.refs.input).focus();
+    }
+  }
+
   render() {
-    console.log(this.props);
     return (
       <div className={this.props.className} id={this.props.id}>
         <input type="text" placeholder="Cuely search" className="search_bar_input" onKeyUp={this.props.onKeyUp} onInput={this.props.onInput} ref='input' />
