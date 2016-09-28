@@ -38,3 +38,10 @@ jspm_packages
 
 # Vi
 *.swp
+
+# builds
+dist
+Clue-*
+
+# Mac stuff
+.DS_Store

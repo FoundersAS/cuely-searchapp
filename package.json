@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "start": "ENV=development electron .",
-    "dev": "concurrently -k 'babel-node server.js' 'npm start'"
+    "dev": "concurrently -k 'babel-node server.js' 'npm start'",
+    "build": "webpack --config webpack.config.production.js && electron-packager . Clue --platform=darwin --arch=all --prune --overwrite --icon ./cuely_icon"
   },
   "babel": {
     "presets": [
@@ -16,7 +17,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/electron/electron-quick-start.git"
+    "url": "git+https://github.com/pipetop/cuely-searchapp.git"
   },
   "keywords": [
     "Electron",
@@ -26,10 +27,15 @@
   "author": "Jan Gnezda",
   "license": "CC0-1.0",
   "bugs": {
-    "url": "https://github.com/electron/electron-quick-start/issues"
+    "url": "https://github.com/pipetop/cuely-searchapp/issues"
   },
   "homepage": "https://github.com/electron/electron-quick-start#readme",
   "dependencies": {
+    "babel-core": "^6.14.0",
+    "babel-polyfill": "^6.13.0",
+    "babel-preset-es2015": "^6.14.0",
+    "babel-preset-react": "^6.11.1",
+    "babel-preset-stage-0": "^6.5.0",
     "electron": "^1.4.1",
     "react": "^15.3.2",
     "react-custom-scrollbars": "^4.0.0",
@@ -38,12 +44,9 @@
   "devDependencies": {
     "babel-cli": "^6.14.0",
     "babel-loader": "^6.2.5",
-    "babel-polyfill": "^6.13.0",
-    "babel-preset-es2015": "^6.14.0",
-    "babel-preset-react": "^6.11.1",
-    "babel-preset-stage-0": "^6.5.0",
     "concurrently": "^3.0.0",
     "css-loader": "^0.25.0",
+    "electron-packager": "^8.0.0",
     "express": "^4.14.0",
     "file-loader": "^0.9.0",
     "postcss-loader": "^0.13.0",
