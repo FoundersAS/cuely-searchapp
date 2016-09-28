@@ -41,7 +41,7 @@ jspm_packages
 
 # builds
 dist
-Clue-*
+Cuely-*
 
 # Mac stuff
 .DS_Store

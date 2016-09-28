@@ -6,7 +6,7 @@
   "scripts": {
     "start": "ENV=development electron .",
     "dev": "concurrently -k 'babel-node server.js' 'npm start'",
-    "build": "webpack --config webpack.config.production.js && electron-packager . Clue --platform=darwin --arch=all --prune --overwrite --icon ./cuely_icon"
+    "build": "webpack --config webpack.config.production.js && electron-packager . Cuely --platform=darwin --arch=all --prune --overwrite --icon ./cuely_icon"
   },
   "babel": {
     "presets": [
