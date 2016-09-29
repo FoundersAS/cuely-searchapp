@@ -7,8 +7,12 @@ export default class SearchBar extends Component {
   }
 
   componentDidUpdate() {
+    const input = ReactDOM.findDOMNode(this.refs.input);
     if (this.props.selectedIndex < 0) {
-      ReactDOM.findDOMNode(this.refs.input).focus();
+      input.focus();
+    }
+    if (this.props.clearInput) {
+      input.value = ''
     }
   }
 

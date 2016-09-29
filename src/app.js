@@ -12,15 +12,24 @@ export default class App extends Component {
     this.handleInput = ::this.handleInput;
     this.handleKeyUp = ::this.handleKeyUp;
     this.renderItem = ::this.renderItem;
+    this.resetState = ::this.resetState;
     this.state = {
       searchResults: [],
-      selectedIndex: -1
+      selectedIndex: -1,
+      clearInput: false
     }
+  }
+
+  resetState() {
+    this.setState({ searchResults: [], selectedIndex: -1, clearInput: true });
   }
 
   componentDidMount() {
     ipcRenderer.on('searchResult', (event, arg) => {
-      this.setState({ searchResults: arg });
+      this.setState({ searchResults: arg, clearInput: false });
+    });
+    ipcRenderer.on('clear', () => {
+      this.resetState();
     });
   }
 
@@ -50,7 +59,7 @@ export default class App extends Component {
     if (e.key === 'Escape') {
       if (e.target.value || this.state.selectedIndex > -1) {
         e.target.value = '';
-        this.setState({ searchResults: [], selectedIndex: -1 });
+        this.resetState();
       } else {
         ipcRenderer.send('hide-search');
       }
@@ -71,7 +80,7 @@ export default class App extends Component {
     if (e.target.value) {
       ipcRenderer.send('search', e.target.value);
     } else {
-      this.setState({ searchResults: [] });
+      this.resetState();
     }
   }
 
@@ -83,16 +92,21 @@ export default class App extends Component {
 
   renderItem(item, i) {
     const liClass = (i === this.state.selectedIndex) ? 'search_suggestions_card_highlight' : 'search_suggestions_card';
+    let modified = item.modified.formatted + ' ago';
+    if (item.modified.duration.seconds > 0 || (item.modified.duration.minutes > 0 && item.modified.duration.minutes < 3)) {
+      modified = 'Just now';
+    }
+
     return (
       <li key={i} className={liClass} ref={`searchItem${i}`}>
-        <a href="http://www.google.com" onClick={this.handleClick} className="search_suggestion_card_link">
+        <a href={item.webLink} onClick={this.handleClick} className="search_suggestion_card_link">
           <img src={CuelyLogo} className="search_suggestions_logo" />
           <div className="search_suggestions_data">
             <div className="search_suggestions_data_title">{item.question}</div>
-            <div className="search_suggestions_data_text">
-              Tag: {item.tag}<br/>
-              Last modified: {item.questionModified} ago<br/>
-              Author: {item.questionAuthor}
+            <div className="search_suggestions_data_body">
+              <div className="search_suggestions_data_tags">Tags: {item.tags.join(', ')}</div>
+              Last modified: {modified}<br/>
+              Author: {item.author}
             </div>
           </div>
         </a>
@@ -116,7 +130,14 @@ export default class App extends Component {
     const open = this.state.searchResults.length > 0;
     return (
       <div className="search_root">
-        <SearchBar onKeyUp={this.handleKeyUp} onInput={this.handleInput} className={open ? "search_bar_open" : "search_bar"} id="searchBar" selectedIndex={this.state.selectedIndex} />
+        <SearchBar
+          onKeyUp={this.handleKeyUp}
+          onInput={this.handleInput}
+          className={open ? "search_bar_open" : "search_bar"}
+          id="searchBar"
+          selectedIndex={this.state.selectedIndex}
+          clearInput={this.state.clearInput}
+        />
         {open ? this.renderSearchResults() : null}
       </div>
     );

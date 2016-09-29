@@ -1,3 +1,73 @@
+import AlgoliaSearch from 'algoliasearch';
+import moment from 'moment';
+
+const algoliaConf = {
+  appId: 'OPDWYH4IR4',
+  searchKey: '0b28a5913167a1618773992171c04344',
+  indexName: 'questions_answers'
+}
+const algoliaClient = AlgoliaSearch(algoliaConf.appId, algoliaConf.searchKey);
+const index = algoliaClient.initIndex(algoliaConf.indexName);
+const settings = {
+  distinct: true,
+  filters: `questionTeamId=9`,
+  hitsPerPage: 10
+};
+
+export function search(query) {
+  return index.search(query, settings).then(content => {
+    return content.hits.map(hit => ({
+      tags: hit.questionTags,
+      question: hit.questionTitle,
+      author: hit.questionUsername,
+      modified: fromIsoDateToNow(hit.questionModified),
+      webLink: 'http://intra.pipetop.com/questions/' + hit.questionId
+    }));
+  });
+}
+
+function fromIsoDateToNow(isoDate) {
+  // Calcuate the difference between now and iso date (in the past), e.g. '2016-09-14T15:41:56.019Z',
+  // and return the result in seconds, minutes, hours, days.
+  let duration = { seconds: 0, minutes: 0, hours: 0, days: 0 }
+  let formatted = '';
+
+  const now = moment(Date.now());
+  const iso = moment(isoDate);
+
+  const seconds = now.diff(iso, 'seconds');
+  if (seconds < 60) {
+    duration.seconds = seconds;
+    formatted = fromTimeUnit('second', seconds);
+  } else {
+    const minutes = now.diff(iso, 'minutes');
+    if (minutes < 60) {
+      duration.minutes = minutes;
+      formatted = fromTimeUnit('minute', minutes);
+    } else {
+      const hours = now.diff(iso, 'hours');
+      if (hours < 24) {
+        duration.hours = hours;
+        formatted = fromTimeUnit('hour', hours);
+      } else {
+        const days = now.diff(iso, 'days');
+        duration.days = days;
+        formatted = fromTimeUnit('day', days);
+      }
+    }
+  }
+
+  return {
+    duration: duration,
+    formatted: formatted
+  }
+}
+
+function fromTimeUnit(unitName, unitValue) {
+  return unitValue + ' ' + unitName + (unitValue !== 1 ? 's' : '');
+}
+
+// ------------ Dummy data/testing
 const data = [
   {tag: "Customer Support", question: "What applications / tools do we use in customer support?", answer: ""},
   {tag: "Customer Support", question: "Complaint - 'How do I cancel your service?'", answer: "Go to settings page and click on the 'Delete account' button."},
@@ -65,7 +135,7 @@ const users = [
   'Jan Gnezda', 'Jakob Marovt', 'Rasmus Burkal', 'Alvin Šipraga', 'Jordi Colomer', 'Jacob Wejendorp'
 ]
 
-export function search(query) {
+export function searchDummy(query) {
   const q = query.toLowerCase();
   return data.filter(x => contains(x, q)).map(x => {
     const user = random(users);

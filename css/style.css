@@ -97,6 +97,10 @@ body {
   font-weight: 700;
 }
 
-.search_suggestions_data_text {
+.search_suggestions_data_body {
   line-height: normal;
+}
+
+.search_suggestions_data_tags {
+  text-transform: capitalize;
 }

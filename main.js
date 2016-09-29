@@ -13,6 +13,7 @@ let mainWindow;
 app.on('ready', () => {
   const p = process.platform;
   const imageDir = __dirname + '/assets/images';
+
   let trayImage;
   if (p === 'darwin') {
     trayImage = imageDir + '/osx/cuelyTemplate.png';
@@ -37,15 +38,15 @@ app.on('ready', () => {
   console.log(ret ? 'Registered global shurtcut' : 'Could not register global shortcut');
 });
 
-app.on('window-all-closed', function () {
+app.on('window-all-closed', () => {
   app.quit();
 });
 
-app.on('will-quit', function () {
+app.on('will-quit', () => {
   globalShortcut.unregisterAll();
 });
 
-app.on('activate', function () {
+app.on('activate', () => {
   // On OS X it's common to re-create a window in the app when the
   // dock icon is clicked and there are no other windows open.
   if (mainWindow === null) {
@@ -59,13 +60,16 @@ ipcMain.on('hide-search', () => {
 });
 
 ipcMain.on('search', (event, arg) => {
-  event.sender.send('searchResult', search(arg));
+  search(arg).then(hits => {
+    event.sender.send('searchResult', hits);
+  });
 });
 
 ipcMain.on('search_rendered', (event, arg) => {
-  // Resize the window as well, due to weird GUI artifacts when resizing <ul> component
-  // (probably because of frameless transparent window).
-  mainWindow.setSize(mainWindow.getSize()[0], arg.height + 50, false);
+  // Resize the window after search results have been rendered to html/dom, due to weird GUI artifacts
+  // when resizing elements, e.g. <ul> component. Probably happens because of frameless and transparent window.
+  console.log(arg.height);
+  mainWindow.setSize(mainWindow.getSize()[0], arg.height + (arg.height < 80 ? 2 : 50), false);
 });
 
 //----------- UTILITY FUNCTIONS
@@ -94,11 +98,14 @@ function createWindow() {
   // mainWindow.webContents.openDevTools()
 
   // Emitted when the window is closed.
-  mainWindow.on('closed', function () {
+  mainWindow.on('closed', () => {
     // Dereference the window object, usually you would store windows
     // in an array if your app supports multi windows, this is the time
     // when you should delete the corresponding element.
     mainWindow = null;
+  });
+  mainWindow.on('hide', () => {
+    mainWindow.webContents.send('clear');
   });
   mainWindow.once('ready-to-show', () => {
     mainWindow.show();
