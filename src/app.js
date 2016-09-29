@@ -92,8 +92,8 @@ export default class App extends Component {
 
   renderItem(item, i) {
     const liClass = (i === this.state.selectedIndex) ? 'search_suggestions_card_highlight' : 'search_suggestions_card';
-    let modified = item.modified.formatted + ' ago';
-    if (item.modified.duration.seconds > 0 || (item.modified.duration.minutes > 0 && item.modified.duration.minutes < 3)) {
+    let modified = item.elapsed.formatted + ' ago';
+    if (item.elapsed.duration.seconds > 0 || (item.elapsed.duration.minutes > 0 && item.elapsed.duration.minutes < 3)) {
       modified = 'Just now';
     }
 

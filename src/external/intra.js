@@ -16,13 +16,22 @@ const settings = {
 
 export function search(query) {
   return index.search(query, settings).then(content => {
-    return content.hits.map(hit => ({
-      tags: hit.questionTags,
-      question: hit.questionTitle,
-      author: hit.questionUsername,
-      modified: fromIsoDateToNow(hit.questionModified),
-      webLink: 'http://intra.pipetop.com/questions/' + hit.questionId
-    }));
+    return content.hits.map(hit => {
+      let modified = hit.questionModified;
+      if (hit.answerModified) {
+        modified = (new Date(hit.questionModified) > new Date(hit.answerModified)) ? hit.questionModified : hit.answerModified;
+      }
+      return {
+        tags: hit.questionTags,
+        question: hit.questionTitle,
+        author: hit.questionUsername,
+        modified: modified,
+        elapsed: fromIsoDateToNow(modified),
+        webLink: 'http://intra.pipetop.com/questions/' + hit.questionId
+      }
+    }).sort((a, b) => {
+      return new Date(b.modified) - new Date(a.modified);
+    });
   });
 }
 
