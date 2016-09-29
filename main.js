@@ -68,7 +68,6 @@ ipcMain.on('search', (event, arg) => {
 ipcMain.on('search_rendered', (event, arg) => {
   // Resize the window after search results have been rendered to html/dom, due to weird GUI artifacts
   // when resizing elements, e.g. <ul> component. Probably happens because of frameless and transparent window.
-  console.log(arg.height);
   mainWindow.setSize(mainWindow.getSize()[0], arg.height + (arg.height < 80 ? 2 : 50), false);
 });
 
