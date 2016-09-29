@@ -6,6 +6,7 @@
   "scripts": {
     "start": "ENV=development electron .",
     "dev": "concurrently -k 'babel-node server.js' 'npm start'",
+    "clean": "rm -rf ./dist ./Cuely-*",
     "build": "webpack --config webpack.config.production.js && electron-packager . Cuely --platform=darwin --arch=all --prune --overwrite --icon ./cuely_icon"
   },
   "babel": {
