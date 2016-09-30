@@ -111,18 +111,26 @@ function getScreenProps() {
   };
 }
 
-function createWindow() {
-  // Create the browser window.
+function calculatePositionAndSize() {
   const screen = getScreenProps();
-  console.log(screen);
-  console.log(screen.center.y / 2);
   // try to account for small and big screens
   const w = Math.round(Math.max(600, Math.min(900, screen.width / 3)));
-  mainWindow = new BrowserWindow({
+  return {
     width: w,
     height: 100,
     x: Math.round(screen.center.x - (w / 2)),
-    y: Math.round(screen.center.y / 2),
+    y: Math.round(screen.center.y / 2)
+  }
+}
+
+function createWindow() {
+  // Create the browser window.
+  const bounds = calculatePositionAndSize();
+  mainWindow = new BrowserWindow({
+    width: bounds.width,
+    height: bounds.height,
+    x: bounds.x,
+    y: bounds.y,
     transparent: true,
     frame: false,
     show: false,
@@ -143,6 +151,11 @@ function createWindow() {
   });
   mainWindow.once('ready-to-show', () => {
     mainWindow.show();
+  });
+  mainWindow.on('show', () => {
+    // reposition, neede because of external screen(s) might be (un)plugged
+    const bounds = calculatePositionAndSize();
+    mainWindow.setPosition(bounds.x, bounds.y, false);
   });
 };
 
