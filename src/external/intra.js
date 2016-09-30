@@ -22,17 +22,27 @@ export function search(query) {
         modified = (new Date(hit.questionModified) > new Date(hit.answerModified)) ? hit.questionModified : hit.answerModified;
       }
       return {
-        tags: hit.questionTags,
-        question: hit.questionTitle,
-        author: hit.questionUsername,
-        modified: modified,
-        elapsed: fromIsoDateToNow(modified),
+        title: hit.questionTitle,
+        body: [
+          'Tags: ' + hit.questionTags.join(', '),
+          'Last change: ' + fromIsoDateToElapsed(modified),
+        ],
+        infoLine: hit.questionUsername,
         webLink: 'http://intra.pipetop.com/questions/' + hit.questionId
       }
     }).sort((a, b) => {
       return new Date(b.modified) - new Date(a.modified);
     });
   });
+}
+
+function fromIsoDateToElapsed(isoDate) {
+  const {duration, formatted} = fromIsoDateToNow(isoDate);
+  let elapsed = formatted + ' ago';
+  if (duration.seconds > 0 || (duration.minutes > 0 && duration.minutes < 3)) {
+    elapsed = 'Just now';
+  }
+  return elapsed;
 }
 
 function fromIsoDateToNow(isoDate) {

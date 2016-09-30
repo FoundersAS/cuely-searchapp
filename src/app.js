@@ -92,21 +92,16 @@ export default class App extends Component {
 
   renderItem(item, i) {
     const liClass = (i === this.state.selectedIndex) ? 'search_suggestions_card_highlight' : 'search_suggestions_card';
-    let modified = item.elapsed.formatted + ' ago';
-    if (item.elapsed.duration.seconds > 0 || (item.elapsed.duration.minutes > 0 && item.elapsed.duration.minutes < 3)) {
-      modified = 'Just now';
-    }
 
     return (
       <li key={i} className={liClass} ref={`searchItem${i}`}>
         <a href={item.webLink} onClick={this.handleClick} className="search_suggestion_card_link">
           <img src={CuelyLogo} className="search_suggestions_logo" />
           <div className="search_suggestions_data">
-            <div className="search_suggestions_data_title">{item.question}</div>
+            <div className="search_suggestions_data_title">{item.title}</div>
             <div className="search_suggestions_data_body">
-              <div className="search_suggestions_data_tags">Tags: {item.tags.join(', ')}</div>
-              Last modified: {modified}<br/>
-              Author: {item.author}
+              {item.body.map(line => (<div className="search_suggestions_data_line">{line}</div>))}
+              <div className="search_suggestions_data_info">{item.infoLine}</div>
             </div>
           </div>
         </a>

@@ -72,19 +72,25 @@ ipcMain.on('search_rendered', (event, arg) => {
 });
 
 //----------- UTILITY FUNCTIONS
-function getScreenCenter() {
+function getScreenProps() {
   const {width, height} = electron.screen.getPrimaryDisplay().workAreaSize;
-  return {x: Math.round(width/2), y: Math.round(height/2)};
+  return {
+    width: width,
+    height: height,
+    center: { x: Math.round(width/2), y: Math.round(height/2) },
+  };
 }
 
 function createWindow() {
-  const center = getScreenCenter();
   // Create the browser window.
+  const screen = getScreenProps();
+  // try to account for small and big screens
+  const w = Math.min(600, Math.max(900, screen.width / 3));
   mainWindow = new BrowserWindow({
-    width: 800,
-    height: 800,
-    x: center.x - 400,
-    y: Math.round(center.y/2),
+    width: w,
+    height: 100,
+    x: screen.center.x - (w / 2),
+    y: Math.min(200, Math.max(400, screen.center.y / 2)),
     transparent: true,
     frame: false,
     show: false,
@@ -92,9 +98,6 @@ function createWindow() {
 
   // and load the index.html of the app.
   mainWindow.loadURL(`file://${__dirname}/index.html`);
-
-  // Open the DevTools.
-  // mainWindow.webContents.openDevTools()
 
   // Emitted when the window is closed.
   mainWindow.on('closed', () => {

@@ -101,6 +101,8 @@ body {
   line-height: normal;
 }
 
-.search_suggestions_data_tags {
-  text-transform: capitalize;
+.search_suggestions_data_info {
+  font-weight: 700;
+  color: rgb(110, 110, 110);
+  padding-top: .3em;
 }
