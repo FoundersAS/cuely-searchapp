@@ -9,7 +9,8 @@ const algoliaConf = {
 const algoliaClient = AlgoliaSearch(algoliaConf.appId, algoliaConf.searchKey);
 const index = algoliaClient.initIndex(algoliaConf.indexName);
 const settings = {
-  hitsPerPage: 10
+  hitsPerPage: 10,
+  getRankingInfo: true,
 };
 
 export function search(query) {
@@ -23,7 +24,8 @@ export function search(query) {
       infoUser: hit.owner_displayName,
       infoUserType: 'Owner',
       webLink: hit.webViewLink,
-      modified: hit.last_updated
+      modified: hit.last_updated,
+      _algolia: hit._rankingInfo
     }));
   });
 }

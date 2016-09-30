@@ -10,6 +10,7 @@ const algoliaClient = AlgoliaSearch(algoliaConf.appId, algoliaConf.searchKey);
 const index = algoliaClient.initIndex(algoliaConf.indexName);
 const settings = {
   distinct: true,
+  getRankingInfo: true,
   filters: `questionTeamId=9`,
   hitsPerPage: 10
 };
@@ -31,7 +32,8 @@ export function search(query) {
         infoUser: hit.questionUsername,
         infoUserType: 'Creator',
         webLink: 'http://intra.pipetop.com/questions/' + hit.questionId,
-        modified: modified
+        modified: modified,
+        _algolia: hit['_rankingInfo']
       }
     });
   });

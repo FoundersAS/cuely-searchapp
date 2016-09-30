@@ -68,10 +68,12 @@ ipcMain.on('search', (event, arg) => {
   let searchers = [];
   let q = arg;
   if (arg.indexOf(' ') > -1) {
-    const searcher = arg.split(' ')[0];
-    if (searcher in searchCatalog) {
+    const words = arg.split(' ');
+    const searcher = words[0];
+    const query = words.slice(1).join(' ');
+    if (searcher in searchCatalog && query.trim()) {
       searchers.push(searchCatalog[searcher]);
-      q = arg.split(' ').slice(1).join(' ');
+      q = query;
     }
   }
   if (searchers.length < 1) {
@@ -79,6 +81,14 @@ ipcMain.on('search', (event, arg) => {
   }
   Promise.all(searchers.map(search => search(q))).then(result => {
     const hits = [].concat.apply([], result).sort((a, b) => {
+      // order in multiple steps: first based on algolia score (first matched word, typos count),
+      // then on modified time
+      if (a._algolia.nbTypos !== b._algolia.nbTypos) {
+        return a._algolia.nbTypos - b._algolia.nbTypos;
+      }
+      if (a._algolia.firstMatchedWord !== b._algolia.firstMatchedWord) {
+        return a._algolia.firstMatchedWord - b._algolia.firstMatchedWord;
+      }
       return new Date(b.modified) - new Date(a.modified);
     });
     event.sender.send('searchResult', hits);
