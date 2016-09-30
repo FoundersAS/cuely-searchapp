@@ -5,6 +5,7 @@ import { ipcRenderer, shell } from 'electron';
 import { Scrollbars } from 'react-custom-scrollbars';
 import SearchBar from './components/SearchBar';
 import CuelyLogo from './logos/cuely-logo.svg';
+import GoogleLogo from './logos/google-logo.png';
 
 export default class App extends Component {
   constructor(props){
@@ -96,12 +97,12 @@ export default class App extends Component {
     return (
       <li key={i} className={liClass} ref={`searchItem${i}`}>
         <a href={item.webLink} onClick={this.handleClick} className="search_suggestion_card_link">
-          <img src={CuelyLogo} className="search_suggestions_logo" />
+          <img src={item.type === 'intra' ? CuelyLogo : GoogleLogo} className="search_suggestions_logo" />
           <div className="search_suggestions_data">
-            <div className="search_suggestions_data_title">{item.title}</div>
-            <div className="search_suggestions_data_body">
-              {item.body.map(line => (<div className="search_suggestions_data_line">{line}</div>))}
-              <div className="search_suggestions_data_info">{item.infoLine}</div>
+            <div className="title">{item.title}</div>
+            <div className="body">
+              {item.body.map(line => (<div>{line}</div>))}
+              <div className="user">{item.infoUser}<div className="user_type"> ({item.infoUserType})</div></div>
             </div>
           </div>
         </a>

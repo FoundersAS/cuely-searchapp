@@ -1,7 +1,12 @@
 import electron, { ipcMain } from 'electron';
-import { search } from './src/external/intra';
+import { search as searchIntra } from './src/external/intra';
+import { search as searchGdrive } from './src/external/gdrive';
 
 const { app, BrowserWindow, Tray, globalShortcut} = electron;
+const searchCatalog = {
+  intra: searchIntra,
+  gdrive: searchGdrive
+}
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -60,7 +65,22 @@ ipcMain.on('hide-search', () => {
 });
 
 ipcMain.on('search', (event, arg) => {
-  search(arg).then(hits => {
+  let searchers = [];
+  let q = arg;
+  if (arg.indexOf(' ') > -1) {
+    const searcher = arg.split(' ')[0];
+    if (searcher in searchCatalog) {
+      searchers.push(searchCatalog[searcher]);
+      q = arg.split(' ').slice(1).join(' ');
+    }
+  }
+  if (searchers.length < 1) {
+    searchers = Object.keys(searchCatalog).map(key => searchCatalog[key]);
+  }
+  Promise.all(searchers.map(search => search(q))).then(result => {
+    const hits = [].concat.apply([], result).sort((a, b) => {
+      return new Date(b.modified) - new Date(a.modified);
+    });
     event.sender.send('searchResult', hits);
   });
 });
@@ -84,13 +104,15 @@ function getScreenProps() {
 function createWindow() {
   // Create the browser window.
   const screen = getScreenProps();
+  console.log(screen);
+  console.log(screen.center.y / 2);
   // try to account for small and big screens
-  const w = Math.min(600, Math.max(900, screen.width / 3));
+  const w = Math.round(Math.max(600, Math.min(900, screen.width / 3)));
   mainWindow = new BrowserWindow({
     width: w,
     height: 100,
-    x: screen.center.x - (w / 2),
-    y: Math.min(200, Math.max(400, screen.center.y / 2)),
+    x: Math.round(screen.center.x - (w / 2)),
+    y: Math.round(screen.center.y / 2),
     transparent: true,
     frame: false,
     show: false,

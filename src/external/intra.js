@@ -1,5 +1,5 @@
 import AlgoliaSearch from 'algoliasearch';
-import moment from 'moment';
+import { fromIsoDateToElapsed } from '../util.js';
 
 const algoliaConf = {
   appId: 'OPDWYH4IR4',
@@ -22,68 +22,19 @@ export function search(query) {
         modified = (new Date(hit.questionModified) > new Date(hit.answerModified)) ? hit.questionModified : hit.answerModified;
       }
       return {
+        type: 'intra',
         title: hit.questionTitle,
         body: [
           'Tags: ' + hit.questionTags.join(', '),
           'Last change: ' + fromIsoDateToElapsed(modified),
         ],
-        infoLine: hit.questionUsername,
-        webLink: 'http://intra.pipetop.com/questions/' + hit.questionId
+        infoUser: hit.questionUsername,
+        infoUserType: 'Creator',
+        webLink: 'http://intra.pipetop.com/questions/' + hit.questionId,
+        modified: modified
       }
-    }).sort((a, b) => {
-      return new Date(b.modified) - new Date(a.modified);
     });
   });
-}
-
-function fromIsoDateToElapsed(isoDate) {
-  const {duration, formatted} = fromIsoDateToNow(isoDate);
-  let elapsed = formatted + ' ago';
-  if (duration.seconds > 0 || (duration.minutes > 0 && duration.minutes < 3)) {
-    elapsed = 'Just now';
-  }
-  return elapsed;
-}
-
-function fromIsoDateToNow(isoDate) {
-  // Calcuate the difference between now and iso date (in the past), e.g. '2016-09-14T15:41:56.019Z',
-  // and return the result in seconds, minutes, hours, days.
-  let duration = { seconds: 0, minutes: 0, hours: 0, days: 0 }
-  let formatted = '';
-
-  const now = moment(Date.now());
-  const iso = moment(isoDate);
-
-  const seconds = now.diff(iso, 'seconds');
-  if (seconds < 60) {
-    duration.seconds = seconds;
-    formatted = fromTimeUnit('second', seconds);
-  } else {
-    const minutes = now.diff(iso, 'minutes');
-    if (minutes < 60) {
-      duration.minutes = minutes;
-      formatted = fromTimeUnit('minute', minutes);
-    } else {
-      const hours = now.diff(iso, 'hours');
-      if (hours < 24) {
-        duration.hours = hours;
-        formatted = fromTimeUnit('hour', hours);
-      } else {
-        const days = now.diff(iso, 'days');
-        duration.days = days;
-        formatted = fromTimeUnit('day', days);
-      }
-    }
-  }
-
-  return {
-    duration: duration,
-    formatted: formatted
-  }
-}
-
-function fromTimeUnit(unitName, unitValue) {
-  return unitValue + ' ' + unitName + (unitValue !== 1 ? 's' : '');
 }
 
 // ------------ Dummy data/testing
