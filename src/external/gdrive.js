@@ -26,7 +26,7 @@ export function search(query) {
       let content = highlightedValue('content', hit, true);
       if (content) {
         const pos = content.indexOf('<em>');
-        content = content.substring(pos - 100, pos + 100);
+        content = content.substring(pos - 50, pos + 50).replace(/\n\s*\n/g, '\n\n');
       }
 
       return {
