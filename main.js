@@ -88,6 +88,8 @@ ipcMain.on('search', (event, arg) => {
       }
       if (a._algolia.firstMatchedWord !== b._algolia.firstMatchedWord) {
         return a._algolia.firstMatchedWord - b._algolia.firstMatchedWord;
+      } else if (a._algolia.proximityDistance !== b._algolia.proximityDistance) {
+        return a._algolia.proximityDistance - b._algolia.proximityDistance;
       }
       return new Date(b.modified) - new Date(a.modified);
     });

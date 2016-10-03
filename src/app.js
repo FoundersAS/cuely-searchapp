@@ -11,6 +11,7 @@ export default class App extends Component {
   constructor(props){
     super();
     this.handleInput = ::this.handleInput;
+    this.handleInputClick = ::this.handleInputClick;
     this.handleKeyUp = ::this.handleKeyUp;
     this.renderItem = ::this.renderItem;
     this.resetState = ::this.resetState;
@@ -64,12 +65,12 @@ export default class App extends Component {
       } else {
         ipcRenderer.send('hide-search');
       }
-    } else if (e.key === 'ArrowDown') {
+    } else if (e.key === 'ArrowDown' || (e.ctrlKey && e.key === 'n')) {
       e.preventDefault();
       let index = this.state.selectedIndex;
       index = (index >= this.state.searchResults.length - 1) ? index : index + 1;
       this.setState({ selectedIndex: index });
-    } else if (e.key === 'ArrowUp') {
+    } else if (e.key === 'ArrowUp' || (e.ctrlKey && e.key === 'p')) {
       e.preventDefault();
       let index = this.state.selectedIndex;
       index = (index < 0) ? index : index - 1;
@@ -83,6 +84,11 @@ export default class App extends Component {
     } else {
       this.resetState();
     }
+  }
+
+  handleInputClick(e) {
+    this.setState({ selectedIndex: -1 });
+    this.refs.scrollbars.scrollToTop();
   }
 
   handleClick(e) {
@@ -115,7 +121,7 @@ export default class App extends Component {
   renderSearchResults() {
     return (
       <div className="search_suggestions" id="searchSuggestions" onKeyUp={this.handleKeyUp}>
-        <Scrollbars autoHeight autoHeightMin={0} autoHeightMax={400} style={{ border: 'none' }}>
+        <Scrollbars autoHeight autoHeightMin={0} autoHeightMax={400} style={{ border: 'none' }} ref="scrollbars">
           <ul className="search_suggestions_list">
             {this.state.searchResults.map(this.renderItem)}
           </ul>
@@ -131,6 +137,7 @@ export default class App extends Component {
         <SearchBar
           onKeyUp={this.handleKeyUp}
           onInput={this.handleInput}
+          onClick={this.handleInputClick}
           className={open ? "search_bar_open" : "search_bar"}
           id="searchBar"
           selectedIndex={this.state.selectedIndex}

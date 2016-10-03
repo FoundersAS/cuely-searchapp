@@ -19,7 +19,7 @@ export default class SearchBar extends Component {
   render() {
     return (
       <div className={this.props.className} id={this.props.id}>
-        <input type="text" placeholder="Cuely search" className="search_bar_input" onKeyUp={this.props.onKeyUp} onInput={this.props.onInput} ref='input' />
+        <input type="text" placeholder="Cuely search" className="search_bar_input" onClick={this.props.onClick} onKeyUp={this.props.onKeyUp} onInput={this.props.onInput} ref='input' />
       </div>
     );
   }
