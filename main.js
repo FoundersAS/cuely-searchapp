@@ -4,7 +4,7 @@ import { search as searchGdrive } from './src/external/gdrive';
 
 const { app, BrowserWindow, Tray, globalShortcut} = electron;
 const searchCatalog = {
-  intra: searchIntra,
+  // intra: searchIntra,
   gdrive: searchGdrive
 }
 

@@ -93,16 +93,18 @@ export default class App extends Component {
 
   renderItem(item, i) {
     const liClass = (i === this.state.selectedIndex) ? 'search_suggestions_card_highlight' : 'search_suggestions_card';
+    const icon = item.displayIcon ? item.displayIcon : (item.type === 'intra' ? CuelyLogo : GoogleLogo);
 
     return (
       <li key={i} className={liClass} ref={`searchItem${i}`}>
         <a href={item.webLink} onClick={this.handleClick} className="search_suggestion_card_link">
-          <img src={item.type === 'intra' ? CuelyLogo : GoogleLogo} className="search_suggestions_logo" />
+          <img src={icon} className="search_suggestions_logo" />
           <div className="search_suggestions_data">
-            <div className="title">{item.title}</div>
+            <div className="title" dangerouslySetInnerHTML={{ __html: item.title }} />
             <div className="body">
-              {item.body.map(line => (<div>{line}</div>))}
-              <div className="user">{item.infoUser}<div className="user_type"> ({item.infoUserType})</div></div>
+              {item.content ? (<pre className="content" dangerouslySetInnerHTML={{ __html: item.content }} />) : null}
+              {item.metaInfo.lines.map(line => (<div>{line}</div>))}
+              {item.metaInfo.users.map(user => (<div className="user"><div className="user_name" dangerouslySetInnerHTML={{ __html: user.name }} /><div className="user_type"> ({user.type})</div></div>))}
             </div>
           </div>
         </a>

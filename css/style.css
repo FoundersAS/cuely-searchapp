@@ -1,6 +1,12 @@
 body {
   padding: 0px;
   margin: 0px;
+  font-family: "BlinkMacSystemFont";
+}
+
+em {
+  font-style: normal;
+  background-color: rgb(52, 152, 219);
 }
 
 .search_root {
@@ -42,6 +48,11 @@ body {
 
 .search_suggestions_card_highlight div * {
   color: white !important;
+  background-color: rgb(0,102,204) !important;
+}
+
+.search_suggestions_card_highlight em * {
+  background-color: rgb(44, 62, 80);
 }
 
 .search_suggestion_card_link {
@@ -79,14 +90,16 @@ body {
 }
 
 .search_suggestions_logo {
-  width: 25px;
-  height: 25px;
+  width: 20px;
+  height: 20px;
   padding: .3em;
   pointer-events: none;
 }
 
 .search_suggestions_data {
   pointer-events: none;
+  font-size: 12px;
+  width: 100%;
 }
 
 .search_suggestions_data .title {
@@ -97,10 +110,25 @@ body {
   line-height: normal;
 }
 
+.search_suggestions_data .content {
+  padding: .2em 1em .5em 1em;
+  border: 1px solid rgb(41, 128, 185);
+  background-color: rgb(236, 240, 241);
+  color: black;
+  border-radius: .35em;
+  width: 90%;
+  margin: 0 1em 0.5em 1em;
+  white-space:pre-wrap;
+  overflow-x: hidden;
+}
+
 .search_suggestions_data .user {
   font-weight: 700;
   color: rgb(110, 110, 110);
-  padding-top: .3em;
+}
+
+.search_suggestions_data .user_name {
+  display: inline;
 }
 
 .search_suggestions_data .user_type {
