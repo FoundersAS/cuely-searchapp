@@ -6,7 +6,8 @@ body {
 
 em {
   font-style: normal;
-  background-color: rgb(52, 152, 219);
+  background-color: rgba(255, 243, 184, 0.75) !important;
+  color: #333 !important;
 }
 
 .search_root {
@@ -18,7 +19,6 @@ em {
   padding: 0;
   margin: 0;
   background-color: none;
-  border: 1px solid rgb(144, 144, 144);
   border-top: 0;
   border-radius: 0 0 .35em .35em;
 }
@@ -31,15 +31,16 @@ em {
 
 .search_suggestions_card {
   border: none;
-  padding: .3em 0 .3em 0;
+  padding: .5em 0 .6em 1em;
   line-height: 2em;
   font-size: 16px;
-  background-color: rgb(220, 220, 220);
+  background: linear-gradient(to right, rgba(230, 230, 230,0.99) , rgba(240, 240, 240,0.99));
+  color: #333;
 }
 
 .search_suggestions_card_highlight {
   border: none;
-  padding: .3em 0 .3em 0;
+  padding: .5em 0 .6em 1em;
   line-height: 2em;
   font-size: 16px;
   color: white;
@@ -47,8 +48,8 @@ em {
 }
 
 .search_suggestions_card_highlight div * {
-  color: white !important;
-  background-color: rgb(0,102,204) !important;
+  color: white;
+  background-color: rgb(0,102,204);
 }
 
 .search_suggestions_card_highlight em * {
@@ -64,16 +65,15 @@ em {
 
 .search_bar {
   width: 90%;
-  background-color: rgb(220, 220, 220);
+  background: linear-gradient(to right, rgba(230, 230, 230,0.99) , rgba(240, 240, 240,0.99));
   border-radius: .35em;
-  border: 1px solid rgb(144, 144, 144);
 }
 
 .search_bar_open {
   width: 90%;
-  background-color: rgb(220, 220, 220);
+  background: linear-gradient(to right, rgba(230, 230, 230,0.99) , rgba(240, 240, 240,0.99));
   border-radius: .35em .35em 0 0;
-  border: 1px solid rgb(144, 144, 144);
+  border-bottom: 1px solid rgb(210, 210, 210);
 }
 
 .search_bar_input {
@@ -84,6 +84,7 @@ em {
   height: 2em;
   line-height: 2em;
   font-size: 24px;
+  font-weight: 300;
   color: black;
   outline: none;
   padding: .3em 1em;
@@ -100,14 +101,21 @@ em {
   pointer-events: none;
   font-size: 12px;
   width: 100%;
+  padding-left: 0.3em;
 }
 
 .search_suggestions_data .title {
-  font-weight: 700;
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 0.3em;
 }
 
 .search_suggestions_data .body {
   line-height: normal;
+}
+
+.search_suggestions_data .body div + div{
+  margin-top: 0.2em;
 }
 
 .search_suggestions_data .content {
@@ -123,8 +131,6 @@ em {
 }
 
 .search_suggestions_data .user {
-  font-weight: 700;
-  color: rgb(110, 110, 110);
 }
 
 .search_suggestions_data .user_name {
@@ -133,5 +139,8 @@ em {
 
 .search_suggestions_data .user_type {
   display: inline;
-  font-weight: normal;
+  font-weight: 500;
+}
+
+#app {
 }
