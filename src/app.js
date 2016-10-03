@@ -64,12 +64,12 @@ export default class App extends Component {
       } else {
         ipcRenderer.send('hide-search');
       }
-    } else if (e.key === 'ArrowDown') {
+    } else if (e.key === 'ArrowDown' || (e.ctrlKey && e.key === 'n')) {
       e.preventDefault();
       let index = this.state.selectedIndex;
       index = (index >= this.state.searchResults.length - 1) ? index : index + 1;
       this.setState({ selectedIndex: index });
-    } else if (e.key === 'ArrowUp') {
+    } else if (e.key === 'ArrowUp' || (e.ctrlKey && e.key === 'p')) {
       e.preventDefault();
       let index = this.state.selectedIndex;
       index = (index < 0) ? index : index - 1;
