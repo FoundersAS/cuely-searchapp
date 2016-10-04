@@ -109,8 +109,8 @@ export default class App extends Component {
             <div className="title" dangerouslySetInnerHTML={{ __html: item.title }} />
             <div className="body">
               {item.content ? (<pre className="content" dangerouslySetInnerHTML={{ __html: item.content }} />) : null}
-              {item.metaInfo.lines.map(line => (<div>{line}</div>))}
-              {item.metaInfo.users.map(user => (<div className="user"><div className="user_type">{user.type}: </div><div className="user_name" dangerouslySetInnerHTML={{ __html: user.name }} /></div>))}
+              <div><span className="attribute_label">Modified:&nbsp;</span><span>{item.metaInfo.time}</span></div>
+              {item.metaInfo.users.map(user => (<div className="user"><span className="attribute_label">{user.type}:&nbsp;</span><span className="user_name" dangerouslySetInnerHTML={{ __html: user.name }} ></span></div>))}
             </div>
           </div>
         </a>

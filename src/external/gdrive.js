@@ -34,9 +34,7 @@ export function search(query) {
         title: highlightedValue('title', hit),
         content: content,
         metaInfo: {
-          lines: [
-            'Last modified: ' + fromIsoDateToElapsed(hit.last_updated),
-          ],
+          time: fromIsoDateToElapsed(hit.last_updated),
           users: users
         },
         displayIcon: hit.iconLink,

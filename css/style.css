@@ -5,9 +5,12 @@ body {
 }
 
 em {
-  font-style: normal;
-  background-color: rgba(255, 243, 184, 0.75) !important;
-  color: #333 !important;
+  color: #ff6347 !important;
+  font-style: inherit;
+}
+
+.search_suggestions_card_highlight em {
+
 }
 
 .search_root {
@@ -31,7 +34,7 @@ em {
 
 .search_suggestions_card {
   border: none;
-  padding: .5em 0 .6em 1em;
+  padding: .5em 0 .7em 1em;
   line-height: 2em;
   font-size: 16px;
   background: linear-gradient(to right, rgba(230, 230, 230,0.99) , rgba(240, 240, 240,0.99));
@@ -40,20 +43,10 @@ em {
 
 .search_suggestions_card_highlight {
   border: none;
-  padding: .5em 0 .6em 1em;
+  padding: .5em 0 .7em 1em;
   line-height: 2em;
   font-size: 16px;
-  color: white;
-  background-color: rgb(0,102,204);
-}
-
-.search_suggestions_card_highlight div * {
-  color: white;
-  background-color: rgb(0,102,204);
-}
-
-.search_suggestions_card_highlight em * {
-  background-color: rgb(44, 62, 80);
+  background: linear-gradient(to right, rgba(215, 215, 215,0.99) , rgba(225, 225, 225,0.99));
 }
 
 .search_suggestion_card_link {
@@ -91,8 +84,8 @@ em {
 }
 
 .search_suggestions_logo {
-  width: 20px;
-  height: 20px;
+  width: 25px;
+  height: 25px;
   padding: .3em;
   pointer-events: none;
 }
@@ -101,21 +94,27 @@ em {
   pointer-events: none;
   font-size: 12px;
   width: 100%;
-  padding-left: 0.3em;
+  padding-left: 0.5em;
 }
 
 .search_suggestions_data .title {
-  font-size: 14px;
-  font-weight: 500;
-  margin-bottom: 0.3em;
+  font-size: 16px;
+  line-height: 28px;
+  padding-top: 0.2em;
+  margin-bottom: 0.1em;
 }
 
 .search_suggestions_data .body {
   line-height: normal;
+  font-style: italic;
 }
 
-.search_suggestions_data .body div + div{
-  margin-top: 0.2em;
+.search_suggestions_data .body div {
+  display: inline-block;
+}
+
+.search_suggestions_data .body > div + div {
+  margin-left: 0.5em;
 }
 
 .search_suggestions_data .content {
@@ -130,17 +129,7 @@ em {
   overflow-x: hidden;
 }
 
-.search_suggestions_data .user {
+.search_suggestions_data .attribute_label {
+  color: #777;
 }
 
-.search_suggestions_data .user_name {
-  display: inline;
-}
-
-.search_suggestions_data .user_type {
-  display: inline;
-  font-weight: 500;
-}
-
-#app {
-}
