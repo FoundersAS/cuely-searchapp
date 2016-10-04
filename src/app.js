@@ -38,11 +38,12 @@ export default class App extends Component {
 
   componentDidUpdate() {
     const listHeight = Math.max(200, this.getElementHeight("searchSuggestionsList") + 1);
-    // adjust the content height (for <pre> element)
+
     const content = document.getElementById("searchSuggestionsContent");
     if (content) {
+      // adjust the content height (for <pre> element)
       content.style.height = listHeight + 'px';
-      // scroll the content to first highlight result
+      // scroll the content to first highlight result (or to beginning if there's no highlighted result)
       const elms = document.getElementsByClassName("algolia_highlight");
       if (elms && elms.length > 0) {
         const elm = elms[0];
@@ -118,7 +119,7 @@ export default class App extends Component {
   renderItem(item, i) {
     const liClass = (i === this.state.selectedIndex) ? 'search_suggestions_card_highlight' : 'search_suggestions_card';
     const icon = item.displayIcon ? item.displayIcon : (item.type === 'intra' ? CuelyLogo : GoogleLogo);
-    const title = item.title.length > 55 ? item.title.substring(0, 54) + '...' : item.title;
+    const title = item.title.length > 50 ? item.title.substring(0, 49) + '...' : item.title;
 
     return (
       <li key={i} className={liClass} ref={`searchItem${i}`}>
