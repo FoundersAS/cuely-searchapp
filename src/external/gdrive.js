@@ -20,7 +20,7 @@ export function search(query) {
         { name: highlightedValue('owner_displayName', hit), type: 'Owner' },
       ];
       if (hit.lastModifyingUser_displayName && hit.lastModifyingUser_displayName !== hit.owner_displayName) {
-        users.push({ name: highlightedValue('lastModifyingUser_displayName', hit), type: 'Last editor' });
+        users.push({ name: highlightedValue('lastModifyingUser_displayName', hit), type: 'Modifier' });
       }
       
       let content = highlightedValue('content', hit).replace(/\n\s*\n/g, '\n\n').replace(/<em>/g, '<em class="algolia_highlight">');
