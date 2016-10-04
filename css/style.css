@@ -35,15 +35,7 @@ em {
   max-height: 400px;
   border-left: black 1px solid;
   padding-left: 1em;
-}
-
-.search_suggestions_content_empty {
-  width: 50%;
-  margin: 0;
-  padding: 0;
-  max-height: 400px;
-  background-color: white;
-  border-left: black 1px solid;
+  outline: none;
 }
 
 .search_suggestions_content pre {
@@ -80,13 +72,6 @@ em {
   line-height: 2em;
   font-size: 16px;
   background: linear-gradient(to right, rgba(215, 215, 215,0.99) , rgba(225, 225, 225,0.99));
-}
-
-.search_suggestion_card_link {
-  display: flex;
-  text-decoration: none;
-  color: inherit;
-  outline: none;
 }
 
 .search_bar {
