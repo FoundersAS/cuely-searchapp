@@ -11,6 +11,7 @@ const searchCatalog = {
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let mainWindow;
+let tray;
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
@@ -27,7 +28,7 @@ app.on('ready', () => {
   }
 
   // init tray
-  const tray = new Tray(trayImage);
+  tray = new Tray(trayImage);
   tray.setToolTip('Cuely search')
   if (p === 'darwin') {
     tray.setPressedImage(imageDir + '/osx/cuelyHighlight.png');
