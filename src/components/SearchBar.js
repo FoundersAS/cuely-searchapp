@@ -2,6 +2,11 @@ import React, {Component} from 'react';
 import ReactDOM from 'react-dom';
 
 export default class SearchBar extends Component {
+  constructor(props){
+    super();
+    this.setFocus = ::this.setFocus;
+  }
+
   componentDidMount() {
     ReactDOM.findDOMNode(this.refs.input).focus();
   }
@@ -16,10 +21,22 @@ export default class SearchBar extends Component {
     }
   }
 
+  setFocus() {
+    ReactDOM.findDOMNode(this.refs.input).focus();
+  }
+
   render() {
     return (
       <div className={this.props.className} id={this.props.id}>
-        <input type="text" placeholder="Cuely search" className="search_bar_input" onClick={this.props.onClick} onKeyUp={this.props.onKeyUp} onInput={this.props.onInput} ref='input' />
+        <input
+          type="text"
+          placeholder="Search your company Google Drive"
+          className="search_bar_input"
+          onClick={this.props.onClick}
+          onKeyUp={this.props.onKeyUp}
+          onKeyDown={this.props.onKeyDown}
+          onInput={this.props.onInput}
+          ref='input' />
       </div>
     );
   }

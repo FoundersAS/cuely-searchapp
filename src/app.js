@@ -16,6 +16,7 @@ export default class App extends Component {
     this.renderItem = ::this.renderItem;
     this.renderSelectedItemContent = ::this.renderSelectedItemContent;
     this.resetState = ::this.resetState;
+    this.handleContentKeyDown = ::this.handleContentKeyDown;
     this.state = {
       searchResults: [],
       selectedIndex: -1,
@@ -29,7 +30,7 @@ export default class App extends Component {
 
   componentDidMount() {
     ipcRenderer.on('searchResult', (event, arg) => {
-      this.setState({ searchResults: arg, clearInput: false });
+      this.setState({ searchResults: arg, clearInput: false, selectedIndex: arg.length > 0 ? 0 : -1 });
     });
     ipcRenderer.on('clear', () => {
       this.resetState();
@@ -57,12 +58,8 @@ export default class App extends Component {
     const h = listHeight + this.getElementHeight("searchBar");
     ipcRenderer.send('search_rendered', { height: h });
 
-    // focus selected item
-    if (this.state.selectedIndex > -1) {
-      const node = ReactDOM.findDOMNode(this.refs[`searchItem${this.state.selectedIndex}`]);
-      if (node && node.children) {
-        node.children[0].focus();
-      }
+    if (this.refs.scrollbars && this.state.selectedIndex > -1) {
+      this.refs.scrollbars.scrollTop(35 * this.state.selectedIndex);
     }
   }
 
@@ -75,10 +72,21 @@ export default class App extends Component {
     return parseInt(styleHeight);
   }
 
+  handleKeyDown(e) {
+    if (e.key === 'ArrowDown' || (e.key === 'ArrowUp')) {
+      e.preventDefault();
+    }
+  }
+
+  handleContentKeyDown(e) {
+    // pass focus to search bar, so key up event will fire on input instead of content
+    this.refs.searchBar.setFocus();
+  }
 
   handleKeyUp(e) {
+    let index = this.state.selectedIndex;
     if (e.key === 'Escape') {
-      if (e.target.value || this.state.selectedIndex > -1) {
+      if (e.target.value || index > -1) {
         e.target.value = '';
         this.resetState();
       } else {
@@ -91,9 +99,13 @@ export default class App extends Component {
       this.setState({ selectedIndex: index });
     } else if (e.key === 'ArrowUp' || (e.ctrlKey && e.key === 'p')) {
       e.preventDefault();
-      let index = this.state.selectedIndex;
       index = (index < 0) ? index : index - 1;
       this.setState({ selectedIndex: index });
+    } else if (e.key === 'Enter') {
+      if (index > -1) {
+        shell.openExternal(this.state.searchResults[index].webLink);
+        ipcRenderer.send('hide-search');
+      }
     }
   }
 
@@ -106,14 +118,8 @@ export default class App extends Component {
   }
 
   handleInputClick(e) {
-    this.setState({ selectedIndex: -1 });
+    this.setState({ selectedIndex: this.state.searchResults.length > 0 ? 0 : -1 });
     this.refs.scrollbars.scrollToTop();
-  }
-
-  handleClick(e) {
-    e.preventDefault();
-    shell.openExternal(e.target.href);
-    ipcRenderer.send('hide-search');
   }
 
   renderItem(item, i) {
@@ -123,7 +129,7 @@ export default class App extends Component {
 
     return (
       <li key={i} className={liClass} ref={`searchItem${i}`}>
-        <a href={item.webLink} onClick={this.handleClick} className="search_suggestion_card_link">
+        <div className="search_suggestion_card_link">
           <img src={icon} className="search_suggestions_logo" />
           <div className="search_suggestions_data">
             <div className="title" dangerouslySetInnerHTML={{ __html: title }} />
@@ -132,7 +138,7 @@ export default class App extends Component {
               {item.metaInfo.users.map(user => (<div className="user"><span className="attribute_label">{user.type}:&nbsp;</span><span className="user_name" dangerouslySetInnerHTML={{ __html: user.name }} ></span></div>))}
             </div>
           </div>
-        </a>
+        </div>
       </li>
     )
   }
@@ -157,7 +163,7 @@ export default class App extends Component {
             </ul>
           </Scrollbars>
         </div>
-        <div className="search_suggestions_content" id="searchSuggestionsContent">
+        <div className="search_suggestions_content" id="searchSuggestionsContent" onKeyDown={this.handleContentKeyDown} tabIndex="0">
           {this.renderSelectedItemContent(this.state.selectedIndex)}
         </div>
       </div>
@@ -170,10 +176,12 @@ export default class App extends Component {
       <div className="search_root">
         <SearchBar
           onKeyUp={this.handleKeyUp}
+          onKeyDown={this.handleKeyDown}
           onInput={this.handleInput}
           onClick={this.handleInputClick}
           className={open ? "search_bar_open" : "search_bar"}
           id="searchBar"
+          ref="searchBar"
           selectedIndex={this.state.selectedIndex}
           clearInput={this.state.clearInput}
         />
