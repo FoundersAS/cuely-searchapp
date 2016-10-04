@@ -14,6 +14,7 @@ export default class App extends Component {
     this.handleInputClick = ::this.handleInputClick;
     this.handleKeyUp = ::this.handleKeyUp;
     this.renderItem = ::this.renderItem;
+    this.renderSelectedItemContent = ::this.renderSelectedItemContent;
     this.resetState = ::this.resetState;
     this.state = {
       searchResults: [],
@@ -36,8 +37,25 @@ export default class App extends Component {
   }
 
   componentDidUpdate() {
-    const h = this.getElementHeight("searchSuggestions") + this.getElementHeight("searchBar");
+    const listHeight = Math.max(200, this.getElementHeight("searchSuggestionsList") + 1);
+    // adjust the content height (for <pre> element)
+    const content = document.getElementById("searchSuggestionsContent");
+    if (content) {
+      content.style.height = listHeight + 'px';
+      // scroll the content to first highlight result
+      const elms = document.getElementsByClassName("algolia_highlight");
+      if (elms && elms.length > 0) {
+        const elm = elms[0];
+        content.scrollTop = elm.offsetTop - 100;
+      } else {
+        content.scrollTop = 0;
+      }
+    }
+
+    // adjust the window height to the height of the list
+    const h = listHeight + this.getElementHeight("searchBar");
     ipcRenderer.send('search_rendered', { height: h });
+
     // focus selected item
     if (this.state.selectedIndex > -1) {
       const node = ReactDOM.findDOMNode(this.refs[`searchItem${this.state.selectedIndex}`]);
@@ -100,15 +118,15 @@ export default class App extends Component {
   renderItem(item, i) {
     const liClass = (i === this.state.selectedIndex) ? 'search_suggestions_card_highlight' : 'search_suggestions_card';
     const icon = item.displayIcon ? item.displayIcon : (item.type === 'intra' ? CuelyLogo : GoogleLogo);
+    const title = item.title.length > 55 ? item.title.substring(0, 54) + '...' : item.title;
 
     return (
       <li key={i} className={liClass} ref={`searchItem${i}`}>
         <a href={item.webLink} onClick={this.handleClick} className="search_suggestion_card_link">
           <img src={icon} className="search_suggestions_logo" />
           <div className="search_suggestions_data">
-            <div className="title" dangerouslySetInnerHTML={{ __html: item.title }} />
+            <div className="title" dangerouslySetInnerHTML={{ __html: title }} />
             <div className="body">
-              {item.content ? (<pre className="content" dangerouslySetInnerHTML={{ __html: item.content }} />) : null}
               <div><span className="attribute_label">Modified:&nbsp;</span><span>{item.metaInfo.time}</span></div>
               {item.metaInfo.users.map(user => (<div className="user"><span className="attribute_label">{user.type}:&nbsp;</span><span className="user_name" dangerouslySetInnerHTML={{ __html: user.name }} ></span></div>))}
             </div>
@@ -118,14 +136,29 @@ export default class App extends Component {
     )
   }
 
+  renderSelectedItemContent(i) {
+    if (i < 0) {
+      return null;
+    }
+    const item = this.state.searchResults[i];
+    return (
+      <pre id="searchSuggestionsContentPre" dangerouslySetInnerHTML={{ __html: item.content }} />
+    )
+  }
+
   renderSearchResults() {
     return (
       <div className="search_suggestions" id="searchSuggestions" onKeyUp={this.handleKeyUp}>
-        <Scrollbars autoHeight autoHeightMin={0} autoHeightMax={400} style={{ border: 'none' }} ref="scrollbars">
-          <ul className="search_suggestions_list">
-            {this.state.searchResults.map(this.renderItem)}
-          </ul>
-        </Scrollbars>
+        <div className="search_suggestions_list">
+          <Scrollbars autoHeight autoHeightMin={0} autoHeightMax={400} style={{ border: 'none' }} ref="scrollbars">
+            <ul id="searchSuggestionsList">
+              {this.state.searchResults.map(this.renderItem)}
+            </ul>
+          </Scrollbars>
+        </div>
+        <div className="search_suggestions_content" id="searchSuggestionsContent">
+          {this.renderSelectedItemContent(this.state.selectedIndex)}
+        </div>
       </div>
     );
   }

@@ -23,11 +23,7 @@ export function search(query) {
         users.push({ name: highlightedValue('lastModifyingUser_displayName', hit), type: 'Last editor' });
       }
       
-      let content = highlightedValue('content', hit, true);
-      if (content) {
-        const pos = content.indexOf('<em>');
-        content = content.substring(pos - 50, pos + 50).replace(/\n\s*\n/g, '\n\n');
-      }
+      let content = highlightedValue('content', hit).replace(/\n\s*\n/g, '\n\n').replace(/<em>/g, '<em class="algolia_highlight">');
 
       return {
         type: 'gdrive',
