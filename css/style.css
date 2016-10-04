@@ -34,7 +34,16 @@ em {
   overflow: auto;
   max-height: 400px;
   border-left: black 1px solid;
-  padding: 1em;
+  padding-left: 1em;
+}
+
+.search_suggestions_content_empty {
+  width: 50%;
+  margin: 0;
+  padding: 0;
+  max-height: 400px;
+  background-color: white;
+  border-left: black 1px solid;
 }
 
 .search_suggestions_content pre {
@@ -48,6 +57,7 @@ em {
   padding: 0;
   width: 50%;
   background: linear-gradient(to right, rgba(230, 230, 230,0.99) , rgba(240, 240, 240,0.99));
+  max-height: 400px;
 }
 
 .search_suggestions_list ul {

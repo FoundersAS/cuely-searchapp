@@ -38,11 +38,12 @@ export default class App extends Component {
 
   componentDidUpdate() {
     const listHeight = Math.max(200, this.getElementHeight("searchSuggestionsList") + 1);
-    // adjust the content height (for <pre> element)
+
     const content = document.getElementById("searchSuggestionsContent");
     if (content) {
+      // adjust the content height (for <pre> element)
       content.style.height = listHeight + 'px';
-      // scroll the content to first highlight result
+      // scroll the content to first highlight result (or to beginning if there's no highlighted result)
       const elms = document.getElementsByClassName("algolia_highlight");
       if (elms && elms.length > 0) {
         const elm = elms[0];
