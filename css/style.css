@@ -9,10 +9,6 @@ em {
   font-style: inherit;
 }
 
-.search_suggestions_card_highlight em {
-
-}
-
 .search_root {
   display: inline;
 }
@@ -28,7 +24,7 @@ em {
 }
 
 .search_suggestions_content {
-  width: 40%;
+  width: 50%;
   margin: 0;
   background-color: white;
   overflow: auto;
@@ -46,7 +42,7 @@ em {
 .search_suggestions_list {
   margin: 0;
   padding: 0;
-  width: 60%;
+  width: 50%;
   background: linear-gradient(to right, rgba(230, 230, 230,0.99) , rgba(240, 240, 240,0.99));
   max-height: 400px;
 }
@@ -129,16 +125,14 @@ em {
 }
 
 .search_suggestions_data .body {
-  line-height: normal;
+  line-height: 1.5em;
   font-style: italic;
+
 }
 
 .search_suggestions_data .body div {
   display: inline-block;
-}
-
-.search_suggestions_data .body > div + div {
-  margin-left: 0.5em;
+  margin-right: 0.5em;
 }
 
 .search_suggestions_data .content {
