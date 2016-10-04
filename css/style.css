@@ -74,6 +74,13 @@ em {
   background: linear-gradient(to right, rgba(215, 215, 215,0.99) , rgba(225, 225, 225,0.99));
 }
 
+.search_suggestion_card_link {
+  display: flex;
+  text-decoration: none;
+  color: inherit;
+  outline: none;
+}
+
 .search_bar {
   width: 90%;
   background: linear-gradient(to right, rgba(230, 230, 230,0.99) , rgba(240, 240, 240,0.99));
