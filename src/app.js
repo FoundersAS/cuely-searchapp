@@ -44,7 +44,6 @@ export default class App extends Component {
     if (h > 0) {
       const content = document.getElementById("searchSuggestionsContent");
       if (content) {
-        console.log(listHeight + 15);
         // adjust the content height (for <pre> element)
         content.style.height = listHeight + 'px';
         // scroll the content to first highlight result (or to beginning if there's no highlighted result)

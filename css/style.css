@@ -15,7 +15,7 @@ em {
 
 .search_suggestions {
   display: flex;
-  width: 90%;
+  width: 100%;
   padding: 0;
   margin: 0;
   background-color: none;
@@ -78,13 +78,13 @@ em {
 }
 
 .search_bar {
-  width: 90%;
+  width: 100%;
   background: linear-gradient(to right, rgba(230, 230, 230,0.99) , rgba(240, 240, 240,0.99));
   border-radius: .35em;
 }
 
 .search_bar_open {
-  width: 90%;
+  width: 100%;
   background: linear-gradient(to right, rgba(230, 230, 230,0.99) , rgba(240, 240, 240,0.99));
   border-radius: .35em .35em 0 0;
   border-bottom: 1px solid rgb(210, 210, 210);
@@ -94,7 +94,7 @@ em {
   line-height: 2em;
   background: none;
   border: none;
-  width: 100%;
+  width: 90%;
   height: 2em;
   line-height: 2em;
   font-size: 24px;
