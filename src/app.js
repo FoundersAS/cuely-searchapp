@@ -79,6 +79,10 @@ export default class App extends Component {
   }
 
   handleContentKeyDown(e) {
+    // allow copy to clipboard, but pass the rest to input
+    if (e.ctrlKey || e.metaKey) {
+      return;
+    }
     // pass focus to search bar, so key up event will fire on input instead of content
     this.refs.searchBar.setFocus();
   }
@@ -125,7 +129,7 @@ export default class App extends Component {
   renderItem(item, i) {
     const liClass = (i === this.state.selectedIndex) ? 'search_suggestions_card_highlight' : 'search_suggestions_card';
     const icon = item.displayIcon ? item.displayIcon : (item.type === 'intra' ? CuelyLogo : GoogleLogo);
-    const title = item.title.length > 50 ? item.title.substring(0, 49) + '...' : item.title;
+    const title = item.title.length > 40 ? item.title.substring(0, 39) + '…' : item.title;
 
     return (
       <li key={i} className={liClass} ref={`searchItem${i}`}>

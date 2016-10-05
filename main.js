@@ -137,6 +137,7 @@ function createWindow() {
     transparent: true,
     frame: false,
     show: false,
+    enableLargerThanScreen: true
   });
 
   // and load the index.html of the app.
