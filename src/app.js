@@ -49,8 +49,7 @@ export default class App extends Component {
         // scroll the content to first highlight result (or to beginning if there's no highlighted result)
         const elms = document.getElementsByClassName("algolia_highlight");
         if (elms && elms.length > 0) {
-          const elm = elms[0];
-          content.scrollTop = elm.offsetTop - 100;
+          elms[0].scrollIntoView(false);
         } else {
           content.scrollTop = 0;
         }
