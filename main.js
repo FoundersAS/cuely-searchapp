@@ -65,6 +65,11 @@ ipcMain.on('hide-search', () => {
   toggleHide();
 });
 
+
+ipcMain.on('log', (event, arg) => {
+  console.log(arg);
+});
+
 ipcMain.on('search', (event, arg) => {
   let searchers = [];
   let q = arg;
@@ -101,7 +106,7 @@ ipcMain.on('search', (event, arg) => {
 ipcMain.on('search_rendered', (event, arg) => {
   // Resize the window after search results have been rendered to html/dom, due to weird GUI artifacts
   // when resizing elements, e.g. <ul> component. Probably happens because of frameless and transparent window.
-  mainWindow.setSize(mainWindow.getSize()[0], arg.height + (arg.height < 80 ? 2 : 50), false);
+  mainWindow.setSize(mainWindow.getSize()[0], arg.height + (arg.height < 80 ? 0 : 50), false);
 });
 
 //----------- UTILITY FUNCTIONS
@@ -117,7 +122,8 @@ function getScreenProps() {
 function calculatePositionAndSize() {
   const screen = getScreenProps();
   // try to account for small and big screens
-  const w = Math.round(Math.max(600, Math.min(900, screen.width / 3)));
+  // const w = Math.round(Math.max(800, Math.min(1000, screen.width / 3)));
+  const w = 800;
   return {
     width: w,
     height: 100,
@@ -153,6 +159,9 @@ function createWindow() {
   mainWindow.on('hide', () => {
     mainWindow.webContents.send('clear');
   });
+  mainWindow.on('blur', () => {
+    hide();
+  });
   mainWindow.once('ready-to-show', () => {
     mainWindow.show();
   });
@@ -163,12 +172,16 @@ function createWindow() {
   });
 };
 
+function hide() {
+  mainWindow.hide();
+  if (process.platform === 'darwin') {
+    app.hide();
+  }
+}
+
 function toggleHide() {
   if (mainWindow.isVisible()) {
-    mainWindow.hide();
-    if (process.platform === 'darwin') {
-      app.hide();
-    }
+    hide();
   } else {
     mainWindow.show();
   }

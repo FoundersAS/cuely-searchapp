@@ -120,9 +120,13 @@ em {
 
 .search_suggestions_data .title {
   font-size: 16px;
-  line-height: 28px;
-  padding-top: 0.2em;
-  margin-bottom: 0.1em;
+  line-height: 20px;
+  padding-top: 0.4em;
+  margin-bottom: 0.3em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+  max-width: 270px;
 }
 
 .search_suggestions_data .body {

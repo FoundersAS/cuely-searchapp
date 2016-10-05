@@ -38,28 +38,33 @@ export default class App extends Component {
   }
 
   componentDidUpdate() {
-    const listHeight = Math.max(200, this.getElementHeight("searchSuggestionsList") + 1);
+    const h = this.getElementHeight("searchSuggestionsList");
+    const listHeight = Math.max(200, h + 1);
 
-    const content = document.getElementById("searchSuggestionsContent");
-    if (content) {
-      // adjust the content height (for <pre> element)
-      content.style.height = listHeight + 'px';
-      // scroll the content to first highlight result (or to beginning if there's no highlighted result)
-      const elms = document.getElementsByClassName("algolia_highlight");
-      if (elms && elms.length > 0) {
-        const elm = elms[0];
-        content.scrollTop = elm.offsetTop - 100;
-      } else {
-        content.scrollTop = 0;
+    if (h > 0) {
+      const content = document.getElementById("searchSuggestionsContent");
+      if (content) {
+        console.log(listHeight + 15);
+        // adjust the content height (for <pre> element)
+        content.style.height = listHeight + 'px';
+        // scroll the content to first highlight result (or to beginning if there's no highlighted result)
+        const elms = document.getElementsByClassName("algolia_highlight");
+        if (elms && elms.length > 0) {
+          const elm = elms[0];
+          content.scrollTop = elm.offsetTop - 100;
+        } else {
+          content.scrollTop = 0;
+        }
       }
     }
 
     // adjust the window height to the height of the list
-    const h = listHeight + this.getElementHeight("searchBar");
-    ipcRenderer.send('search_rendered', { height: h });
+    const winHeight = (h > 0 ? listHeight : h) + this.getElementHeight("searchBar");
+    ipcRenderer.send('search_rendered', { height: winHeight });
 
     if (this.refs.scrollbars && this.state.selectedIndex > -1) {
-      this.refs.scrollbars.scrollTop(35 * this.state.selectedIndex);
+      const itemHeight = parseInt(this.refs.scrollbars.getScrollHeight() / this.state.searchResults.length / 1.5);
+      this.refs.scrollbars.scrollTop(itemHeight * this.state.selectedIndex);
     }
   }
 
@@ -79,7 +84,7 @@ export default class App extends Component {
   }
 
   handleContentKeyDown(e) {
-    // allow copy to clipboard, but pass the rest to input
+    // allow 'meta' actions (e.g. copy to clipboard), but pass the rest to input
     if (e.ctrlKey || e.metaKey) {
       return;
     }
@@ -129,14 +134,13 @@ export default class App extends Component {
   renderItem(item, i) {
     const liClass = (i === this.state.selectedIndex) ? 'search_suggestions_card_highlight' : 'search_suggestions_card';
     const icon = item.displayIcon ? item.displayIcon : (item.type === 'intra' ? CuelyLogo : GoogleLogo);
-    const title = item.title.length > 40 ? item.title.substring(0, 39) + '…' : item.title;
 
     return (
       <li key={i} className={liClass} ref={`searchItem${i}`}>
         <div className="search_suggestion_card_link">
           <img src={icon} className="search_suggestions_logo" />
           <div className="search_suggestions_data">
-            <div className="title" dangerouslySetInnerHTML={{ __html: title }} />
+            <div className="title" dangerouslySetInnerHTML={{ __html: item.title }} />
             <div className="body">
               <div><span className="attribute_label">Edit:&nbsp;</span><span>{item.metaInfo.time}</span></div>
               {item.metaInfo.users.map(user => (<div className="user"><span className="attribute_label">{user.type}:&nbsp;</span><span className="user_name" dangerouslySetInnerHTML={{ __html: user.name }} ></span></div>))}
