@@ -160,7 +160,7 @@ function createWindow() {
     mainWindow.webContents.send('clear');
   });
   mainWindow.on('blur', () => {
-    hide();
+    // hide();
   });
   mainWindow.once('ready-to-show', () => {
     mainWindow.show();
