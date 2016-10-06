@@ -86,6 +86,8 @@ ipcMain.on('search', (event, arg) => {
     searchers = Object.keys(searchCatalog).map(key => searchCatalog[key]);
   }
   Promise.all(searchers.map(search => search(q))).then(result => {
+    const hits = [].concat.apply([], result);
+      /*
     const hits = [].concat.apply([], result).sort((a, b) => {
       // order in multiple steps: first based on algolia score (first matched word, typos count),
       // then on modified time
@@ -98,7 +100,7 @@ ipcMain.on('search', (event, arg) => {
         return a._algolia.proximityDistance - b._algolia.proximityDistance;
       }
       return new Date(b.modified) - new Date(a.modified);
-    });
+    });*/
     event.sender.send('searchResult', hits);
   });
 });
