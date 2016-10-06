@@ -23,7 +23,10 @@ export function search(query) {
         users.push({ name: highlightedValue('lastModifyingUser_displayName', hit), type: 'Modifier' });
       }
       
-      let content = highlightedValue('content', hit).replace(/\n\s*\n/g, '\n\n').replace(/<em>/g, '<em class="algolia_highlight">');
+      let content = null;
+      if (hit.content && hit.content.length > 0) {
+        content = highlightedValue('content', hit).replace(/\n\s*\n/g, '\n\n').replace(/<em>/g, '<em class="algolia_highlight">');
+      }
 
       return {
         type: 'gdrive',
@@ -35,6 +38,7 @@ export function search(query) {
         },
         displayIcon: hit.iconLink,
         webLink: hit.webViewLink,
+        thumbnailLink: hit.thumbnailLink,
         modified: hit.last_updated,
         _algolia: hit._rankingInfo
       }

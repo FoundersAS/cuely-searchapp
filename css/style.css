@@ -20,7 +20,7 @@ em {
 
 .search_suggestions {
   display: flex;
-  width: 90%;
+  width: 100%;
   padding: 0;
   margin: 0;
   background-color: none;
@@ -33,7 +33,7 @@ em {
   margin: 0;
   background-color: white;
   overflow: auto;
-  max-height: 400px;
+  height: 400px;
   border-left: 1px solid rgb(230, 230, 230);
   padding-left: 1em;
   outline: none;
@@ -45,12 +45,18 @@ em {
   white-space: pre-wrap;
 }
 
+.search_suggestions_content img {
+  display: block;
+  margin: auto;
+  padding-top: 1em;
+}
+
 .search_suggestions_list {
   margin: 0;
   padding: 0;
   width: 50%;
   background: linear-gradient(to right, rgba(230, 230, 230,0.99) , rgba(240, 240, 240,0.99));
-  max-height: 400px;
+  height: 400px;
 }
 
 .search_suggestions_list ul {
@@ -83,13 +89,13 @@ em {
 }
 
 .search_bar {
-  width: 90%;
+  width: 100%;
   background: linear-gradient(to right, rgba(230, 230, 230,0.99) , rgba(240, 240, 240,0.99));
   border-radius: .35em;
 }
 
 .search_bar_open {
-  width: 90%;
+  width: 100%;
   background: linear-gradient(to right, rgba(230, 230, 230,0.99) , rgba(240, 240, 240,0.99));
   border-radius: .35em .35em 0 0;
   border-bottom: 1px solid rgb(210, 210, 210);
@@ -99,7 +105,7 @@ em {
   line-height: 2em;
   background: none;
   border: none;
-  width: 100%;
+  width: 90%;
   height: 2em;
   line-height: 2em;
   font-size: 24px;

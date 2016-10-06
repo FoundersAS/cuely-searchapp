@@ -38,28 +38,19 @@ export default class App extends Component {
   }
 
   componentDidUpdate() {
-    const h = this.getElementHeight("searchSuggestionsList");
-    const listHeight = Math.max(200, h + 1);
-
-    if (h > 0) {
-      const content = document.getElementById("searchSuggestionsContent");
-      if (content) {
-        console.log(listHeight + 15);
-        // adjust the content height (for <pre> element)
-        content.style.height = listHeight + 'px';
-        // scroll the content to first highlight result (or to beginning if there's no highlighted result)
-        const elms = document.getElementsByClassName("algolia_highlight");
-        if (elms && elms.length > 0) {
-          const elm = elms[0];
-          content.scrollTop = elm.offsetTop - 100;
-        } else {
-          content.scrollTop = 0;
-        }
+    const content = document.getElementById("searchSuggestionsContent");
+    if (content) {
+      // scroll the content to first highlight result (or to beginning if there's no highlighted result)
+      const elms = document.getElementsByClassName("algolia_highlight");
+      if (elms && elms.length > 0) {
+        elms[0].scrollIntoView(false);
+      } else {
+        content.scrollTop = 0;
       }
     }
 
     // adjust the window height to the height of the list
-    const winHeight = (h > 0 ? listHeight : h) + this.getElementHeight("searchBar");
+    const winHeight = (this.state.searchResults.length > 0 ? 400 : 0) + this.getElementHeight("searchBar");
     ipcRenderer.send('search_rendered', { height: winHeight });
 
     if (this.refs.scrollbars && this.state.selectedIndex > -1) {
@@ -156,9 +147,15 @@ export default class App extends Component {
       return null;
     }
     const item = this.state.searchResults[i];
-    return (
-      <pre id="searchSuggestionsContentPre" dangerouslySetInnerHTML={{ __html: item.content }} />
-    )
+    if (!item.content && item.thumbnailLink) {
+      return (
+        <img src={item.thumbnailLink} />
+      )
+    } else {
+      return (
+        <pre id="searchSuggestionsContentPre" dangerouslySetInnerHTML={{ __html: item.content }} />
+      )
+    }
   }
 
   renderSearchResults() {
