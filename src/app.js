@@ -147,9 +147,15 @@ export default class App extends Component {
       return null;
     }
     const item = this.state.searchResults[i];
-    return (
-      <pre id="searchSuggestionsContentPre" dangerouslySetInnerHTML={{ __html: item.content }} />
-    )
+    if (!item.content && item.thumbnailLink) {
+      return (
+        <img src={item.thumbnailLink} />
+      )
+    } else {
+      return (
+        <pre id="searchSuggestionsContentPre" dangerouslySetInnerHTML={{ __html: item.content }} />
+      )
+    }
   }
 
   renderSearchResults() {

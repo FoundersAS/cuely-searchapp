@@ -40,6 +40,12 @@ em {
   white-space: pre-wrap;
 }
 
+.search_suggestions_content img {
+  display: block;
+  margin: auto;
+  padding-top: 1em;
+}
+
 .search_suggestions_list {
   margin: 0;
   padding: 0;
