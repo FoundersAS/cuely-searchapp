@@ -5,8 +5,13 @@ body {
 }
 
 em {
-  color: #ff6347 !important;
+  font-weight: 500;
   font-style: inherit;
+  color: #111;
+}
+
+.search_suggestions_content em {
+  font-weight: 600;
 }
 
 .search_root {
@@ -121,18 +126,26 @@ em {
 .search_suggestions_data .title {
   font-size: 16px;
   line-height: 20px;
-  padding-top: 0.4em;
+  padding-top: 0.45em;
   margin-bottom: 0.3em;
   text-overflow: ellipsis;
   white-space: nowrap;
   overflow: hidden;
   max-width: 270px;
+  font-weight: 300;
 }
 
 .search_suggestions_data .body {
   line-height: 1.5em;
-  font-style: italic;
+  color: #888;
+  font-weight: 300;
+}
 
+.search_suggestions_data .body .circle {
+  font-size: 4px;
+  display: inline-block;
+  padding: 0 1.3em;
+  vertical-align: middle;
 }
 
 .search_suggestions_data .body div {
@@ -153,5 +166,5 @@ em {
 }
 
 .search_suggestions_data .attribute_label {
-  color: #777;
+  color: #999;
 }

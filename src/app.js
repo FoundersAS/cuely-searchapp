@@ -142,8 +142,8 @@ export default class App extends Component {
           <div className="search_suggestions_data">
             <div className="title" dangerouslySetInnerHTML={{ __html: item.title }} />
             <div className="body">
-              <div><span className="attribute_label">Edit:&nbsp;</span><span>{item.metaInfo.time}</span></div>
-              {item.metaInfo.users.map(user => (<div className="user"><span className="attribute_label">{user.type}:&nbsp;</span><span className="user_name" dangerouslySetInnerHTML={{ __html: user.name }} ></span></div>))}
+              <span>{item.metaInfo.time}</span><span className="circle">&#9679;</span>
+              <span className="user_name" dangerouslySetInnerHTML={{ __html: item.metaInfo.users.map(user => user.name).join(', ')}} />
             </div>
           </div>
         </div>
