@@ -2,15 +2,18 @@ import 'babel-polyfill'; // generators
 import React from 'react';
 import ReactDOM from 'react-dom';
 
-let App = require('./app.js').default;
-const render = (Component) => {
+const render = () => {
+  const urlParams = new URLSearchParams(window.location.search);
+  const Component = urlParams.has('login') ?
+                    require('./login.js').default :
+                    require('./app.js').default;
   ReactDOM.render(<Component />, document.getElementById('app'));
 };
 
-render(App);
+render();
+
 if (module.hot) {
   module.hot.accept('.', function() {
-    let newApp = require('./app.js').default;
-    render(newApp);
+    render();
   });
 }

@@ -1,8 +1,10 @@
-import electron, { ipcMain } from 'electron';
-import { search as searchIntra } from './src/external/intra';
-import { search as searchGdrive } from './src/external/gdrive';
+import electron, { ipcMain, session } from 'electron';
+import { search as searchGdrive, setAlgoliaCredentials } from './src/external/gdrive';
+import { getAlgoliaCredentials } from './src/util.js';
+import { API_ROOT } from './src/const.js';
 
-const { app, BrowserWindow, Tray, globalShortcut} = electron;
+const { app, dialog, BrowserWindow, Menu, Tray, globalShortcut} = electron;
+
 const searchCatalog = {
   // intra: searchIntra,
   gdrive: searchGdrive
@@ -11,37 +13,16 @@ const searchCatalog = {
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let mainWindow;
+let loginWindow;
 let tray;
+
+let credentials;
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.on('ready', () => {
-  const p = process.platform;
-  const imageDir = __dirname + '/assets/images';
-
-  let trayImage;
-  if (p === 'darwin') {
-    trayImage = imageDir + '/osx/cuelyTemplate.png';
-  } else if (p === 'win32') {
-    trayImage = imageDir + '/win/cuely.ico';
-  }
-
-  // init tray
-  tray = new Tray(trayImage);
-  tray.setToolTip('Cuely search')
-  if (p === 'darwin') {
-    tray.setPressedImage(imageDir + '/osx/cuelyHighlight.png');
-  }
-  tray.on('click', () => {
-    toggleHideOrCreate();
-  });
-  // init global shortcut
-  const ret = globalShortcut.register('CommandOrControl+Backspace', () => {
-    toggleHideOrCreate();
-  })
-
-  console.log(ret ? 'Registered global shurtcut' : 'Could not register global shortcut');
+  loadCredentialsOrLogin();
 });
 
 app.on('window-all-closed', () => {
@@ -87,20 +68,6 @@ ipcMain.on('search', (event, arg) => {
   }
   Promise.all(searchers.map(search => search(q))).then(result => {
     const hits = [].concat.apply([], result);
-      /*
-    const hits = [].concat.apply([], result).sort((a, b) => {
-      // order in multiple steps: first based on algolia score (first matched word, typos count),
-      // then on modified time
-      if (a._algolia.nbTypos !== b._algolia.nbTypos) {
-        return a._algolia.nbTypos - b._algolia.nbTypos;
-      }
-      if (a._algolia.firstMatchedWord !== b._algolia.firstMatchedWord) {
-        return a._algolia.firstMatchedWord - b._algolia.firstMatchedWord;
-      } else if (a._algolia.proximityDistance !== b._algolia.proximityDistance) {
-        return a._algolia.proximityDistance - b._algolia.proximityDistance;
-      }
-      return new Date(b.modified) - new Date(a.modified);
-    });*/
     event.sender.send('searchResult', hits);
   });
 });
@@ -173,6 +140,98 @@ function createWindow() {
     mainWindow.setPosition(bounds.x, bounds.y, false);
   });
 };
+
+function createLoginWindow() {
+  // Create the browser window.
+  const bounds = calculatePositionAndSize();
+  loginWindow = new BrowserWindow({
+    width: 800,
+    height: 800,
+    center: true
+  });
+
+  loginWindow.loadURL(`file://${__dirname}/index.html?login=true`);
+
+  loginWindow.on('hide', () => {
+    loadCredentialsOrLogin();
+  });
+
+  // Emitted when the window is closed.
+  loginWindow.on('closed', () => {
+    // Dereference the window object, usually you would store windows
+    // in an array if your app supports multi windows, this is the time
+    // when you should delete the corresponding element.
+    loginWindow = null;
+  });
+}
+
+function loadCredentialsOrLogin() {
+  session.defaultSession.cookies.get({ url: API_ROOT }, (error, cookies) => {
+    let csrfToken = cookies.filter(c => c.name === 'csrftoken');
+    let sessionId = cookies.filter(c => c.name === 'sessionid');
+    if (csrfToken.length > 0 && sessionId.length > 0) {
+      getAlgoliaCredentials(csrfToken[0].value, sessionId[0].value).then(([response, error]) => {
+        if (response) {
+          setAlgoliaCredentials(response);
+          loginSuccess();
+          return;
+        }
+        dialog.showMessageBox({
+          type: 'error',
+          title: 'Cuely app',
+          message: 'Could not connect to Cuely backend. Please check your network connection and then try running the app again.',
+          detail: error.text + '\n' + error.stack,
+          buttons: ['Ok']
+        }, () => {
+          app.quit();
+        }); 
+      });
+    } else {
+      createLoginWindow();
+    }
+  });
+}
+
+function loginSuccess() {
+  const p = process.platform;
+  const imageDir = __dirname + '/assets/images';
+
+  let trayImage;
+  if (p === 'darwin') {
+    trayImage = imageDir + '/osx/cuelyTemplate.png';
+  } else if (p === 'win32') {
+    trayImage = imageDir + '/win/cuely.ico';
+  }
+
+  // init tray
+  tray = new Tray(trayImage);
+  tray.setToolTip('Cuely search')
+  const contextMenu = Menu.buildFromTemplate([
+    {
+      label: 'Log out',
+      type: 'normal',
+      click(item, focusedWindow) {
+        session.defaultSession.clearStorageData({origin: API_ROOT});
+        globalShortcut.unregisterAll();
+        createLoginWindow();
+      }
+    },
+  ])
+  tray.setContextMenu(contextMenu)  
+  if (p === 'darwin') {
+    tray.setPressedImage(imageDir + '/osx/cuelyHighlight.png');
+  }
+  tray.on('click', () => {
+    toggleHideOrCreate();
+  });
+  
+  // init global shortcut
+  const ret = globalShortcut.register('CommandOrControl+Backspace', () => {
+    toggleHideOrCreate();
+  })
+
+  console.log(ret ? 'Registered global shurtcut' : 'Could not register global shortcut');
+}
 
 function hide() {
   mainWindow.hide();
