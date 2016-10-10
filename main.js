@@ -78,6 +78,12 @@ ipcMain.on('search_rendered', (event, arg) => {
   mainWindow.setSize(mainWindow.getSize()[0], arg.height + (arg.height < 80 ? 0 : 50), false);
 });
 
+ipcMain.on('close_login', () => {
+  loginWindow.hide();
+  toggleHideOrCreate();
+  loginWindow.close();
+});
+
 //----------- UTILITY FUNCTIONS
 function getScreenProps() {
   const {width, height} = electron.screen.getPrimaryDisplay().workAreaSize;
@@ -129,7 +135,7 @@ function createWindow() {
     mainWindow.webContents.send('clear');
   });
   mainWindow.on('blur', () => {
-    // hide();
+    hide();
   });
   mainWindow.once('ready-to-show', () => {
     mainWindow.show();
@@ -152,10 +158,6 @@ function createLoginWindow() {
 
   loginWindow.loadURL(`file://${__dirname}/index.html?login=true`);
 
-  loginWindow.on('hide', () => {
-    loadCredentialsOrLogin();
-  });
-
   // Emitted when the window is closed.
   loginWindow.on('closed', () => {
     // Dereference the window object, usually you would store windows
@@ -172,8 +174,11 @@ function loadCredentialsOrLogin() {
     if (csrfToken.length > 0 && sessionId.length > 0) {
       getAlgoliaCredentials(csrfToken[0].value, sessionId[0].value).then(([response, error]) => {
         if (response) {
-          setAlgoliaCredentials(response);
-          loginSuccess();
+          if (response.appId) {
+            setAlgoliaCredentials(response);
+            loginSuccess();
+          }
+          createLoginWindow();
           return;
         }
         dialog.showMessageBox({

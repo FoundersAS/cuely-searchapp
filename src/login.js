@@ -1,7 +1,13 @@
 import React, { Component } from 'react';
+import { ipcRenderer } from 'electron';
 import { API_ROOT } from './const.js';
 
 export default class Login extends Component {
+  handleClick(e) {
+    e.preventDefault();
+    ipcRenderer.send('close_login');
+  }
+
   render() {
     return (
       <div>
@@ -9,7 +15,7 @@ export default class Login extends Component {
           <iframe src={API_ROOT} />
         </div>
         <div className="login_actions">
-        PINKO
+          <a href="#" onClick={this.handleClick}>Done</a>
         </div>
       </div>
     );
