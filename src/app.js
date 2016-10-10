@@ -153,7 +153,10 @@ export default class App extends Component {
       )
     } else {
       return (
-        <pre id="searchSuggestionsContentPre" dangerouslySetInnerHTML={{ __html: item.content }} />
+        <div>
+          <div className="title_drive">contents</div>
+          <pre id="searchSuggestionsContentPre" dangerouslySetInnerHTML={{ __html: item.content }} />
+        </div>
       )
     }
   }
