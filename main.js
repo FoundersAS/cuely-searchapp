@@ -12,7 +12,7 @@ const searchCatalog = {
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
-let mainWindow;
+let searchWindow;
 let loginWindow;
 let tray;
 
@@ -31,14 +31,6 @@ app.on('window-all-closed', () => {
 
 app.on('will-quit', () => {
   globalShortcut.unregisterAll();
-});
-
-app.on('activate', () => {
-  // On OS X it's common to re-create a window in the app when the
-  // dock icon is clicked and there are no other windows open.
-  if (mainWindow === null) {
-    createWindow();
-  }
 });
 
 // ipc communication
@@ -75,13 +67,12 @@ ipcMain.on('search', (event, arg) => {
 ipcMain.on('search_rendered', (event, arg) => {
   // Resize the window after search results have been rendered to html/dom, due to weird GUI artifacts
   // when resizing elements, e.g. <ul> component. Probably happens because of frameless and transparent window.
-  mainWindow.setSize(mainWindow.getSize()[0], arg.height + (arg.height < 80 ? 0 : 50), false);
+  searchWindow.setSize(searchWindow.getSize()[0], arg.height + (arg.height < 80 ? 0 : 50), false);
 });
 
 ipcMain.on('close_login', () => {
   loginWindow.hide();
-  toggleHideOrCreate();
-  loginWindow.close();
+  loadCredentialsOrLogin();
 });
 
 //----------- UTILITY FUNCTIONS
@@ -107,10 +98,10 @@ function calculatePositionAndSize() {
   }
 }
 
-function createWindow() {
+function createSearchWindow() {
   // Create the browser window.
   const bounds = calculatePositionAndSize();
-  mainWindow = new BrowserWindow({
+  searchWindow = new BrowserWindow({
     width: bounds.width,
     height: bounds.height,
     x: bounds.x,
@@ -122,32 +113,34 @@ function createWindow() {
   });
 
   // and load the index.html of the app.
-  mainWindow.loadURL(`file://${__dirname}/index.html`);
+  searchWindow.loadURL(`file://${__dirname}/index.html`);
 
   // Emitted when the window is closed.
-  mainWindow.on('closed', () => {
+  searchWindow.on('closed', () => {
     // Dereference the window object, usually you would store windows
     // in an array if your app supports multi windows, this is the time
     // when you should delete the corresponding element.
-    mainWindow = null;
+    searchWindow = null;
   });
-  mainWindow.on('hide', () => {
-    mainWindow.webContents.send('clear');
+  searchWindow.on('hide', () => {
+    searchWindow.webContents.send('clear');
   });
-  mainWindow.on('blur', () => {
+  searchWindow.on('blur', () => {
     hide();
   });
-  mainWindow.once('ready-to-show', () => {
-    mainWindow.show();
-  });
-  mainWindow.on('show', () => {
+  searchWindow.on('show', () => {
     // reposition, neede because of external screen(s) might be (un)plugged
     const bounds = calculatePositionAndSize();
-    mainWindow.setPosition(bounds.x, bounds.y, false);
+    searchWindow.setPosition(bounds.x, bounds.y, false);
   });
 };
 
 function createLoginWindow() {
+  if (loginWindow) {
+    loginWindow.show();
+    return;
+  }
+
   // Create the browser window.
   const bounds = calculatePositionAndSize();
   loginWindow = new BrowserWindow({
@@ -217,6 +210,7 @@ function loginSuccess() {
       label: 'Log out',
       type: 'normal',
       click(item, focusedWindow) {
+        tray = null;
         session.defaultSession.clearStorageData({origin: API_ROOT});
         globalShortcut.unregisterAll();
         createLoginWindow();
@@ -227,9 +221,6 @@ function loginSuccess() {
   if (p === 'darwin') {
     tray.setPressedImage(imageDir + '/osx/cuelyHighlight.png');
   }
-  tray.on('click', () => {
-    toggleHideOrCreate();
-  });
   
   // init global shortcut
   const ret = globalShortcut.register('CommandOrControl+Backspace', () => {
@@ -237,28 +228,33 @@ function loginSuccess() {
   })
 
   console.log(ret ? 'Registered global shurtcut' : 'Could not register global shortcut');
-  toggleHideOrCreate();
+  if (!searchWindow) {
+    createSearchWindow();
+  }
+  if (loginWindow) {
+    loginWindow.close();
+  }
 }
 
 function hide() {
-  mainWindow.hide();
+  searchWindow.hide();
   if (process.platform === 'darwin') {
     app.hide();
   }
 }
 
 function toggleHide() {
-  if (mainWindow.isVisible()) {
+  if (searchWindow.isVisible()) {
     hide();
   } else {
-    mainWindow.show();
+    searchWindow.show();
   }
 }
 
 function toggleHideOrCreate() {
-  if (mainWindow) {
+  if (searchWindow) {
     toggleHide();
   } else {
-    createWindow();
+    createSearchWindow();
   }
 }

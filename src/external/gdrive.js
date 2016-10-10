@@ -1,8 +1,6 @@
 import AlgoliaSearch from 'algoliasearch';
 import { fromIsoDateToElapsed } from '../util.js';
 const algoliaConf = {
-  // appId: 'OPDWYH4IR4',
-  // searchKey: '0b28a5913167a1618773992171c04344',
   indexName: 'cuely_dev_documents'
 }
 
