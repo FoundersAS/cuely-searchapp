@@ -177,8 +177,9 @@ function loadCredentialsOrLogin() {
           if (response.appId) {
             setAlgoliaCredentials(response);
             loginSuccess();
+          } else {
+            createLoginWindow();
           }
-          createLoginWindow();
           return;
         }
         dialog.showMessageBox({
@@ -236,6 +237,7 @@ function loginSuccess() {
   })
 
   console.log(ret ? 'Registered global shurtcut' : 'Could not register global shortcut');
+  toggleHideOrCreate();
 }
 
 function hide() {
