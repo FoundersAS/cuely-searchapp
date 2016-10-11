@@ -43,7 +43,7 @@ export default class App extends Component {
       // scroll the content to first highlight result (or to beginning if there's no highlighted result)
       const elms = document.getElementsByClassName("algolia_highlight");
       if (elms && elms.length > 0) {
-        elms[0].scrollIntoView(false);
+        content.scrollTop = elms[0].offsetTop - 150;
       } else {
         content.scrollTop = 0;
       }
@@ -51,8 +51,9 @@ export default class App extends Component {
 
     // adjust the window height to the height of the list
     const winHeight = (this.state.searchResults.length > 0 ? 400 : 0) + this.getElementHeight("searchBar");
+    console.log(winHeight);
     ipcRenderer.send('search_rendered', { height: winHeight });
-
+     
     if (this.refs.scrollbars && this.state.selectedIndex > -1) {
       const itemHeight = parseInt(this.refs.scrollbars.getScrollHeight() / this.state.searchResults.length / 1.5);
       this.refs.scrollbars.scrollTop(itemHeight * this.state.selectedIndex);

@@ -18,6 +18,7 @@ let tray;
 
 let credentials;
 let appHide = true;
+let screenBounds;
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
@@ -42,7 +43,6 @@ app.on('ready', () => {
       { label: "Select All", accelerator: "CmdOrCtrl+A", selector: "selectAll:" }
     ]}
   ];
-
   Menu.setApplicationMenu(Menu.buildFromTemplate(template));
 
   loadCredentialsOrLogin();
@@ -117,18 +117,20 @@ function calculatePositionAndSize() {
     width: w,
     height: 100,
     x: Math.round(screen.center.x - (w / 2)),
-    y: Math.round(screen.center.y / 2)
+    y: Math.round(screen.center.y / 2),
+    screenWidth: screen.width,
+    screenHeight: screen.height
   }
 }
 
 function createSearchWindow() {
   // Create the browser window.
-  const bounds = calculatePositionAndSize();
+  screenBounds = calculatePositionAndSize();
   searchWindow = new BrowserWindow({
-    width: bounds.width,
-    height: bounds.height,
-    x: bounds.x,
-    y: bounds.y,
+    width: screenBounds.width,
+    height: screenBounds.height,
+    x: screenBounds.x,
+    y: screenBounds.y,
     transparent: true,
     frame: false,
     show: false,
@@ -153,9 +155,12 @@ function createSearchWindow() {
     hide();
   });
   searchWindow.on('show', () => {
-    // reposition, neede because of external screen(s) might be (un)plugged
     const bounds = calculatePositionAndSize();
-    searchWindow.setPosition(bounds.x, bounds.y, false);
+    if (bounds.screenWidth != screenBounds.screenWidth || bounds.screenHeight != screenBounds.screenHeight) {
+      // reposition, needed because of external screen(s) might be (un)plugged
+      searchWindow.setPosition(bounds.x, bounds.y, false);
+      screenBounds = bounds;
+    }
   });
 };
 

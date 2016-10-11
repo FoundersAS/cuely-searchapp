@@ -2,6 +2,7 @@ body {
   padding: 0px;
   margin: 0px;
   font-family: "BlinkMacSystemFont";
+  overflow: hidden;
 }
 
 em {
@@ -129,6 +130,7 @@ em {
   color: black;
   outline: none;
   padding: .3em 1em;
+  -webkit-app-region: drag;
 }
 
 .search_suggestions_logo {
