@@ -17,6 +17,7 @@ let loginWindow;
 let tray;
 
 let credentials;
+let appHide = true;
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
@@ -26,6 +27,8 @@ app.on('ready', () => {
   var template = [{
     label: "Application",
     submenu: [
+      { label: "Preferences...", accelerator: "Command+,", click: function() { createLoginWindow(); }},
+      { type: "separator" },
       { label: "Quit", accelerator: "Command+Q", click: function() { app.quit(); }}
     ]}, {
     label: "Edit",
@@ -157,6 +160,7 @@ function createSearchWindow() {
 };
 
 function createLoginWindow() {
+  appHide = false;
   if (loginWindow) {
     loginWindow.show();
     return;
@@ -256,19 +260,11 @@ function loadTray() {
   // init tray
   tray = new Tray(trayImage);
   tray.setToolTip('Cuely search')
-  const contextMenu = Menu.buildFromTemplate([
-    {
-      label: 'Log out',
-      type: 'normal',
-      click(item, focusedWindow) {
-        tray = null;
-        session.defaultSession.clearStorageData({origin: API_ROOT});
-        globalShortcut.unregisterAll();
-        createLoginWindow();
-      }
-    },
-  ])
-  tray.setContextMenu(contextMenu)  
+  tray.on('click', (event, bounds) => {
+    if (!(loginWindow && loginWindow.isVisible())) {
+      toggleHide();
+    }
+  });
   if (p === 'darwin') {
     tray.setPressedImage(imageDir + '/osx/cuelyHighlight.png');
   }
@@ -291,8 +287,11 @@ function loginSuccess() {
 
 function hide() {
   searchWindow.hide();
-  if (process.platform === 'darwin') {
+  if (appHide && process.platform === 'darwin') {
     app.hide();
+  }
+  if (!appHide) {
+    appHide = true;
   }
 }
 
