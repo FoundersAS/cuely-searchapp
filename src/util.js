@@ -1,4 +1,21 @@
 import moment from 'moment';
+import request from 'superagent';
+import { API_ROOT } from './const.js';
+
+export function getAlgoliaCredentials(csrfToken, sessionId) {
+  return request
+    .post(API_ROOT + '/home/algolia_key')
+    .send({ username: 'admin', password: 'adminadmin' })
+    .set('Accept', 'application/json')
+    .set('X-CSRFToken', csrfToken)
+    .set('Cookie', `csrftoken=${csrfToken}; sessionid=${sessionId}`)
+    .then(response => {
+      return [response.body, null];
+    }).catch(err => {
+      console.log(err);
+      return [null, err.response.error];
+    });
+}
 
 export function fromIsoDateToElapsed(isoDate) {
   const {duration, formatted} = fromIsoDateToNow(isoDate);
@@ -49,4 +66,3 @@ export function fromIsoDateToNow(isoDate) {
 function fromTimeUnit(unitName, unitValue) {
   return unitValue + ' ' + unitName + (unitValue !== 1 ? 's' : '');
 }
-

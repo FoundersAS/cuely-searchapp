@@ -4,8 +4,8 @@ import { ipcRenderer, shell } from 'electron';
 
 import { Scrollbars } from 'react-custom-scrollbars';
 import SearchBar from './components/SearchBar';
-import CuelyLogo from './logos/cuely-logo.svg';
-import GoogleLogo from './logos/google-logo.png';
+// import CuelyLogo from './logos/cuely-logo.svg';
+// import GoogleLogo from './logos/google-logo.png';
 
 export default class App extends Component {
   constructor(props){
@@ -124,7 +124,8 @@ export default class App extends Component {
 
   renderItem(item, i) {
     const liClass = (i === this.state.selectedIndex) ? 'search_suggestions_card_highlight' : 'search_suggestions_card';
-    const icon = item.displayIcon ? item.displayIcon : (item.type === 'intra' ? CuelyLogo : GoogleLogo);
+    // const icon = item.displayIcon ? item.displayIcon : (item.type === 'intra' ? CuelyLogo : GoogleLogo);
+    const icon = item.displayIcon;
 
     return (
       <li key={i} className={liClass} ref={`searchItem${i}`}>
