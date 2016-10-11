@@ -32,7 +32,6 @@ export default class SearchBar extends Component {
           type="text"
           placeholder="Search your company Google Drive"
           className="search_bar_input"
-          onClick={this.props.onClick}
           onKeyUp={this.props.onKeyUp}
           onKeyDown={this.props.onKeyDown}
           onInput={this.props.onInput}
