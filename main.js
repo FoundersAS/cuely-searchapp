@@ -120,6 +120,7 @@ function createSearchWindow() {
     // Dereference the window object, usually you would store windows
     // in an array if your app supports multi windows, this is the time
     // when you should delete the corresponding element.
+    searchWindow.removeAllListeners();
     searchWindow = null;
   });
   searchWindow.on('hide', () => {
@@ -149,6 +150,31 @@ function createLoginWindow() {
     center: true
   });
 
+  // remove 'x-frame-options' header to allow embedding external pages into 'iframe'
+  const onHeadersReceived = (d, c) => {
+    if(d.responseHeaders['x-frame-options']){
+        delete d.responseHeaders['x-frame-options'];
+    }
+    c({cancel: false, responseHeaders: d.responseHeaders});
+  }
+  loginWindow.webContents.session.webRequest.onHeadersReceived({}, onHeadersReceived);
+
+  // capture redirects to reload our own index.html
+  let oauthSuccess = false;
+  loginWindow.webContents.on('will-navigate', (event, url) => {
+    if (url.indexOf('complete/google-oauth2/?state') > -1) {
+      oauthSuccess = true;
+    }
+  });
+
+  loginWindow.webContents.on('did-navigate', (event, url) => {
+    if (oauthSuccess && url.endsWith('/home/#')) {
+      oauthSuccess = false;
+      event.preventDefault();
+      loginWindow.loadURL(`file://${__dirname}/index.html?login=true`);
+    }
+  });
+
   loginWindow.loadURL(`file://${__dirname}/index.html?login=true`);
 
   // Emitted when the window is closed.
@@ -161,6 +187,7 @@ function createLoginWindow() {
 }
 
 function loadCredentialsOrLogin() {
+  loadTray();
   session.defaultSession.cookies.get({ url: API_ROOT }, (error, cookies) => {
     let csrfToken = cookies.filter(c => c.name === 'csrftoken');
     let sessionId = cookies.filter(c => c.name === 'sessionid');
@@ -191,7 +218,11 @@ function loadCredentialsOrLogin() {
   });
 }
 
-function loginSuccess() {
+function loadTray() {
+  if (tray) {
+    return;
+  }
+
   const p = process.platform;
   const imageDir = __dirname + '/assets/images';
 
@@ -221,7 +252,9 @@ function loginSuccess() {
   if (p === 'darwin') {
     tray.setPressedImage(imageDir + '/osx/cuelyHighlight.png');
   }
-  
+}
+
+function loginSuccess() {
   // init global shortcut
   const ret = globalShortcut.register('CommandOrControl+Backspace', () => {
     toggleHideOrCreate();
