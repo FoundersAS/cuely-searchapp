@@ -134,8 +134,12 @@ export default class App extends Component {
           <div className="search_suggestions_data">
             <div className="title" dangerouslySetInnerHTML={{ __html: item.title }} />
             <div className="body">
-              <span>{item.metaInfo.time}</span><span className="circle">&#9679;</span>
+              <span className="meta_icon glyphicons glyphicons-clock"></span>
+              <span>{item.metaInfo.time}</span>
+              <span className="circle">&#9679;</span>
+              <span className="meta_icon glyphicons glyphicons-user"></span>
               <span className="user_name" dangerouslySetInnerHTML={{ __html: item.metaInfo.users.map(user => user.name).join(', ')}} />
+              <span class="glyphicons glyphicons-share-alt"></span>
             </div>
           </div>
         </div>

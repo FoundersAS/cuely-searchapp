@@ -89,6 +89,11 @@ em {
   color: #333;
 }
 
+.search_suggestion_card .meta_icon {
+  font-size: 11px;
+  color: #CCC;
+}
+
 .search_suggestions_card_highlight {
   border: none;
   padding: .5em 0 .8em 1em;
