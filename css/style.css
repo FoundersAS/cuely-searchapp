@@ -11,7 +11,8 @@ em {
 }
 
 .search_suggestions_content em {
-  font-weight: 600;
+  font-weight: 700;
+  color: tomato;
 }
 
 .search_root {
@@ -31,7 +32,7 @@ em {
 .search_suggestions_content {
   width: 50%;
   margin: 0;
-  background-color: white;
+  background-color: #FCFCFC;
   overflow: auto;
   height: 400px;
   border-left: 1px solid rgb(230, 230, 230);
@@ -43,7 +44,7 @@ em {
   max-height: 400px;
   color: black;
   white-space: pre-wrap;
-  font-size: 12px;
+  font-size: 13px;
   padding-left: 1rem;
   font-family: "BlinkMacSystemFont";
 }
@@ -91,7 +92,6 @@ em {
 .search_suggestions_card_highlight {
   border: none;
   padding: .5em 0 .8em 1em;
-  width: 100%;
   line-height: 2em;
   font-size: 16px;
   background: linear-gradient(to right, rgba(215, 215, 215,0.99) , rgba(225, 225, 225,0.99));
@@ -189,4 +189,8 @@ em {
 
 .search_suggestions_data .attribute_label {
   color: #999;
+}
+
+#app {
+
 }
