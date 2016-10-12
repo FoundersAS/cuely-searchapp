@@ -133,9 +133,9 @@ export default class App extends Component {
             <div className="title" dangerouslySetInnerHTML={{ __html: item.title }} />
             <div className="body">
               <span className="meta_icon glyphicons glyphicons-clock"></span>
-              <span>{item.metaInfo.time}</span>
+              <span className="meta_data">{item.metaInfo.time}</span>
               <span className="meta_icon glyphicons glyphicons-user"></span>
-              <span className="user_name" dangerouslySetInnerHTML={{ __html: item.metaInfo.users.map(user => user.name).join(', ')}} />
+              <span className="user_name meta_data" dangerouslySetInnerHTML={{ __html: item.metaInfo.users.map(user => user.name).join(', ')}} />
               <span className="action_icon glyphicons glyphicons-share-alt"></span>
             </div>
           </div>
@@ -175,6 +175,7 @@ export default class App extends Component {
         </div>
         <div className="search_suggestions_content" id="searchSuggestionsContent" onKeyDown={this.handleContentKeyDown} tabIndex="0">
           {this.renderSelectedItemContent(this.state.selectedIndex)}
+          <div className="content_bottom_transition"></div>
         </div>
       </div>
     );
