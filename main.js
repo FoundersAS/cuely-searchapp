@@ -78,9 +78,24 @@ ipcMain.on('search_rendered', (event, arg) => {
 ipcMain.on('close_login', () => {
   loginWindow.hide();
   loadCredentialsOrLogin();
+  sendSyncDone();
 });
 
 //----------- UTILITY FUNCTIONS
+function sendSyncDone() {
+  sendDesktopNotification('Synchronization complete ✓', 'Cuely has finished indexing your Google Drive');
+}
+
+function sendDesktopNotification(title, body) {
+  if (searchWindow) {
+    searchWindow.webContents.send('notification', { title, body });
+  } else if (loginWindow) {
+    loginWindow.webContents.send('notification', { title, body });
+  } else {
+    console.log("Could not send desktop notification -> no window available");
+  }
+}
+
 function buildMenu() {
   let menu;
   if (isDevelopment()) {

@@ -34,6 +34,10 @@ export default class App extends Component {
     ipcRenderer.on('clear', () => {
       this.resetState();
     });
+    ipcRenderer.on('notification', (event, arg) => {
+      // show desktop notification
+      new Notification(arg.title, arg);
+    });
   }
 
   componentDidUpdate() {
@@ -50,7 +54,6 @@ export default class App extends Component {
 
     // adjust the window height to the height of the list
     const winHeight = (this.state.searchResults.length > 0 ? 400 : 0) + this.getElementHeight("searchBar");
-    console.log(winHeight);
     ipcRenderer.send('search_rendered', { height: winHeight });
      
     if (this.refs.scrollbars && this.state.selectedIndex > -1) {
