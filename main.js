@@ -1,6 +1,6 @@
 import electron, { ipcMain, session } from 'electron';
 import { search as searchGdrive, setAlgoliaCredentials } from './src/external/gdrive';
-import { getAlgoliaCredentials } from './src/util.js';
+import { getAlgoliaCredentials, getSyncStatus, startSync } from './src/util.js';
 import { API_ROOT, isDevelopment } from './src/const.js';
 
 const { app, dialog, BrowserWindow, Menu, MenuItem, Tray, globalShortcut} = electron;
@@ -19,6 +19,7 @@ let tray;
 let credentials;
 let appHide = true;
 let screenBounds;
+let syncPollerTimeout;
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
@@ -78,7 +79,6 @@ ipcMain.on('search_rendered', (event, arg) => {
 ipcMain.on('close_login', () => {
   loginWindow.hide();
   loadCredentialsOrLogin();
-  sendSyncDone();
 });
 
 //----------- UTILITY FUNCTIONS
@@ -87,10 +87,9 @@ function sendSyncDone() {
 }
 
 function sendDesktopNotification(title, body) {
-  if (searchWindow) {
-    searchWindow.webContents.send('notification', { title, body });
-  } else if (loginWindow) {
-    loginWindow.webContents.send('notification', { title, body });
+  const target = searchWindow || loginWindow;
+  if (target) {
+    target.webContents.send('notification', { title, body });
   } else {
     console.log("Could not send desktop notification -> no window available");
   }
@@ -111,7 +110,7 @@ function buildMenu() {
       label: "Cuely",
       submenu: customMenuItems().concat([
         { type: "separator" },
-        { label: "Quit", accelerator: "Command+Q", click: function() { app.quit(); }}
+        { label: "Quit", accelerator: "Command+Q", click: () => { app.quit(); }}
       ])}, {
       label: "Edit",
       submenu: [
@@ -131,7 +130,7 @@ function buildMenu() {
 
 function customMenuItems() {
   return [
-    { label: "Preferences...", accelerator: "Command+,", click: function() { createLoginWindow(); }},
+    { label: "Preferences...", accelerator: "Command+,", click: () => { createLoginWindow(); }},
     { label: "Clear cookies", click: () => {
         session.defaultSession.clearStorageData({origin: API_ROOT});
         createLoginWindow();
@@ -219,18 +218,26 @@ function createLoginWindow() {
   const bounds = calculatePositionAndSize();
   loginWindow = new BrowserWindow({
     width: 800,
-    height: 800,
+    height: 730,
     center: true
   });
 
-  // remove 'x-frame-options' header to allow embedding external pages into 'iframe'
-  const onHeadersReceived = (d, c) => {
-    if(d.responseHeaders['x-frame-options']){
-        delete d.responseHeaders['x-frame-options'];
+  // Listen to all requests in order to catch button click for 'Resyncing'.
+  // This hack is needed, because it's otherwise not possible to react on javascript events
+  // within an <iframe> due to browser security/sandboxing when iframe's url is on different domain.
+  loginWindow.webContents.session.webRequest.onBeforeRequest({}, (details, callback) => {
+    callback({ cancel: false });
+    if (details.url.endsWith('/home/sync/')) {
+      startSyncPoller(false);
     }
-    c({cancel: false, responseHeaders: d.responseHeaders});
-  }
-  loginWindow.webContents.session.webRequest.onHeadersReceived({}, onHeadersReceived);
+  });
+  // remove 'x-frame-options' header to allow embedding external pages into 'iframe'
+  loginWindow.webContents.session.webRequest.onHeadersReceived({}, (details, callback) => {
+    if(details.responseHeaders['x-frame-options']) {
+        delete details.responseHeaders['x-frame-options'];
+    }
+    callback({ cancel: false, responseHeaders: details.responseHeaders });
+  });
 
   // capture redirects to reload our own index.html
   let oauthSuccess = false;
@@ -244,7 +251,7 @@ function createLoginWindow() {
     if (oauthSuccess && url.endsWith('/home/#')) {
       oauthSuccess = false;
       event.preventDefault();
-      loginWindow.loadURL(`file://${__dirname}/index.html?login=true`);
+      startSyncPoller(true);
     }
   });
 
@@ -261,15 +268,13 @@ function createLoginWindow() {
 
 function loadCredentialsOrLogin() {
   loadTray();
-  session.defaultSession.cookies.get({ url: API_ROOT }, (error, cookies) => {
-    let csrfToken = cookies.filter(c => c.name === 'csrftoken');
-    let sessionId = cookies.filter(c => c.name === 'sessionid');
-    if (csrfToken.length > 0 && sessionId.length > 0) {
-      getAlgoliaCredentials(csrfToken[0].value, sessionId[0].value).then(([response, error]) => {
+  useAuthCookies((csrf, sessionId) => {
+    if (csrf && sessionId) {
+      getAlgoliaCredentials(csrf, sessionId).then(([response, error]) => {
         if (response) {
           if (response.appId) {
             setAlgoliaCredentials(response);
-            loginSuccess();
+            endLogin();
           } else {
             createLoginWindow();
           }
@@ -288,6 +293,68 @@ function loadCredentialsOrLogin() {
     } else {
       createLoginWindow();
     }
+  });
+}
+
+function useAuthCookies(callback) {
+  session.defaultSession.cookies.get({ url: API_ROOT }, (error, cookies) => {
+    let csrfToken = cookies.filter(c => c.name === 'csrftoken');
+    let sessionId = cookies.filter(c => c.name === 'sessionid');
+    if (csrfToken.length > 0 && sessionId.length > 0) {
+      callback(csrfToken[0].value, sessionId[0].value);
+    } else {
+      callback(null, null);
+    }
+  });
+}
+
+function startSyncPoller(callApiSync) {
+  if (syncPollerTimeout) {
+    // already running
+    return;
+  }
+
+  let syncing = false;
+  syncPollerTimeout = setInterval(() => {
+    useAuthCookies((csrf, sessionId) => {
+      if (csrf && sessionId) {
+        getSyncStatus(csrf, sessionId).then(([response, error]) => {
+          if (error) {
+            return;
+          }
+          if (syncing && !response.in_progress) {
+            clearInterval(syncPollerTimeout);
+            syncPollerTimeout = null;
+            // send desktop notification
+            sendSyncDone();
+          }
+          syncing = response.in_progress;
+        });
+      } else {
+        clearInterval(syncPollerTimeout);
+        syncPollerTimeout = null;
+      }
+    });
+  }, 5000);
+
+  if (callApiSync) {
+    useAuthCookies((csrf, sessionId) => {
+      if (csrf && sessionId) {
+        startSync(csrf, sessionId);
+      }
+    });
+  }
+  if (loginWindow) {
+    loginWindow.hide();
+  }
+  dialog.showMessageBox({
+    type: 'info',
+    title: 'Cuely app',
+    message: "Cuely has started to sync with your Google Drive. You will receive a notification once it's done.",
+    detail: "You may start searching already now using Cmd + Backspace. The results will depend on how many documents have been synced so far.",
+    buttons: ['Ok']
+  }, () => {
+    endLogin();
   });
 }
 
@@ -320,7 +387,7 @@ function loadTray() {
   }
 }
 
-function loginSuccess() {
+function endLogin() {
   // init global shortcut
   const ret = globalShortcut.register('CommandOrControl+Backspace', () => {
     toggleHideOrCreate();

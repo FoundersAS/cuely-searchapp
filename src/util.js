@@ -3,10 +3,22 @@ import request from 'superagent';
 import { API_ROOT } from './const.js';
 
 export function getAlgoliaCredentials(csrfToken, sessionId) {
+  return callApi('/home/algolia_key', csrfToken, sessionId);
+}
+
+export function getSyncStatus(csrfToken, sessionId) {
+  return callApi('/home/sync_status', csrfToken, sessionId);
+}
+
+export function startSync(csrfToken, sessionId) {
+  return callApi('/home/sync', csrfToken, sessionId, 'text/html');
+}
+
+function callApi(endpoint, csrfToken, sessionId, accept = 'application/json') {
+  console.log("calling api: " + API_ROOT + endpoint);
   return request
-    .post(API_ROOT + '/home/algolia_key')
-    .send({ username: 'admin', password: 'adminadmin' })
-    .set('Accept', 'application/json')
+    .post(API_ROOT + endpoint)
+    .set('Accept', accept)
     .set('X-CSRFToken', csrfToken)
     .set('Cookie', `csrftoken=${csrfToken}; sessionid=${sessionId}`)
     .then(response => {

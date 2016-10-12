@@ -15,7 +15,7 @@ export default class Login extends Component {
           <iframe src={API_ROOT} />
         </div>
         <div className="login_actions">
-          <a href="#" onClick={this.handleClick}>Done</a>
+          <a href="#" onClick={this.handleClick}>Close</a>
         </div>
       </div>
     );
