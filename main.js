@@ -1,9 +1,9 @@
 import electron, { ipcMain, session } from 'electron';
 import { search as searchGdrive, setAlgoliaCredentials } from './src/external/gdrive';
 import { getAlgoliaCredentials } from './src/util.js';
-import { API_ROOT } from './src/const.js';
+import { API_ROOT, isDevelopment } from './src/const.js';
 
-const { app, dialog, BrowserWindow, Menu, Tray, globalShortcut} = electron;
+const { app, dialog, BrowserWindow, Menu, MenuItem, Tray, globalShortcut} = electron;
 
 const searchCatalog = {
   // intra: searchIntra,
@@ -24,27 +24,7 @@ let screenBounds;
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.on('ready', () => {
-  // set application menu to enable common key bindings, i.e. copy/paste/cut
-  var template = [{
-    label: "Application",
-    submenu: [
-      { label: "Preferences...", accelerator: "Command+,", click: function() { createLoginWindow(); }},
-      { type: "separator" },
-      { label: "Quit", accelerator: "Command+Q", click: function() { app.quit(); }}
-    ]}, {
-    label: "Edit",
-    submenu: [
-      { label: "Undo", accelerator: "CmdOrCtrl+Z", selector: "undo:" },
-      { label: "Redo", accelerator: "Shift+CmdOrCtrl+Z", selector: "redo:" },
-      { type: "separator" },
-      { label: "Cut", accelerator: "CmdOrCtrl+X", selector: "cut:" },
-      { label: "Copy", accelerator: "CmdOrCtrl+C", selector: "copy:" },
-      { label: "Paste", accelerator: "CmdOrCtrl+V", selector: "paste:" },
-      { label: "Select All", accelerator: "CmdOrCtrl+A", selector: "selectAll:" }
-    ]}
-  ];
-  Menu.setApplicationMenu(Menu.buildFromTemplate(template));
-
+  buildMenu();
   loadCredentialsOrLogin();
 });
 
@@ -99,6 +79,50 @@ ipcMain.on('close_login', () => {
 });
 
 //----------- UTILITY FUNCTIONS
+function buildMenu() {
+  let menu;
+  if (isDevelopment()) {
+    menu = Menu.getApplicationMenu();
+    menu.append(new MenuItem({
+      type: 'submenu',
+      label: 'Dev',
+      submenu: customMenuItems(),
+    }));
+  } else {
+    // set application menu to enable common key bindings, i.e. copy/paste/cut
+    var template = [{
+      label: "Cuely",
+      submenu: customMenuItems().concat([
+        { type: "separator" },
+        { label: "Quit", accelerator: "Command+Q", click: function() { app.quit(); }}
+      ])}, {
+      label: "Edit",
+      submenu: [
+        { label: "Undo", accelerator: "CmdOrCtrl+Z", selector: "undo:" },
+        { label: "Redo", accelerator: "Shift+CmdOrCtrl+Z", selector: "redo:" },
+        { type: "separator" },
+        { label: "Cut", accelerator: "CmdOrCtrl+X", selector: "cut:" },
+        { label: "Copy", accelerator: "CmdOrCtrl+C", selector: "copy:" },
+        { label: "Paste", accelerator: "CmdOrCtrl+V", selector: "paste:" },
+        { label: "Select All", accelerator: "CmdOrCtrl+A", selector: "selectAll:" }
+      ]}
+    ];
+    menu = Menu.buildFromTemplate(template);
+  }
+  Menu.setApplicationMenu(menu);
+}
+
+function customMenuItems() {
+  return [
+    { label: "Preferences...", accelerator: "Command+,", click: function() { createLoginWindow(); }},
+    { label: "Clear cookies", click: () => {
+        session.defaultSession.clearStorageData({origin: API_ROOT});
+        createLoginWindow();
+      }
+    }
+  ];
+}
+
 function getScreenProps() {
   const {width, height} = electron.screen.getPrimaryDisplay().workAreaSize;
   return {
@@ -152,7 +176,9 @@ function createSearchWindow() {
     searchWindow.webContents.send('clear');
   });
   searchWindow.on('blur', () => {
-    hide();
+    if (!isDevelopment()) {
+      hide();
+    }
   });
   searchWindow.on('show', () => {
     const bounds = calculatePositionAndSize();
@@ -258,6 +284,7 @@ function loadTray() {
   let trayImage;
   if (p === 'darwin') {
     trayImage = imageDir + '/osx/cuelyTemplate.png';
+    // app.dock.hide(); // hides the app from the dock and cmd+tab list
   } else if (p === 'win32') {
     trayImage = imageDir + '/win/cuely.ico';
   }

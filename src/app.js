@@ -11,7 +11,6 @@ export default class App extends Component {
   constructor(props){
     super();
     this.handleInput = ::this.handleInput;
-    this.handleInputClick = ::this.handleInputClick;
     this.handleKeyUp = ::this.handleKeyUp;
     this.renderItem = ::this.renderItem;
     this.renderSelectedItemContent = ::this.renderSelectedItemContent;
@@ -118,11 +117,6 @@ export default class App extends Component {
     }
   }
 
-  handleInputClick(e) {
-    this.setState({ selectedIndex: this.state.searchResults.length > 0 ? 0 : -1 });
-    this.refs.scrollbars.scrollToTop();
-  }
-
   renderItem(item, i) {
     const liClass = (i === this.state.selectedIndex) ? 'search_suggestions_card_highlight' : 'search_suggestions_card';
     // const icon = item.displayIcon ? item.displayIcon : (item.type === 'intra' ? CuelyLogo : GoogleLogo);
@@ -191,7 +185,6 @@ export default class App extends Component {
           onKeyUp={this.handleKeyUp}
           onKeyDown={this.handleKeyDown}
           onInput={this.handleInput}
-          onClick={this.handleInputClick}
           className={open ? "search_bar_open" : "search_bar"}
           id="searchBar"
           ref="searchBar"
