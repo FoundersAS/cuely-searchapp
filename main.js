@@ -1,6 +1,6 @@
 import electron, { ipcMain, session } from 'electron';
 import { search as searchGdrive, setAlgoliaCredentials } from './src/external/gdrive';
-import { getAlgoliaCredentials, getSyncStatus } from './src/util.js';
+import { getAlgoliaCredentials, getSyncStatus, startSync } from './src/util.js';
 import { API_ROOT, isDevelopment } from './src/const.js';
 
 const { app, dialog, BrowserWindow, Menu, MenuItem, Tray, globalShortcut} = electron;
@@ -226,10 +226,10 @@ function createLoginWindow() {
   // This hack is needed, because it's otherwise not possible to react on javascript events
   // within an <iframe> due to browser security/sandboxing when iframe's url is on different domain.
   loginWindow.webContents.session.webRequest.onBeforeRequest({}, (details, callback) => {
-    if (details.url.endsWith('/home/sync/')) {
-      startSyncPoller();
-    }
     callback({ cancel: false });
+    if (details.url.endsWith('/home/sync/')) {
+      startSyncPoller(false);
+    }
   });
   // remove 'x-frame-options' header to allow embedding external pages into 'iframe'
   loginWindow.webContents.session.webRequest.onHeadersReceived({}, (details, callback) => {
@@ -251,7 +251,7 @@ function createLoginWindow() {
     if (oauthSuccess && url.endsWith('/home/#')) {
       oauthSuccess = false;
       event.preventDefault();
-      loginWindow.loadURL(`file://${__dirname}/index.html?login=true`);
+      startSyncPoller(true);
     }
   });
 
@@ -274,7 +274,7 @@ function loadCredentialsOrLogin() {
         if (response) {
           if (response.appId) {
             setAlgoliaCredentials(response);
-            loginSuccess();
+            endLogin();
           } else {
             createLoginWindow();
           }
@@ -308,7 +308,7 @@ function useAuthCookies(callback) {
   });
 }
 
-function startSyncPoller() {
+function startSyncPoller(callApiSync) {
   if (syncPollerTimeout) {
     // already running
     return;
@@ -320,14 +320,11 @@ function startSyncPoller() {
       if (csrf && sessionId) {
         getSyncStatus(csrf, sessionId).then(([response, error]) => {
           if (error) {
-            console.log(error.text);
-            console.log(error.stack);
             return;
-
           }
-          console.log(response);
           if (syncing && !response.in_progress) {
             clearInterval(syncPollerTimeout);
+            syncPollerTimeout = null;
             // send desktop notification
             sendSyncDone();
           }
@@ -339,6 +336,26 @@ function startSyncPoller() {
       }
     });
   }, 5000);
+
+  if (callApiSync) {
+    useAuthCookies((csrf, sessionId) => {
+      if (csrf && sessionId) {
+        startSync(csrf, sessionId);
+      }
+    });
+  }
+  if (loginWindow) {
+    loginWindow.hide();
+  }
+  dialog.showMessageBox({
+    type: 'info',
+    title: 'Cuely app',
+    message: "Cuely has started to sync with your Google Drive. You will receive a notification once it's done.",
+    detail: "You may start searching already now using Cmd + Backspace. The results will depend on how many documents have been synced so far.",
+    buttons: ['Ok']
+  }, () => {
+    endLogin();
+  });
 }
 
 function loadTray() {
@@ -370,7 +387,7 @@ function loadTray() {
   }
 }
 
-function loginSuccess() {
+function endLogin() {
   // init global shortcut
   const ret = globalShortcut.register('CommandOrControl+Backspace', () => {
     toggleHideOrCreate();

@@ -10,10 +10,15 @@ export function getSyncStatus(csrfToken, sessionId) {
   return callApi('/home/sync_status', csrfToken, sessionId);
 }
 
-function callApi(endpoint, csrfToken, sessionId) {
+export function startSync(csrfToken, sessionId) {
+  return callApi('/home/sync', csrfToken, sessionId, 'text/html');
+}
+
+function callApi(endpoint, csrfToken, sessionId, accept = 'application/json') {
+  console.log("calling api: " + API_ROOT + endpoint);
   return request
     .post(API_ROOT + endpoint)
-    .set('Accept', 'application/json')
+    .set('Accept', accept)
     .set('X-CSRFToken', csrfToken)
     .set('Cookie', `csrftoken=${csrfToken}; sessionid=${sessionId}`)
     .then(response => {
