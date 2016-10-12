@@ -218,7 +218,7 @@ function createLoginWindow() {
   const bounds = calculatePositionAndSize();
   loginWindow = new BrowserWindow({
     width: 800,
-    height: 800,
+    height: 730,
     center: true
   });
 
