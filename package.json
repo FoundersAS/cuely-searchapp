@@ -4,7 +4,7 @@
   "description": "A small desktop app for searching via Cuely",
   "main": "index.js",
   "scripts": {
-    "start": "NODE_ENV=production electron .",
+    "start": "NODE_ENV=development BACKEND=production electron .",
     "dev": "concurrently -k 'babel-node server.js' 'npm start'",
     "clean": "rm -rf ./dist ./Cuely-*",
     "build": "webpack --config webpack.config.production.js && electron-packager . Cuely --platform=darwin --arch=all --prune --overwrite --icon ./cuely_icon",

@@ -2,6 +2,7 @@ body {
   padding: 0px;
   margin: 0px;
   font-family: "BlinkMacSystemFont";
+  overflow: hidden;
 }
 
 em {
@@ -83,20 +84,45 @@ em {
 
 .search_suggestions_card {
   border: none;
-  padding: .5em 0 .8em 1em;
+  padding: .5em 0 .5em 1em;
   line-height: 2em;
   font-size: 16px;
   color: #333;
 }
 
-.search_suggestion_card .meta_icon {
+.search_suggestions_card + .search_suggestions_card {
+  border-top: 1px solid #DDD;
+}
+
+.search_suggestions_card + .search_suggestions_card_highlight {
+  border-top: 1px linear-gradient;
+}
+
+.search_suggestions_data .body .meta_icon {
   font-size: 11px;
   color: #CCC;
+  padding: 0;
+  vertical-align: middle;
+}
+
+.search_suggestions_card_highlight .body .meta_icon {
+  color: #BBB;
+}
+
+.search_suggestions_data .body .action_icon {
+  font-size: 13px;
+  padding: 0.2em;
+  float: right;
+  display: inline-block;
+}
+
+.search_suggestions_data .body .action_icon:hover {
+  background-color: tomato;
 }
 
 .search_suggestions_card_highlight {
   border: none;
-  padding: .5em 0 .8em 1em;
+  padding: .5em 0 .5em 1em;
   line-height: 2em;
   font-size: 16px;
   background: linear-gradient(to right, rgba(215, 215, 215,0.99) , rgba(225, 225, 225,0.99));
@@ -134,6 +160,7 @@ em {
   color: black;
   outline: none;
   padding: .3em 1em;
+  -webkit-app-region: drag;
 }
 
 .search_suggestions_logo {
@@ -153,8 +180,7 @@ em {
 .search_suggestions_data .title {
   font-size: 16px;
   line-height: 20px;
-  padding-top: 0.45em;
-  margin-bottom: 0.3em;
+  padding: 0.5em 0;
   text-overflow: ellipsis;
   white-space: nowrap;
   overflow: hidden;
@@ -166,13 +192,6 @@ em {
   line-height: 1.5em;
   color: #888;
   font-weight: 300;
-}
-
-.search_suggestions_data .body .circle {
-  font-size: 4px;
-  display: inline-block;
-  padding: 0 1.3em;
-  vertical-align: middle;
 }
 
 .search_suggestions_data .body div {
