@@ -37,9 +37,15 @@ app.on('will-quit', () => {
   globalShortcut.unregisterAll();
 });
 
+app.on('activate', () => {
+  if (searchWindow) {
+    searchWindow.show();
+  }
+});
+
 // ipc communication
 ipcMain.on('hide-search', () => {
-  toggleHide();
+  app.hide();
 });
 
 
@@ -188,14 +194,6 @@ function createSearchWindow() {
     // when you should delete the corresponding element.
     searchWindow.removeAllListeners();
     searchWindow = null;
-  });
-  searchWindow.on('hide', () => {
-    // searchWindow.webContents.send('clear');
-  });
-  searchWindow.on('blur', () => {
-    if (!isDevelopment()) {
-      hide();
-    }
   });
   searchWindow.on('show', () => {
     const bounds = calculatePositionAndSize();
