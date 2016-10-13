@@ -20,7 +20,6 @@ export default class App extends Component {
     this.showHover = ::this.showHover;
     this.handleMouseMove = ::this.handleMouseMove;
     this.renderSelectedItemContent = ::this.renderSelectedItemContent;
-    this.resetState = ::this.resetState;
     this.state = {
       searchResults: [],
       selectedIndex: -1,
@@ -30,16 +29,9 @@ export default class App extends Component {
     this.hoverDisabled = false;
   }
 
-  resetState() {
-    this.setState({ searchResults: [], selectedIndex: -1, clearInput: true, keyFocus: false });
-  }
-
   componentDidMount() {
     ipcRenderer.on('searchResult', (event, arg) => {
       this.setState({ searchResults: arg, clearInput: false, selectedIndex: arg.length > 0 ? 0 : -1, keyFocus: false });
-    });
-    ipcRenderer.on('clear', () => {
-      this.resetState();
     });
     ipcRenderer.on('notification', (event, arg) => {
       // show desktop notification
@@ -98,12 +90,7 @@ export default class App extends Component {
   handleKeyUp(e) {
     let index = this.state.selectedIndex;
     if (e.key === 'Escape') {
-      if (e.target.value || index > -1) {
-        e.target.value = '';
-        this.resetState();
-      } else {
-        ipcRenderer.send('hide-search');
-      }
+      ipcRenderer.send('hide-search');
     } else if (e.key === 'ArrowDown' || (e.ctrlKey && e.key === 'n')) {
       e.preventDefault();
       let index = this.state.selectedIndex;
@@ -127,7 +114,7 @@ export default class App extends Component {
     if (e.target.value) {
       ipcRenderer.send('search', e.target.value);
     } else {
-      this.resetState();
+      this.setState({ searchResults: [], selectedIndex: -1, clearInput: true, keyFocus: false });
     }
   }
 

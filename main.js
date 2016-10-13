@@ -190,7 +190,7 @@ function createSearchWindow() {
     searchWindow = null;
   });
   searchWindow.on('hide', () => {
-    searchWindow.webContents.send('clear');
+    // searchWindow.webContents.send('clear');
   });
   searchWindow.on('blur', () => {
     if (!isDevelopment()) {
