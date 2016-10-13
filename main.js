@@ -378,7 +378,7 @@ function loadTray() {
   tray = new Tray(trayImage);
   tray.setToolTip('Cuely search')
   tray.on('click', (event, bounds) => {
-    if (!(loginWindow && loginWindow.isVisible())) {
+    if (searchWindow && !(loginWindow && loginWindow.isVisible())) {
       toggleHide();
     }
   });

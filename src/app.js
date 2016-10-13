@@ -13,23 +13,30 @@ export default class App extends Component {
     this.handleInput = ::this.handleInput;
     this.handleKeyUp = ::this.handleKeyUp;
     this.renderItem = ::this.renderItem;
+    this.handleClick = ::this.handleClick;
+    this.handleScroll = ::this.handleScroll;
+    this.handleDoubleClick = ::this.handleDoubleClick;
+    this.handleContentKeyDown = ::this.handleContentKeyDown;
+    this.hideHover = ::this.hideHover;
+    this.handleMouseMove = ::this.handleMouseMove;
     this.renderSelectedItemContent = ::this.renderSelectedItemContent;
     this.resetState = ::this.resetState;
-    this.handleContentKeyDown = ::this.handleContentKeyDown;
     this.state = {
       searchResults: [],
       selectedIndex: -1,
-      clearInput: false
+      clearInput: false,
+      keyFocus: false
     }
+    this.hoverDisabled = false;
   }
 
   resetState() {
-    this.setState({ searchResults: [], selectedIndex: -1, clearInput: true });
+    this.setState({ searchResults: [], selectedIndex: -1, clearInput: true, keyFocus: false });
   }
 
   componentDidMount() {
     ipcRenderer.on('searchResult', (event, arg) => {
-      this.setState({ searchResults: arg, clearInput: false, selectedIndex: arg.length > 0 ? 0 : -1 });
+      this.setState({ searchResults: arg, clearInput: false, selectedIndex: arg.length > 0 ? 0 : -1, keyFocus: false });
     });
     ipcRenderer.on('clear', () => {
       this.resetState();
@@ -56,9 +63,11 @@ export default class App extends Component {
     const winHeight = (this.state.searchResults.length > 0 ? 400 : 0) + this.getElementHeight("searchBar");
     ipcRenderer.send('search_rendered', { height: winHeight });
      
-    if (this.refs.scrollbars && this.state.selectedIndex > -1) {
-      const itemHeight = parseInt(this.refs.scrollbars.getScrollHeight() / this.state.searchResults.length / 1.5);
-      this.refs.scrollbars.scrollTop(itemHeight * this.state.selectedIndex);
+    if (this.state.keyFocus && this.refs.scrollbars && this.state.selectedIndex > -1) {
+      const node = ReactDOM.findDOMNode(this.refs[`searchItem_${this.state.selectedIndex}`]);
+      if (node && node.children) {
+        node.children[0].focus();
+      }
     }
   }
 
@@ -99,17 +108,19 @@ export default class App extends Component {
       e.preventDefault();
       let index = this.state.selectedIndex;
       index = (index >= this.state.searchResults.length - 1) ? index : index + 1;
-      this.setState({ selectedIndex: index });
+      this.setState({ selectedIndex: index, keyFocus: true });
     } else if (e.key === 'ArrowUp' || (e.ctrlKey && e.key === 'p')) {
       e.preventDefault();
       index = (index < 0) ? index : index - 1;
-      this.setState({ selectedIndex: index });
+      this.setState({ selectedIndex: index, keyFocus: true });
     } else if (e.key === 'Enter') {
       if (index > -1) {
         shell.openExternal(this.state.searchResults[index].webLink);
         ipcRenderer.send('hide-search');
       }
     }
+
+    this.hideHover();
   }
 
   handleInput(e) {
@@ -120,14 +131,65 @@ export default class App extends Component {
     }
   }
 
+  handleClick(e) {
+    e.preventDefault();
+    const index = this.getIndex(e.target.id);
+    if (index > -1) {
+      this.setState({ selectedIndex: index, keyFocus: false });
+    }
+  }
+
+  handleDoubleClick(e) {
+    e.preventDefault();
+    const index = this.getIndex(e.target.id);
+    if (index > -1) {
+      shell.openExternal(this.state.searchResults[index].webLink);
+      ipcRenderer.send('hide-search');
+    }
+  }
+
+  handleMouseMove(e) {
+    console.log('mouse moved');
+    if (!this.hoverDisabled) {
+      console.log('resetting class');
+      e.target.className = 'search_suggestion_card_link';
+    }
+    this.hoverDisabled = false;
+  }
+
+  handleScroll(e) {
+    //console.log('handleScroll');
+    //  if (this.hoverDisabled) {
+    //    console.log('handleScroll');
+    //    this.hideHover();
+    //  }
+  }
+
+  hideHover() {
+    // console.log('hide hover');
+    this.hoverDisabled = true;
+    const itemList = document.getElementById("searchSuggestionsList");
+    // console.log(itemList);
+    if (itemList) {
+      const hoveredList = [].slice.call(itemList.querySelectorAll(':hover')).filter(tag => tag.nodeName === 'A');
+      if (hoveredList.length > 0) {
+        hoveredList[0].className = 'search_suggestion_card_link_no_hover';
+      }
+    }
+  }
+
+  getIndex(elementId) {
+    return elementId ? parseInt(elementId.split('_').slice(-1)[0]) : -1;
+  }
+
   renderItem(item, i) {
     const liClass = (i === this.state.selectedIndex) ? 'search_suggestions_card_highlight' : 'search_suggestions_card';
     // const icon = item.displayIcon ? item.displayIcon : (item.type === 'intra' ? CuelyLogo : GoogleLogo);
     const icon = item.displayIcon;
 
     return (
-      <li key={i} className={liClass} ref={`searchItem${i}`}>
-        <div className="search_suggestion_card_link">
+      <li key={i} className={liClass} ref={`searchItem_${i}`}>
+        <a href="#" onClick={this.handleClick} onDoubleClick={this.handleDoubleClick} onMouseMove={this.handleMouseMove} className="search_suggestion_card_link" id={`searchItemLink_${i}`}>
           <img src={icon} className="search_suggestions_logo" />
           <div className="search_suggestions_data">
             <div className="title" dangerouslySetInnerHTML={{ __html: item.title }} />
@@ -139,7 +201,7 @@ export default class App extends Component {
               <span className="action_icon glyphicons glyphicons-share-alt"></span>
             </div>
           </div>
-        </div>
+        </a>
       </li>
     )
   }
@@ -165,9 +227,9 @@ export default class App extends Component {
 
   renderSearchResults() {
     return (
-      <div className="search_suggestions" id="searchSuggestions" onKeyUp={this.handleKeyUp}>
-        <div className="search_suggestions_list">
-          <Scrollbars autoHeight autoHeightMin={0} autoHeightMax={400} style={{ border: 'none' }} ref="scrollbars">
+      <div className="search_suggestions" id="searchSuggestions" onKeyUp={this.handleKeyUp} onKeyDown={this.handleContentKeyDown}>
+        <div className="search_suggestions_list" id="searchSuggestionsList">
+          <Scrollbars autoHeight autoHeightMin={0} autoHeightMax={400} onScroll={this.handleScroll} style={{ border: 'none' }} ref="scrollbars">
             <ul id="searchSuggestionsList">
               {this.state.searchResults.map(this.renderItem)}
             </ul>

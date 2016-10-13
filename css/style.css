@@ -85,7 +85,6 @@ em {
 
 .search_suggestions_card {
   border: none;
-  padding: .4rem .4rem .5rem 1rem;
   line-height: 2em;
   font-size: 16px;
   color: #333;
@@ -138,17 +137,26 @@ em {
 
 .search_suggestions_card_highlight {
   border: none;
-  padding: .4rem .4rem .5rem 1rem;
   line-height: 2em;
   font-size: 16px;
   background-color: #D7D7D7;
 }
 
-.search_suggestion_card_link {
+.search_suggestion_card_link, .search_suggestion_card_link_no_hover {
   display: flex;
   text-decoration: none;
   color: inherit;
   outline: none;
+  padding: .4rem .4rem .5rem 1rem;
+}
+
+.search_suggestion_card_link:hover {
+  background-color: #E0E0E0;
+  cursor: pointer;
+}
+
+.search_suggestion_card_link:focus, .search_suggestion_card_link_no_hover:focus {
+  background-color: #D7D7D7;
 }
 
 .search_bar {
