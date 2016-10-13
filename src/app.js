@@ -213,7 +213,6 @@ export default class App extends Component {
     const transitionDiv = document.getElementById("contentBottomTransition");
     if ((e.target.scrollHeight - e.target.clientHeight - e.target.scrollTop) < 15) {
       transitionDiv.style.display = 'none';
-      console.log('PINKO');
     } else {
       transitionDiv.style.display = 'block';
     }
