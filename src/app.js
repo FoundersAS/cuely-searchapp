@@ -209,6 +209,16 @@ export default class App extends Component {
     }
   }
 
+  handleContentScroll(e) {
+    const transitionDiv = document.getElementById("contentBottomTransition");
+    if ((e.target.scrollHeight - e.target.clientHeight - e.target.scrollTop) < 15) {
+      transitionDiv.style.display = 'none';
+      console.log('PINKO');
+    } else {
+      transitionDiv.style.display = 'block';
+    }
+  }
+
   renderSearchResults() {
     return (
       <div className="search_suggestions" id="searchSuggestions" onKeyUp={this.handleKeyUp} onKeyDown={this.handleContentKeyDown}>
@@ -219,9 +229,9 @@ export default class App extends Component {
             </ul>
           </Scrollbars>
         </div>
-        <div className="search_suggestions_content" id="searchSuggestionsContent" onKeyDown={this.handleContentKeyDown} tabIndex="0">
+        <div className="search_suggestions_content" id="searchSuggestionsContent" onKeyDown={this.handleContentKeyDown} onScroll={this.handleContentScroll} tabIndex="0">
           {this.renderSelectedItemContent(this.state.selectedIndex)}
-          <div className="content_bottom_transition"></div>
+          <div className="content_bottom_transition" id="contentBottomTransition"></div>
         </div>
       </div>
     );

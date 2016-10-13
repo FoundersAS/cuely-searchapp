@@ -42,7 +42,6 @@ em {
 }
 
 .search_suggestions_content pre {
-  max-height: 400px;
   color: black;
   white-space: pre-wrap;
   font-size: 13px;
