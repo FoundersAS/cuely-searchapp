@@ -88,7 +88,7 @@ export default class App extends Component {
 
   handleContentKeyDown(e) {
     // allow 'meta' actions (e.g. copy to clipboard), but pass the rest to input
-    if (e.ctrlKey || e.metaKey) {
+    if ((e.ctrlKey || e.metaKey) && e.key !== 'a') {
       return;
     }
     // pass focus to search bar, so key up event will fire on input instead of content
