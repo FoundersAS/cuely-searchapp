@@ -341,6 +341,7 @@ function startSyncPoller(callApiSync) {
         startSync(csrf, sessionId);
       }
     });
+    loadCredentialsOrLogin();
   }
   if (loginWindow) {
     loginWindow.hide();
