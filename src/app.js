@@ -14,10 +14,10 @@ export default class App extends Component {
     this.handleKeyUp = ::this.handleKeyUp;
     this.renderItem = ::this.renderItem;
     this.handleClick = ::this.handleClick;
-    this.handleScroll = ::this.handleScroll;
     this.handleDoubleClick = ::this.handleDoubleClick;
     this.handleContentKeyDown = ::this.handleContentKeyDown;
     this.hideHover = ::this.hideHover;
+    this.showHover = ::this.showHover;
     this.handleMouseMove = ::this.handleMouseMove;
     this.renderSelectedItemContent = ::this.renderSelectedItemContent;
     this.resetState = ::this.resetState;
@@ -149,31 +149,28 @@ export default class App extends Component {
   }
 
   handleMouseMove(e) {
-    console.log('mouse moved');
     if (!this.hoverDisabled) {
-      console.log('resetting class');
-      e.target.className = 'search_suggestion_card_link';
+      this.showHover();
     }
     this.hoverDisabled = false;
   }
 
-  handleScroll(e) {
-    //console.log('handleScroll');
-    //  if (this.hoverDisabled) {
-    //    console.log('handleScroll');
-    //    this.hideHover();
-    //  }
+  hideHover() {
+    this.hoverDisabled = true;
+    this.applyClassToSuggestions('search_suggestion_card_link_no_hover');
   }
 
-  hideHover() {
-    // console.log('hide hover');
-    this.hoverDisabled = true;
+  showHover() {
+    this.hoverDisabled = false;
+    this.applyClassToSuggestions('search_suggestion_card_link');
+  }
+
+  applyClassToSuggestions(klas) {
     const itemList = document.getElementById("searchSuggestionsList");
-    // console.log(itemList);
     if (itemList) {
-      const hoveredList = [].slice.call(itemList.querySelectorAll(':hover')).filter(tag => tag.nodeName === 'A');
-      if (hoveredList.length > 0) {
-        hoveredList[0].className = 'search_suggestion_card_link_no_hover';
+      const items = [].slice.call(itemList.getElementsByTagName('a')).filter(tag => tag.id.indexOf('searchItemLink') > -1);
+      for (let item of items) {
+        item.className = klas;
       }
     }
   }
@@ -189,7 +186,7 @@ export default class App extends Component {
 
     return (
       <li key={i} className={liClass} ref={`searchItem_${i}`}>
-        <a href="#" onClick={this.handleClick} onDoubleClick={this.handleDoubleClick} onMouseMove={this.handleMouseMove} className="search_suggestion_card_link" id={`searchItemLink_${i}`}>
+        <a href="#" onClick={this.handleClick} onDoubleClick={this.handleDoubleClick} onKeyDown={this.handleKeyDown} onMouseMove={this.handleMouseMove} className="search_suggestion_card_link" id={`searchItemLink_${i}`}>
           <img src={icon} className="search_suggestions_logo" />
           <div className="search_suggestions_data">
             <div className="title" dangerouslySetInnerHTML={{ __html: item.title }} />
@@ -229,7 +226,7 @@ export default class App extends Component {
     return (
       <div className="search_suggestions" id="searchSuggestions" onKeyUp={this.handleKeyUp} onKeyDown={this.handleContentKeyDown}>
         <div className="search_suggestions_list" id="searchSuggestionsList">
-          <Scrollbars autoHeight autoHeightMin={0} autoHeightMax={400} onScroll={this.handleScroll} style={{ border: 'none' }} ref="scrollbars">
+          <Scrollbars autoHeight autoHeightMin={0} autoHeightMax={400} style={{ border: 'none' }} ref="scrollbars">
             <ul id="searchSuggestionsList">
               {this.state.searchResults.map(this.renderItem)}
             </ul>
