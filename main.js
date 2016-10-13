@@ -412,10 +412,11 @@ function hide() {
 }
 
 function toggleHide() {
-  if (searchWindow.isVisible()) {
+  if (searchWindow.isVisible() && searchWindow.isFocused()) {
     hide();
   } else {
     searchWindow.show();
+    searchWindow.focus();
   }
 }
 
