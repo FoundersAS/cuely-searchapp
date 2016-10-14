@@ -21,6 +21,7 @@ function callApi(endpoint, csrfToken, sessionId, accept = 'application/json') {
     .set('Accept', accept)
     .set('X-CSRFToken', csrfToken)
     .set('Cookie', `csrftoken=${csrfToken}; sessionid=${sessionId}`)
+    .timeout(10000)
     .then(response => {
       return [response.body, null];
     }).catch(err => {

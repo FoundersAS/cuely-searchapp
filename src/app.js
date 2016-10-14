@@ -176,12 +176,17 @@ export default class App extends Component {
         <a href="#" onClick={this.handleClick} onDoubleClick={this.handleDoubleClick} onKeyDown={this.handleKeyDown} onMouseMove={this.handleMouseMove} className="search_suggestion_card_link" id={`searchItemLink_${i}`}>
           <img src={icon} className="search_suggestions_logo" />
           <div className="search_suggestions_data">
-            <div className="title" dangerouslySetInnerHTML={{ __html: item.title }} />
+            <div className="heading">
+              <div className="title" dangerouslySetInnerHTML={{ __html: item.title }} />
+              <div className="avatars">
+                {item.metaInfo.users.map(user => (
+                    user.avatar ? <img src={user.avatar} className={user.name.indexOf('<em>') > -1 ? "avatar_active" : "avatar"} />
+                                : <span className={user.name.indexOf('<em>') > -1 ? "no_avatar_active" : "no_avatar"}>&nbsp;JG&nbsp;</span>))}
+              </div>
+            </div>
             <div className="body">
               <span className="meta_icon glyphicons glyphicons-clock"></span>
               <span className="meta_data">{item.metaInfo.time}</span>
-              <span className="meta_icon glyphicons glyphicons-user"></span>
-              <span className="user_name meta_data" dangerouslySetInnerHTML={{ __html: item.metaInfo.users.map(user => user.name).join(', ')}} />
               <span className="action_icon glyphicons glyphicons-share-alt"></span>
             </div>
           </div>

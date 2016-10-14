@@ -25,10 +25,10 @@ export function search(query) {
   return index.search(query, settings).then(content => {
     return content.hits.map(hit => {
       let users = [
-        { name: highlightedValue('owner_displayName', hit), type: 'Owner' },
+        { name: highlightedValue('owner_displayName', hit), type: 'Owner', avatar: hit.owner_photoLink },
       ];
       if (hit.lastModifyingUser_displayName && hit.lastModifyingUser_displayName !== hit.owner_displayName) {
-        users.push({ name: highlightedValue('lastModifyingUser_displayName', hit), type: 'Modifier' });
+        users.push({ name: highlightedValue('lastModifyingUser_displayName', hit), type: 'Modifier', avatar: hit.lastModifyingUser_photoLink });
       }
       
       let content = null;
