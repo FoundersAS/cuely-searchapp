@@ -200,22 +200,69 @@ em {
   padding-left: 0.5em;
 }
 
-.search_suggestions_data .title {
+.search_suggestions_data .heading {
+  margin: 0;
+  padding: 0;
   font-size: 15px;
   line-height: 20px;
+  font-weight: 300;
+  white-space: nowrap;
+}
+
+.search_suggestions_data .heading .title {
   padding: .5rem 0 .4rem 0;
   text-overflow: ellipsis;
-  white-space: nowrap;
+  width: 270px;
+  display: inline-block;
   overflow: hidden;
-  max-width: 270px;
-  font-weight: 300;
+  float: left;
 }
+
+.search_suggestions_data .heading .avatars {
+  padding: .2rem 0 0 0;
+  display: inline-block;
+  width: 72px;
+  text-align: right;
+}
+
+.search_suggestions_data .heading .avatars .avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  opacity: 0.6;
+}
+
+.search_suggestions_data .heading .avatars .avatar_active {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+}
+
+.search_suggestions_data .heading .avatars .no_avatar {
+  height: 25px;
+  border-radius: 50%;
+  border: #888 solid 1px;
+  display: inline-block;
+  line-height: 1.5rem;
+  color: #888;
+}
+
+.search_suggestions_data .heading .avatars .no_avatar_active {
+  height: 25px;
+  border-radius: 50%;
+  color: black;
+  border: black solid 1px;
+  display: inline-block;
+  line-height: 1.5rem;
+  background-color: white;
+}
+
 
 .search_suggestions_data .body {
   line-height: 1.5em;
   color: #888;
   font-weight: 300;
-  padding: .3rem .3rem .3rem 0;
+  padding: .3rem 0 .3rem 0;
 }
 
 .search_suggestions_data .body div {
