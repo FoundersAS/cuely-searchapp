@@ -166,6 +166,10 @@ export default class App extends Component {
     return elementId ? parseInt(elementId.split('_').slice(-1)[0]) : -1;
   }
 
+  initials(username) {
+    return username.split(' ').map(x => x[0]).slice(0, 2).join('');
+  }
+
   renderItem(item, i) {
     const liClass = (i === this.state.selectedIndex) ? 'search_suggestions_card_highlight' : 'search_suggestions_card';
     // const icon = item.displayIcon ? item.displayIcon : (item.type === 'intra' ? CuelyLogo : GoogleLogo);
@@ -180,8 +184,8 @@ export default class App extends Component {
               <div className="title" dangerouslySetInnerHTML={{ __html: item.title }} />
               <div className="avatars">
                 {item.metaInfo.users.map(user => (
-                    user.avatar ? <img src={user.avatar} className={user.name.indexOf('<em>') > -1 ? "avatar_active" : "avatar"} />
-                                : <span className={user.name.indexOf('<em>') > -1 ? "no_avatar_active" : "no_avatar"}>&nbsp;JG&nbsp;</span>))}
+                    user.avatar ? <div key={`avatar_${i}_${user.name}`} style={{ backgroundImage: 'url(' + user.avatar + ')' }} className={user.nameHighlight ? "avatar_active" : "avatar"} />
+                                : <div key={`avatar_${i}_${user.name}`} className={user.nameHighlight ? "no_avatar_active" : "no_avatar"}>{this.initials(user.name)}</div>))}
               </div>
             </div>
             <div className="body">
