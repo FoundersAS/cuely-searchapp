@@ -230,6 +230,7 @@ export default class App extends Component {
         </div>
         <div className="search_suggestions_content" id="searchSuggestionsContent" onKeyDown={this.handleContentKeyDown} onScroll={this.handleContentScroll} tabIndex="0">
           {this.renderSelectedItemContent(this.state.selectedIndex)}
+          <div className="content_bottom_view_link">View in App<span className="glyphicons glyphicons-new-window"></span></div>
           <div className="content_bottom_transition" id="contentBottomTransition"></div>
         </div>
       </div>
