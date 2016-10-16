@@ -183,15 +183,14 @@ export default class App extends Component {
             <div className="heading">
               <div className="title" dangerouslySetInnerHTML={{ __html: item.title }} />
               <div className="avatars">
-                {item.metaInfo.users.map(user => (
-                    user.avatar ? <div key={`avatar_${i}_${user.name}`} style={{ backgroundImage: 'url(' + user.avatar + ')' }} className={user.nameHighlight ? "avatar_active" : "avatar"} />
-                                : <div key={`avatar_${i}_${user.name}`} className={user.nameHighlight ? "no_avatar_active" : "no_avatar"}>{this.initials(user.name)}</div>))}
+                {item.metaInfo.users[0].avatar ? <div style={{ backgroundImage: 'url(' + item.metaInfo.users[0].avatar + ')' }} className={item.metaInfo.users[0].nameHighlight ? "avatar active" : "avatar"} />
+                                : <div className={item.metaInfo.users[0].nameHighlight ? "avatar no_avatar active" : "avatar no_avatar"}>{this.initials(item.metaInfo.users[0].name)}</div>}
               </div>
             </div>
             <div className="body">
               <span className="meta_icon glyphicons glyphicons-clock"></span>
               <span className="meta_data">{item.metaInfo.time}</span>
-              <span className="action_icon glyphicons glyphicons-share-alt"></span>
+              <span className="action_icon glyphicons glyphicons-link"></span>
             </div>
           </div>
         </a>
@@ -208,7 +207,21 @@ export default class App extends Component {
       return (
         <img src={item.thumbnailLink} />
       )
-    } else {
+    } else if (item.metaInfo.users.length > 1) {
+      return (
+        <div>
+          <div className="title_drive">Co-authors</div>
+          <div className="avatars">
+            {item.metaInfo.users.map(user => (
+                    user.avatar ? <div key={`avatar_${i}_${user.name}`} style={{ backgroundImage: 'url(' + user.avatar + ')' }} className={user.nameHighlight ? "avatar active" : "avatar"} />
+                                : <div key={`avatar_${i}_${user.name}`} className={user.nameHighlight ? "avatar no_avatar active" : "avatar no_avatar"}>{this.initials(user.name)}</div>))}
+          </div>
+          <div className="title_drive">contents</div>
+          <pre id="searchSuggestionsContentPre" dangerouslySetInnerHTML={{ __html: item.content }} />
+        </div>
+      )
+    }
+    else {
       return (
         <div>
           <div className="title_drive">contents</div>
@@ -220,7 +233,7 @@ export default class App extends Component {
 
   handleContentScroll(e) {
     const transitionDiv = document.getElementById("contentBottomTransition");
-    if ((e.target.scrollHeight - e.target.clientHeight - e.target.scrollTop) < 15) {
+    if ((e.target.scrollHeight - e.target.clientHeight - e.target.scrollTop) < 15 || (e.target.scrollLeft > 0)) {
       transitionDiv.style.display = 'none';
     } else {
       transitionDiv.style.display = 'block';
