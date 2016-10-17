@@ -19,6 +19,7 @@ export default class App extends Component {
     this.hideHover = ::this.hideHover;
     this.showHover = ::this.showHover;
     this.handleMouseMove = ::this.handleMouseMove;
+    this.handleExternalLink = ::this.handleExternalLink;
     this.renderSelectedItemContent = ::this.renderSelectedItemContent;
     this.state = {
       searchResults: [],
@@ -133,6 +134,15 @@ export default class App extends Component {
       shell.openExternal(this.state.searchResults[index].webLink);
       ipcRenderer.send('hide-search');
     }
+  }
+
+  handleExternalLink(e) {
+    e.preventDefault();
+    const index = this.state.selectedIndex;;
+
+    shell.openExternal(this.state.searchResults[index].webLink);
+    ipcRenderer.send('hide-search');
+  
   }
 
   handleMouseMove(e) {
@@ -252,7 +262,7 @@ export default class App extends Component {
         </div>
         <div className="search_suggestions_content" id="searchSuggestionsContent" onKeyDown={this.handleContentKeyDown} onScroll={this.handleContentScroll} tabIndex="0">
           {this.renderSelectedItemContent(this.state.selectedIndex)}
-          <div className="content_bottom_view_link">View in App<span className="glyphicons glyphicons-new-window"></span></div>
+          <div className="content_bottom_view_link" onClick={this.handleExternalLink}>View in App<span className="glyphicons glyphicons-new-window"></span></div>
           <div className="content_bottom_transition" id="contentBottomTransition"></div>
         </div>
       </div>

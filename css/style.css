@@ -47,7 +47,7 @@ em {
   font-size: 13px;
   line-height: 17px;
   font-weight: 300;
-  padding: .5rem;
+  padding: .75rem .5rem;
   margin: 0;
   font-family: "BlinkMacSystemFont";
   overflow: auto;
@@ -62,11 +62,6 @@ em {
   font-weight: 300;
   height: 1.1rem;
   padding: .3rem 0 0 .5rem;
-}
-
-.search_suggestions_content .avatars {
-  padding: .5rem;
-  display: flex;
 }
 
 .search_suggestions_content img {
@@ -243,8 +238,13 @@ em {
   box-shadow: 0 0 1px rgba(0,0,0,0.4);
 }
 
+.search_suggestions_content .avatars {
+  padding: .75rem .5rem;
+  display: flex;
+}
+
 .search_suggestions_content .avatar + .avatar {
-  margin-left: 0.25rem;
+  margin-left: 0.35rem;
 }
 
 .avatars .no_avatar {
@@ -260,6 +260,7 @@ em {
 
 .avatars .active {
   opacity: 1;
+  box-shadow: 0 0 2px rgba(0,0,0,0.6);
 }
 
 .search_suggestions_data .body {
