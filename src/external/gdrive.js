@@ -44,13 +44,30 @@ export function search(query) {
         content = highlightedValue('content', hit).replace(/\n\s*\n/g, '\n\n').replace(/<em>/g, '<em class="algolia_highlight">');
       }
 
+      let path = JSON.parse(highlightedValue('path', hit));
+      if (path.length > 0) {
+        const last = path.slice(-1)[0];
+        if (last.indexOf('<em>') > -1) {
+          path = last;
+        } else {
+          path = path.join('/');
+        }
+        const maxLen = (path.indexOf('<em>') > -1) ? 35 : 25;
+        if (path.length > maxLen) {
+          path = path.substring(0, maxLen) + '…';
+        }
+      } else {
+        path = '';
+      }
+
       return {
         type: 'gdrive',
         title: highlightedValue('title', hit),
         content: content,
         metaInfo: {
           time: fromIsoDateToElapsed(hit.last_updated),
-          users: users
+          users: users,
+          path: path
         },
         displayIcon: hit.iconLink,
         webLink: hit.webViewLink,

@@ -203,13 +203,17 @@ export default class App extends Component {
             <div className="heading">
               <div className="title" dangerouslySetInnerHTML={{ __html: item.title }} />
               <div className="avatars">
-                {item.metaInfo.users[0].avatar ? <div style={{ backgroundImage: 'url(' + item.metaInfo.users[0].avatar + ')' }} className={item.metaInfo.users[0].nameHighlight ? "avatar active" : "avatar"} />
-                                : <div className={item.metaInfo.users[0].nameHighlight ? "avatar no_avatar active" : "avatar no_avatar"}>{this.initials(item.metaInfo.users[0].name)}</div>}
+                {item.metaInfo.users[0].avatar
+                    ? <div style={{ backgroundImage: 'url(' + item.metaInfo.users[0].avatar + ')' }} className={item.metaInfo.users[0].nameHighlight ? "avatar active" : "avatar"} />
+                    : <div className={item.metaInfo.users[0].nameHighlight ? "avatar no_avatar active" : "avatar no_avatar"}>{this.initials(item.metaInfo.users[0].name)}</div>}
               </div>
             </div>
             <div className="body">
               <span className="meta_icon glyphicons glyphicons-clock"></span>
               <span className="meta_data">{item.metaInfo.time}</span>
+              {item.metaInfo.path.length > 0
+                  ? <span><span className="meta_icon glyphicons glyphicons-folder-open"></span><span className="meta_data" dangerouslySetInnerHTML={{ __html: item.metaInfo.path }} /></span>
+                  : null}
               <span className="action_icon glyphicons glyphicons-link" onClick={this.handleActionIconLinkClick}></span>
             </div>
           </div>
