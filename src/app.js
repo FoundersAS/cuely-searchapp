@@ -20,6 +20,7 @@ export default class App extends Component {
     this.showHover = ::this.showHover;
     this.handleMouseMove = ::this.handleMouseMove;
     this.handleExternalLink = ::this.handleExternalLink;
+    this.handleActionIconLinkClick = ::this.handleActionIconLinkClick;
     this.renderSelectedItemContent = ::this.renderSelectedItemContent;
     this.state = {
       searchResults: [],
@@ -138,11 +139,20 @@ export default class App extends Component {
 
   handleExternalLink(e) {
     e.preventDefault();
-    const index = this.state.selectedIndex;;
+    const index = this.state.selectedIndex;
 
     shell.openExternal(this.state.searchResults[index].webLink);
     ipcRenderer.send('hide-search');
   
+  }
+
+  handleActionIconLinkClick(e) {
+    e.preventDefault();
+    e.stopPropagation();
+
+    const index = this.state.selectedIndex;
+    const {clipboard} = require('electron');
+    clipboard.writeText(this.state.searchResults[index].webLink);
   }
 
   handleMouseMove(e) {
@@ -187,7 +197,7 @@ export default class App extends Component {
 
     return (
       <li key={i} className={liClass} ref={`searchItem_${i}`}>
-        <a href="#" onClick={this.handleClick} onDoubleClick={this.handleDoubleClick} onKeyDown={this.handleKeyDown} onMouseMove={this.handleMouseMove} className="search_suggestion_card_link" id={`searchItemLink_${i}`}>
+        <div onClick={this.handleClick} onDoubleClick={this.handleDoubleClick} onKeyDown={this.handleKeyDown} onMouseMove={this.handleMouseMove} className="search_suggestion_card_link" id={`searchItemLink_${i}`}>
           <img src={icon} className="search_suggestions_logo" />
           <div className="search_suggestions_data">
             <div className="heading">
@@ -200,10 +210,10 @@ export default class App extends Component {
             <div className="body">
               <span className="meta_icon glyphicons glyphicons-clock"></span>
               <span className="meta_data">{item.metaInfo.time}</span>
-              <span className="action_icon glyphicons glyphicons-link"></span>
+              <span className="action_icon glyphicons glyphicons-link" onClick={this.handleActionIconLinkClick}></span>
             </div>
           </div>
-        </a>
+        </div>
       </li>
     )
   }

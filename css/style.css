@@ -117,8 +117,8 @@ em {
 
 .search_suggestions_data .body .action_icon {
   font-size: 13px;
-  padding: 0.3em;
-  margin-right: 0.1rem;
+  padding: 0.37rem;
+  margin-top: -0.15rem;
   float: right;
   display: inline-block;
   color: #BBB;
@@ -129,12 +129,10 @@ em {
 }
 
 .search_suggestions_data .body .action_icon:hover {
-  color: #AAA;
+  color: #777;
+  background-color: #BBB;
+  border-radius: 2px;
   cursor: pointer;
-}
-
-.search_suggestions_card_highlight .body .action_icon:hover {
-  color: #9C9C9C;
 }
 
 .search_suggestions_card_highlight {
