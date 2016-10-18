@@ -406,10 +406,12 @@ function endLogin() {
 }
 
 function hide() {
-  searchWindow.hide();
   if (appHide && process.platform === 'darwin') {
     app.hide();
+  } else {
+    searchWindow.hide();
   }
+
   if (!appHide) {
     appHide = true;
   }
