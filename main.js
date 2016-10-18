@@ -74,7 +74,7 @@ ipcMain.on('search', (event, arg) => {
   });
 });
 
-ipcMain.on('search_rendered', (event, arg) => {
+ipcMain.on('search-rendered', (event, arg) => {
   // Resize the window after search results have been rendered to html/dom, due to weird GUI artifacts
   // when resizing elements, e.g. <ul> component. Probably happens because of frameless and transparent window.
   if (searchWindow.getSize()[1] !== arg.height) {
@@ -82,9 +82,13 @@ ipcMain.on('search_rendered', (event, arg) => {
   }
 });
 
-ipcMain.on('close_login', () => {
+ipcMain.on('close-login', () => {
   loginWindow.hide();
   loadCredentialsOrLogin();
+});
+
+ipcMain.on('send-notification', (event, arg) => {
+  sendDesktopNotification(`Copied link to clipboard ✓`, `Cuely has copied link for document '${arg}' to clipboard`);
 });
 
 //----------- UTILITY FUNCTIONS

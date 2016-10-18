@@ -48,10 +48,17 @@ export function search(query) {
       if (path.length > 0) {
         const last = path.slice(-1)[0];
         let highlightedIndex = path.findIndex(x => x.indexOf('<em>') > -1);
+        const maxLen = (highlightedIndex > -1) ? 37 : 27;
         if (highlightedIndex < 0) {
           highlightedIndex = path.length - 1;
         }
-        path = (highlightedIndex > 0 ? '…/' : '') + path[highlightedIndex] + (highlightedIndex < path.length - 1 ? '/…' : '');
+        let folder = path[highlightedIndex];
+        let cut = false;
+        if (folder.length > maxLen) {
+          folder = folder.substring(0, maxLen) + '…';
+          cut = true;
+        }
+        path = (highlightedIndex > 0 ? '…/' : '') + folder + (!cut && (highlightedIndex < path.length - 1) ? '/…' : '');
       } else {
         path = '';
       }
@@ -59,6 +66,7 @@ export function search(query) {
       return {
         type: 'gdrive',
         title: highlightedValue('title', hit),
+        titleRaw: hit.title,
         content: content,
         metaInfo: {
           time: fromIsoDateToElapsed(hit.last_updated),
