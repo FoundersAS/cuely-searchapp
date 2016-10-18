@@ -128,30 +128,21 @@ em {
   color: #AAA;
 }
 
-.search_suggestions_card .action_icon {
+.action_icon {
   color: #BBB;
   font-size: 12px;
   font-weight: 300;
   display: inline-block;
   position: absolute;
   z-index: 100;
-  left: 370px;
-  top: 45px;
+  right: .5rem;
+  top: 2.65rem;
   cursor: pointer;
-  padding: 5px;
+  padding: .4rem;
 }
 
 .search_suggestions_card_highlight .action_icon {
   color: #AAA;
-  font-size: 12px;
-  font-weight: 300;
-  display: inline-block;
-  position: absolute;
-  z-index: 100;
-  left: 370px;
-  top: 45px;
-  cursor: pointer;
-  padding: 5px;
 }
 
 .search_suggestions_card_highlight .action_icon:hover, .search_suggestions_card .action_icon:hover {
@@ -173,7 +164,7 @@ em {
   text-decoration: none;
   color: inherit;
   outline: none;
-  padding: .4rem .4rem .5rem 1rem;
+  padding: .4rem .5rem .5rem 1rem;
 }
 
 .search_suggestion_card_link:hover {
@@ -187,7 +178,7 @@ em {
   text-decoration: none;
   color: inherit;
   outline: none;
-  padding: .4rem .4rem .5rem 1rem;
+  padding: .4rem .5rem .5rem 1rem;
 }
 
 .search_suggestion_card_link:focus, .search_suggestion_card_link_no_hover:focus, .search_suggestions_card_link_action_hover:focus {
@@ -225,7 +216,7 @@ em {
 .search_suggestions_logo {
   width: 25px;
   height: 25px;
-  padding: .4rem .5rem .3rem 0;
+  padding: .35rem .5rem .3rem 0;
   pointer-events: none;
 }
 
