@@ -229,7 +229,10 @@ export default class App extends Component {
     const item = this.state.searchResults[i];
     if (!item.content && item.thumbnailLink) {
       return (
-        <img src={item.thumbnailLink} />
+        <div>
+          <div className="title_drive">contents</div>
+          <div className="no_preview">No preview available.</div>
+        </div>
       )
     } else if (item.metaInfo.users.length > 1) {
       return (

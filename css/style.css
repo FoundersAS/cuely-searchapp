@@ -64,6 +64,13 @@ em {
   padding: .3rem 0 0 .5rem;
 }
 
+.no_preview{
+  text-align: center;
+  position: relative;
+  top: 150px;
+  font-size: 14px;
+}
+
 .search_suggestions_content img {
   display: block;
   margin: auto;
@@ -109,6 +116,10 @@ em {
   font-size: 11px;
   color: #BBB;
   padding: .2rem .25rem 0 0;
+}
+
+.search_suggestions_data .body .meta_icon.glyphicons-folder-open {
+  margin-right: 0.15rem;
 }
 
 .search_suggestions_card_highlight .body .meta_icon {
@@ -183,14 +194,14 @@ em {
   font-weight: 300;
   color: black;
   outline: none;
-  padding: .3em 1em;
+  padding: .3em 1rem;
   -webkit-app-region: drag;
 }
 
 .search_suggestions_logo {
   width: 25px;
   height: 25px;
-  padding: .4rem .3rem .3rem .3rem;
+  padding: .4rem .5rem .3rem 0;
   pointer-events: none;
 }
 
@@ -198,7 +209,6 @@ em {
   pointer-events: none;
   font-size: 12px;
   width: 100%;
-  padding-left: 0.5em;
 }
 
 .search_suggestions_data .heading {
@@ -257,6 +267,7 @@ em {
 
 .avatars .active {
   opacity: 1;
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.7);
 }
 
 .search_suggestions_data .body {
