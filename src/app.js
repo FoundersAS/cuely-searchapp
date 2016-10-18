@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import ReactDOM from 'react-dom';
-import { ipcRenderer, shell } from 'electron';
+import { ipcRenderer, shell, clipboard } from 'electron';
 
 import { Scrollbars } from 'react-custom-scrollbars';
 import SearchBar from './components/SearchBar';
@@ -22,6 +22,7 @@ export default class App extends Component {
     this.handleExternalLink = ::this.handleExternalLink;
     this.handleActionIconLinkClick = ::this.handleActionIconLinkClick;
     this.renderSelectedItemContent = ::this.renderSelectedItemContent;
+    this.handleMouseEnter = ::this.handleMouseEnter;
     this.state = {
       searchResults: [],
       selectedIndex: -1,
@@ -55,7 +56,7 @@ export default class App extends Component {
 
     // adjust the window height to the height of the list
     const winHeight = (this.state.searchResults.length > 0 ? 400 : 0) + this.getElementHeight("searchBar");
-    ipcRenderer.send('search_rendered', { height: winHeight });
+    ipcRenderer.send('search-rendered', { height: winHeight });
      
     if (this.state.keyFocus && this.refs.scrollbars && this.state.selectedIndex > -1) {
       const node = ReactDOM.findDOMNode(this.refs[`searchItem_${this.state.selectedIndex}`]);
@@ -143,16 +144,21 @@ export default class App extends Component {
 
     shell.openExternal(this.state.searchResults[index].webLink);
     ipcRenderer.send('hide-search');
-  
   }
 
   handleActionIconLinkClick(e) {
     e.preventDefault();
-    e.stopPropagation();
 
-    const index = this.state.selectedIndex;
-    const {clipboard} = require('electron');
-    clipboard.writeText(this.state.searchResults[index].webLink);
+    let index = this.getIndex(e.target.id);
+    if (index > -1) {
+      clipboard.writeText(this.state.searchResults[index].webLink);
+      ipcRenderer.send('send-notification', this.state.searchResults[index].titleRaw);
+    }
+    index = this.state.selectedIndex;
+    const link = document.getElementById("searchItemLink_" + index);
+    if (link) {
+      link.focus();
+    }
   }
 
   handleMouseMove(e) {
@@ -160,6 +166,15 @@ export default class App extends Component {
       this.showHover();
     }
     this.hoverDisabled = false;
+  }
+
+  handleMouseEnter(e) {
+    console.log('pinko');
+    const index = this.getIndex(e.target.id);
+    if (index > -1) {
+      const link = document.getElementById("searchItemLink_" + index);
+      link.className = "search_suggestions_card_link_action_hover";
+    }
   }
 
   hideHover() {
@@ -197,7 +212,7 @@ export default class App extends Component {
 
     return (
       <li key={i} className={liClass} ref={`searchItem_${i}`}>
-        <div onClick={this.handleClick} onDoubleClick={this.handleDoubleClick} onKeyDown={this.handleKeyDown} onMouseMove={this.handleMouseMove} className="search_suggestion_card_link" id={`searchItemLink_${i}`}>
+        <a href="#" onClick={this.handleClick} onDoubleClick={this.handleDoubleClick} onKeyDown={this.handleKeyDown} onMouseMove={this.handleMouseMove} className="search_suggestion_card_link" id={`searchItemLink_${i}`}>
           <img src={icon} className="search_suggestions_logo" />
           <div className="search_suggestions_data">
             <div className="heading">
@@ -214,10 +229,10 @@ export default class App extends Component {
               {item.metaInfo.path.length > 0
                   ? <span><span className="meta_icon glyphicons glyphicons-folder-open"></span><span className="meta_data" dangerouslySetInnerHTML={{ __html: item.metaInfo.path }} /></span>
                   : null}
-              <span className="action_icon glyphicons glyphicons-link" onClick={this.handleActionIconLinkClick}></span>
             </div>
           </div>
-        </div>
+        </a>
+        <span id={`actionIcon_${i}`} className="action_icon glyphicons glyphicons-link" onClick={this.handleActionIconLinkClick} onMouseEnter={this.handleMouseEnter}></span>
       </li>
     )
   }

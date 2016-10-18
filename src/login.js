@@ -5,7 +5,7 @@ import { API_ROOT } from './const.js';
 export default class Login extends Component {
   handleClick(e) {
     e.preventDefault();
-    ipcRenderer.send('close_login');
+    ipcRenderer.send('close-login');
   }
 
   render() {

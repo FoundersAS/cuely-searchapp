@@ -97,6 +97,7 @@ em {
   line-height: 2em;
   font-size: 16px;
   color: #333;
+  position: relative;
 }
 
 .search_suggestions_card + .search_suggestions_card {
@@ -106,6 +107,7 @@ em {
 .search_suggestions_card + .search_suggestions_card_highlight,
 .search_suggestions_card_highlight + .search_suggestions_card  {
   border-top: 1px solid #D0D0D0;
+  position: relative;
 }
 
 .search_suggestions_data .body .meta_data {
@@ -126,20 +128,33 @@ em {
   color: #AAA;
 }
 
-.search_suggestions_data .body .action_icon {
-  font-size: 13px;
-  padding: 0.37rem;
-  margin-top: -0.15rem;
-  float: right;
+.search_suggestions_card .action_icon {
+  font-size: 12px;
+  font-weight: 300;
   display: inline-block;
   color: #BBB;
+  position: absolute;
+  z-index: 100;
+  left: 370px;
+  top: 45px;
+  cursor: pointer;
+  padding: 5px;
 }
 
-.search_suggestions_card_highlight .body .action_icon {
+.search_suggestions_card_highlight .action_icon {
   color: #AAA;
+  font-size: 12px;
+  font-weight: 300;
+  display: inline-block;
+  position: absolute;
+  z-index: 100;
+  left: 370px;
+  top: 45px;
+  cursor: pointer;
+  padding: 5px;
 }
 
-.search_suggestions_data .body .action_icon:hover {
+.search_suggestions_card_highlight .action_icon:hover, .search_suggestions_card .action_icon:hover {
   color: #777;
   background-color: #BBB;
   border-radius: 2px;
@@ -164,6 +179,15 @@ em {
 .search_suggestion_card_link:hover {
   background-color: #E0E0E0;
   cursor: pointer;
+}
+
+.search_suggestions_card_link_action_hover {
+  background-color: #E0E0E0;
+  display: flex;
+  text-decoration: none;
+  color: inherit;
+  outline: none;
+  padding: .4rem .4rem .5rem 1rem;
 }
 
 .search_suggestion_card_link:focus, .search_suggestion_card_link_no_hover:focus {
