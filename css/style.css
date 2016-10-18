@@ -129,10 +129,10 @@ em {
 }
 
 .search_suggestions_card .action_icon {
+  color: #BBB;
   font-size: 12px;
   font-weight: 300;
   display: inline-block;
-  color: #BBB;
   position: absolute;
   z-index: 100;
   left: 370px;
@@ -190,7 +190,7 @@ em {
   padding: .4rem .4rem .5rem 1rem;
 }
 
-.search_suggestion_card_link:focus, .search_suggestion_card_link_no_hover:focus {
+.search_suggestion_card_link:focus, .search_suggestion_card_link_no_hover:focus, .search_suggestions_card_link_action_hover:focus {
   background-color: #D7D7D7;
 }
 

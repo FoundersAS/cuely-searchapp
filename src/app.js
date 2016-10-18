@@ -169,7 +169,6 @@ export default class App extends Component {
   }
 
   handleMouseEnter(e) {
-    console.log('pinko');
     const index = this.getIndex(e.target.id);
     if (index > -1) {
       const link = document.getElementById("searchItemLink_" + index);
