@@ -28,6 +28,7 @@ export default class SearchBar extends Component {
   render() {
     return (
       <div className={this.props.className} id={this.props.id}>
+        <span className="search_bar_icon glyphicons glyphicons-search"/>
         <input
           type="text"
           placeholder="Search your company Google Drive"

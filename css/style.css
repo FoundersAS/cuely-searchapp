@@ -204,13 +204,19 @@ em {
   border: none;
   width: 90%;
   height: 2em;
-  line-height: 2em;
   font-size: 24px;
   font-weight: 300;
   color: black;
   outline: none;
-  padding: .3em 1rem;
+  padding: .3em .5rem;
   -webkit-app-region: drag;
+}
+
+.search_bar_icon {
+  font-size: 20px;
+  padding: .65rem 0 .5rem 0.9em;
+  color: #BBB;
+  line-height: 2em;
 }
 
 .search_suggestions_logo {
@@ -253,7 +259,7 @@ em {
   width: 25px;
   height: 25px;
   border-radius: 2px;
-  opacity: 0.7;
+  opacity: 0.8;
   background-repeat: no-repeat;
   background-position: center center;
   background-size: 25px 25px;

@@ -241,7 +241,7 @@ export default class App extends Component {
       return null;
     }
     const item = this.state.searchResults[i];
-    if (!item.content && item.thumbnailLink) {
+    if (!item.content) {
       return (
         <div>
           <div className="title_drive">contents</div>
