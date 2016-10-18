@@ -25,17 +25,17 @@ export function search(query) {
   return index.search(query, settings).then(content => {
     return content.hits.map(hit => {
       let users = [{
-        name: hit.owner_displayName,
-        nameHighlight: highlightedValue('owner_displayName', hit, true) !== '',
+        name: hit.owner_display_name,
+        nameHighlight: highlightedValue('owner_display_name', hit, true) !== '',
         type: 'Owner',
-        avatar: hit.owner_photoLink
+        avatar: hit.owner_photo_link
       }];
-      if (hit.lastModifyingUser_displayName && hit.lastModifyingUser_displayName !== hit.owner_displayName) {
+      if (hit.modifier_display_name && hit.modifier_display_name !== hit.owner_display_name) {
         users.push({
-          name: hit.lastModifyingUser_displayName,
-          nameHighlight: highlightedValue('lastModifyingUser_displayName', hit, true) !== '',
+          name: hit.modifier_display_name,
+          nameHighlight: highlightedValue('modifier_display_name', hit, true) !== '',
           type: 'Modifier',
-          avatar: hit.lastModifyingUser_photoLink
+          avatar: hit.modifier_photo_link
         });
       }
       
@@ -47,15 +47,11 @@ export function search(query) {
       let path = JSON.parse(highlightedValue('path', hit));
       if (path.length > 0) {
         const last = path.slice(-1)[0];
-        if (last.indexOf('<em>') > -1) {
-          path = last;
-        } else {
-          path = path.join('/');
+        let highlightedIndex = path.findIndex(x => x.indexOf('<em>') > -1);
+        if (highlightedIndex < 0) {
+          highlightedIndex = path.length - 1;
         }
-        const maxLen = (path.indexOf('<em>') > -1) ? 35 : 25;
-        if (path.length > maxLen) {
-          path = path.substring(0, maxLen) + '…';
-        }
+        path = (highlightedIndex > 0 ? '…/' : '') + path[highlightedIndex] + (highlightedIndex < path.length - 1 ? '/…' : '');
       } else {
         path = '';
       }
@@ -69,9 +65,9 @@ export function search(query) {
           users: users,
           path: path
         },
-        displayIcon: hit.iconLink,
-        webLink: hit.webViewLink,
-        thumbnailLink: hit.thumbnailLink,
+        displayIcon: hit.icon_link,
+        webLink: hit.webview_link,
+        thumbnailLink: hit.thumbnail_link,
         modified: hit.last_updated,
         _algolia: hit._rankingInfo
       }
