@@ -58,7 +58,7 @@ export default class App extends Component {
     const winHeight = (this.state.searchResults.length > 0 ? 400 : 0) + this.getElementHeight("searchBar");
     ipcRenderer.send('search-rendered', { height: winHeight });
      
-    if (this.state.keyFocus && this.refs.scrollbars && this.state.selectedIndex > -1) {
+    if (this.refs.scrollbars && this.state.selectedIndex > -1) {
       const node = ReactDOM.findDOMNode(this.refs[`searchItem_${this.state.selectedIndex}`]);
       if (node && node.children) {
         node.children[0].focus();
@@ -127,6 +127,7 @@ export default class App extends Component {
     const index = this.getIndex(e.target.id);
     if (index > -1) {
       this.setState({ selectedIndex: index, keyFocus: false });
+      this.hideHover();
     }
   }
 
@@ -164,6 +165,11 @@ export default class App extends Component {
   }
 
   handleMouseMove(e) {
+    const index = this.getIndex(e.target.id);
+    if (index === this.state.selectedIndex) {
+      this.hideHover();
+      return;
+    }
     if (!this.hoverDisabled) {
       this.showHover();
     }
