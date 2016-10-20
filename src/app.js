@@ -12,6 +12,7 @@ export default class App extends Component {
     super();
     this.handleInput = ::this.handleInput;
     this.handleKeyUp = ::this.handleKeyUp;
+    this.handleKeyDown = ::this.handleKeyDown;
     this.renderItem = ::this.renderItem;
     this.handleClick = ::this.handleClick;
     this.handleDoubleClick = ::this.handleDoubleClick;
@@ -79,7 +80,7 @@ export default class App extends Component {
   }
 
   handleKeyDown(e) {
-    if (e.key === 'ArrowDown' || (e.key === 'ArrowUp')) {
+    if (this.isDown(e) || this.isUp(e)) {
       e.preventDefault();
     }
   }
@@ -97,12 +98,12 @@ export default class App extends Component {
     let index = this.state.selectedIndex;
     if (e.key === 'Escape') {
       ipcRenderer.send('hide-search');
-    } else if (e.key === 'ArrowDown' || (e.ctrlKey && e.key === 'n')) {
+    } else if (this.isDown(e)) {
       e.preventDefault();
       let index = this.state.selectedIndex;
       index = (index >= this.state.searchResults.length - 1) ? index : index + 1;
       this.setState({ selectedIndex: index, keyFocus: true });
-    } else if (e.key === 'ArrowUp' || (e.ctrlKey && e.key === 'p')) {
+    } else if (this.isUp(e)) {
       e.preventDefault();
       index = (index < 1) ? index : index - 1;
       this.setState({ selectedIndex: index, keyFocus: true });
@@ -114,6 +115,14 @@ export default class App extends Component {
     }
 
     this.hideHover();
+  }
+  
+  isUp(e) {
+    return (e.key === 'ArrowUp' || (e.ctrlKey && e.key === 'p'));
+  }
+
+  isDown(e) {
+    return (e.key === 'ArrowDown' || (e.ctrlKey && e.key === 'n'));
   }
 
   handleInput(e) {
