@@ -79,3 +79,49 @@ export function fromIsoDateToNow(isoDate) {
 function fromTimeUnit(unitName, unitValue) {
   return unitValue + ' ' + unitName + (unitValue !== 1 ? 's' : '');
 }
+
+/**
+ * Cut a string to desired length and accounting for possible html tag.
+ * For example: 'This is a <em>string</em' with maxLen param of 15 should produce 'This is a <em>strin…</em>'
+ *
+ * Note that this function doesn't account for more complicated structure, such as e.g. nested tags or broken/missing tags
+ */
+export function cutStringWithTags(s, maxLen, tagName, ellipsis='…') {
+  if (!s || s.length < maxLen) {
+    return s;
+  }
+  let count = 0;
+  let rawCount = 0;
+  let openTag = false;
+  for(let c of s) {
+    if(count >= maxLen) {
+      break;
+    }
+    rawCount = rawCount + 1;
+    if (c == '<') {
+      openTag = true;
+    }
+    
+    if (!openTag) {
+      count = count + 1;
+    }
+
+    if (c == '>') {
+      openTag = false;
+    }
+  }
+  const tag = '<' + tagName + '>';
+  const tagEnd = '</' + tagName + '>';
+  let cut = s.substring(0, rawCount);
+  const tagCount = substringCount(cut, tag);
+  const tagEndCount = substringCount(cut, tagEnd);
+  const appendEllipsis = cut.length < s.length;
+  // assuming at most 1 difference in count. If there's more, then we probably have nested or broken/missing tags and we give up.
+  const appendEndTag = tagCount === tagEndCount || Math.abs(tagCount - tagEndCount) > 1;
+
+  return cut + (appendEllipsis ? ellipsis : '') + (appendEndTag ? tagEnd : '');
+}
+
+export function substringCount(s, sub) {
+  return (s.match(new RegExp(sub, 'ig')) || []).length;
+}

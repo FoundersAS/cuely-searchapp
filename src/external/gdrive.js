@@ -1,5 +1,5 @@
 import AlgoliaSearch from 'algoliasearch';
-import { fromIsoDateToElapsed } from '../util.js';
+import { fromIsoDateToElapsed, cutStringWithTags } from '../util.js';
 import { ALGOLIA_INDEX } from '../const.js';
 
 const algoliaConf = {
@@ -19,7 +19,6 @@ export function setAlgoliaCredentials(credentials) {
   index = algoliaClient.initIndex(algoliaConf.indexName);
   console.log("Updated Algolia credentials");
 }
-
 
 export function search(query) {
   return index.search(query, settings).then(content => {
@@ -46,19 +45,12 @@ export function search(query) {
 
       let path = JSON.parse(highlightedValue('path', hit));
       if (path.length > 0) {
-        const last = path.slice(-1)[0];
         let highlightedIndex = path.findIndex(x => x.indexOf('<em>') > -1);
-        const maxLen = (highlightedIndex > -1) ? 37 : 27;
         if (highlightedIndex < 0) {
           highlightedIndex = path.length - 1;
         }
-        let folder = path[highlightedIndex];
-        let cut = false;
-        if (folder.length > maxLen) {
-          folder = folder.substring(0, maxLen) + '…';
-          cut = true;
-        }
-        path = (highlightedIndex > 0 ? '…/' : '') + folder + (!cut && (highlightedIndex < path.length - 1) ? '/…' : '');
+        let folder = cutStringWithTags(path[highlightedIndex], 27, 'em', '…');
+        path = (highlightedIndex > 0 ? '…/' : '') + folder + ((highlightedIndex < path.length - 1) ? '/…' : '');
       } else {
         path = '';
       }
