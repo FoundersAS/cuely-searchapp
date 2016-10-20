@@ -40,6 +40,8 @@ export default class App extends Component {
       // show desktop notification
       new Notification(arg.title, arg);
     });
+    // start empty search (should return 10 most recent items)
+    ipcRenderer.send('search', '');
   }
 
   componentDidUpdate() {
@@ -115,11 +117,7 @@ export default class App extends Component {
   }
 
   handleInput(e) {
-    if (e.target.value) {
-      ipcRenderer.send('search', e.target.value);
-    } else {
-      this.setState({ searchResults: [], selectedIndex: -1, clearInput: true, keyFocus: false });
-    }
+    ipcRenderer.send('search', e.target.value);
   }
 
   handleClick(e) {
