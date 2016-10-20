@@ -208,6 +208,9 @@ function createSearchWindow() {
       screenBounds = bounds;
     }
   });
+  searchWindow.on('blur', () => {
+    hide();
+  });
 };
 
 function createLoginWindow() {
