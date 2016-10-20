@@ -88,7 +88,7 @@ ipcMain.on('close-login', () => {
 });
 
 ipcMain.on('send-notification', (event, arg) => {
-  sendDesktopNotification(`Copied link to clipboard ✓`, `Cuely has copied link for document '${arg}' to clipboard`);
+  sendDesktopNotification(arg.title, arg.body);
 });
 
 //----------- UTILITY FUNCTIONS
@@ -185,7 +185,8 @@ function createSearchWindow() {
     frame: false,
     show: false,
     enableLargerThanScreen: true,
-    shadow: true
+    shadow: true,
+    resizable: false
   });
 
   // and load the index.html of the app.

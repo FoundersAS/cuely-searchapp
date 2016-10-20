@@ -152,7 +152,8 @@ export default class App extends Component {
     let index = this.getIndex(e.target.id);
     if (index > -1) {
       clipboard.writeText(this.state.searchResults[index].webLink);
-      ipcRenderer.send('send-notification', this.state.searchResults[index].titleRaw);
+      const docName = this.state.searchResults[index].titleRaw;
+      ipcRenderer.send('send-notification', { title: 'Copied link to clipboard ✓', body: `Cuely has copied link for document '${docName}' to clipboard` });
     }
     index = this.state.selectedIndex;
     const link = document.getElementById("searchItemLink_" + index);
