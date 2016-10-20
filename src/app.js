@@ -101,7 +101,7 @@ export default class App extends Component {
       this.setState({ selectedIndex: index, keyFocus: true });
     } else if (e.key === 'ArrowUp' || (e.ctrlKey && e.key === 'p')) {
       e.preventDefault();
-      index = (index < 0) ? index : index - 1;
+      index = (index < 1) ? index : index - 1;
       this.setState({ selectedIndex: index, keyFocus: true });
     } else if (e.key === 'Enter') {
       if (index > -1) {
