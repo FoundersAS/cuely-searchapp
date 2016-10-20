@@ -64,6 +64,7 @@ export default class App extends Component {
         node.children[0].focus();
       }
     }
+    this.refs.searchBar.setFocus();
   }
 
   getElementHeight(id) {
