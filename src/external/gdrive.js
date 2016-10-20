@@ -43,21 +43,31 @@ export function search(query) {
         content = highlightedValue('content', hit).replace(/\n\s*\n/g, '\n\n').replace(/<em>/g, '<em class="algolia_highlight">');
       }
 
-      let path = JSON.parse(highlightedValue('path', hit));
-      if (path.length > 0) {
-        let highlightedIndex = path.findIndex(x => x.indexOf('<em>') > -1);
-        if (highlightedIndex < 0) {
-          highlightedIndex = path.length - 1;
-        }
-        let folder = cutStringWithTags(path[highlightedIndex], 27, 'em', '…');
-        path = (highlightedIndex > 0 ? '…/' : '') + folder + ((highlightedIndex < path.length - 1) ? '/…' : '');
+      let title = highlightedValue('title', hit);
+      let path = '';
+      const isFolder = hit.secondary_keywords.indexOf('folders') > -1;
+      if (isFolder) {
+          let highlightedIndex = title.indexOf('<em>');
+          if (highlightedIndex > 20 && title.length > 30) {
+            title = '…' + title.substring(highlightedIndex - 20);
+          }
       } else {
-        path = '';
+        path = JSON.parse(highlightedValue('path', hit));
+        if (!isFolder && path.length > 0) {
+          let highlightedIndex = path.findIndex(x => x.indexOf('<em>') > -1);
+          if (highlightedIndex < 0) {
+            highlightedIndex = path.length - 1;
+          }
+          let folder = cutStringWithTags(path[highlightedIndex], 27, 'em', '…');
+          path = (highlightedIndex > 0 ? '…/' : '') + folder + ((highlightedIndex < path.length - 1) ? '/…' : '');
+        } else {
+          path = '';
+        }
       }
 
       return {
         type: 'gdrive',
-        title: highlightedValue('title', hit),
+        title: title,
         titleRaw: hit.title,
         content: content,
         metaInfo: {

@@ -115,7 +115,7 @@ export function cutStringWithTags(s, maxLen, tagName, ellipsis='…') {
   let cut = s.substring(0, rawCount);
   const tagCount = substringCount(cut, tag);
   const tagEndCount = substringCount(cut, tagEnd);
-  const appendEllipsis = cut.length < s.length;
+  const appendEllipsis = ellipsis && cut.length < s.length;
   // assuming at most 1 difference in count. If there's more, then we probably have nested or broken/missing tags and we give up.
   const appendEndTag = tagCount === tagEndCount || Math.abs(tagCount - tagEndCount) > 1;
 

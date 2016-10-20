@@ -293,7 +293,9 @@ function loadCredentialsOrLogin() {
           detail: error.text + '\n' + error.stack,
           buttons: ['Ok']
         }, () => {
-          app.quit();
+          if (!isDevelopment()) {
+            app.quit();
+          }
         });
       });
     } else {
