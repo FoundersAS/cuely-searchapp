@@ -34,7 +34,7 @@ export default class App extends Component {
   }
 
   componentDidMount() {
-    ipcRenderer.on('searchResult', (event, arg) => {
+    ipcRenderer.on('search-result', (event, arg) => {
       this.setState({ searchResults: arg, clearInput: false, selectedIndex: arg.length > 0 ? 0 : -1, keyFocus: false });
     });
     ipcRenderer.on('notification', (event, arg) => {

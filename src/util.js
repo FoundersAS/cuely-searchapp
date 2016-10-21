@@ -1,7 +1,39 @@
 import moment from 'moment';
+import { readFileSync, writeFileSync, existsSync } from 'fs';
 import request from 'superagent';
 import { API_ROOT } from './const.js';
 
+const settingsFile = '.cuely_prefs.json';
+const settingsDefaults = {
+  account: {},
+  globalShortcut: 'Cmd+Backspace',
+  showTrayIcon: true,
+  showDockIcon: true
+}
+
+// ---- SETTINGS
+export function getSettings(path) {
+  const file = `${path}/${settingsFile}`;
+  if (existsSync(file)) {
+    let settings = JSON.parse(readFileSync(`${path}/${settingsFile}`, 'utf8'));
+    for (let prop in settingsDefaults) {
+      if (!(prop in settings)) {
+        settings[prop] = settingsDefaults[prop];
+      }
+    }
+    return settings;
+  } else {
+    saveSettings(path, settingsDefaults);
+    return settingsDefaults;
+  }
+}
+
+export function saveSettings(path, settings) {
+  const file = `${path}/${settingsFile}`;
+  writeFileSync(file, JSON.stringify(settings, null, 2), 'utf8'); 
+}
+
+// ---- API CALLS
 export function getAlgoliaCredentials(csrfToken, sessionId) {
   return callApi('/home/algolia_key', csrfToken, sessionId);
 }
@@ -30,6 +62,7 @@ function callApi(endpoint, csrfToken, sessionId, accept = 'application/json') {
     });
 }
 
+// ---- DATE/TIME
 export function fromIsoDateToElapsed(isoDate) {
   const {duration, formatted} = fromIsoDateToNow(isoDate);
   let elapsed = formatted + ' ago';
@@ -80,6 +113,11 @@ function fromTimeUnit(unitName, unitValue) {
   return unitValue + ' ' + unitName + (unitValue !== 1 ? 's' : '');
 }
 
+// ---- STRINGS
+export function substringCount(s, sub) {
+  return (s.match(new RegExp(sub, 'ig')) || []).length;
+}
+
 /**
  * Cut a string to desired length and accounting for possible html tag.
  * For example: 'This is a <em>string</em' with maxLen param of 15 should produce 'This is a <em>strin…</em>'
@@ -120,8 +158,4 @@ export function cutStringWithTags(s, maxLen, tagName, ellipsis='…') {
   const appendEndTag = tagCount === tagEndCount || Math.abs(tagCount - tagEndCount) > 1;
 
   return cut + (appendEllipsis ? ellipsis : '') + (appendEndTag ? tagEnd : '');
-}
-
-export function substringCount(s, sub) {
-  return (s.match(new RegExp(sub, 'ig')) || []).length;
 }
