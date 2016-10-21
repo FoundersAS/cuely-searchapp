@@ -375,7 +375,7 @@ em {
   line-height: 1.3em;
   color: rgb(255, 255, 255);
   background-color: rgb(76, 174, 76);
-  margin-right: 30px;
+  margin-right: 10px;
   margin-top: 6px;
   text-decoration: none;
   text-align: center;
@@ -385,8 +385,97 @@ em {
   background-color: rgb(57, 132, 57);
 }
 
-/* Glyphicons reset */
+.login_actions .cancel {
+  background-color: transparent;
+  text-decoration: none;
+  text-align: center;
+  border-radius: 6px;
+  color: black;
+}
 
+.login_actions .cancel:hover {
+  background-color: rgb(200, 200, 200);
+}
+
+.settings_body {
+  height: 385px;
+  padding: 20px;
+  margin: 0;
+}
+
+.settings_body .title {
+  font-weight: 600;
+}
+
+.settings_body .options {
+  padding: 15px 15px 0  15px;
+  margin-bottom: 20px;
+}
+
+.settings_body .options .row {
+  display: flex;
+  flex-flow: row wrap;
+  line-height: 2em;
+}
+
+.settings_body .options .both {
+  flex: 2;
+}
+
+.settings_body .options .left {
+  width: 25%;
+}
+
+.settings_body .options .right {
+  width: 75%;
+}
+
+.settings_body .options .actions {
+  margin-top: 15px;
+}
+
+.settings_body .options .actions a {
+  padding: 5px;
+  margin-right: 5px;
+  border-radius: 2px;
+  width: 70px;
+  color: rgb(255, 255, 255);
+  background-color: rgb(16, 135, 221);
+  text-decoration: none;
+  text-align: center;
+  display: inline-block;
+}
+
+.settings_body input {
+  line-height: 1.5em;
+  background: none;
+  width: 200px;
+  font-size: 14px;
+  font-weight: 300;
+  color: black;
+  outline: none;
+  padding: .3em;
+}
+
+.settings_body input[type=checkbox] {
+  width: 20px;
+  vertical-align: middle;
+}
+
+.settings_body label {
+  display: block;
+  white-space: nowrap;
+}
+
+.settings_body label span {
+  vertical-align: middle;
+}
+
+.settings_body .options .actions a:hover {
+  background-color: rgb(0, 95, 200);
+}
+
+/* Glyphicons reset */
 .glyphicons:before {
   padding: 0;
 }

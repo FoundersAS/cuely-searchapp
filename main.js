@@ -1,6 +1,6 @@
 import electron, { ipcMain, session } from 'electron';
 import { search as searchGdrive, setAlgoliaCredentials } from './src/external/gdrive';
-import { getAlgoliaCredentials, getSyncStatus, startSync } from './src/util.js';
+import { getAlgoliaCredentials, getSyncStatus, startSync, getSettings, saveSettings } from './src/util.js';
 import { API_ROOT, isDevelopment } from './src/const.js';
 
 const { app, dialog, BrowserWindow, Menu, MenuItem, Tray, globalShortcut} = electron;
@@ -14,17 +14,20 @@ const searchCatalog = {
 // be closed automatically when the JavaScript object is garbage collected.
 let searchWindow;
 let loginWindow;
+let settingsWindow;
 let tray;
 
 let credentials;
 let appHide = true;
 let screenBounds;
 let syncPollerTimeout;
+let appPath;
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.on('ready', () => {
+  appPath = app.getPath('userData');
   buildMenu();
   loadCredentialsOrLogin();
 });
@@ -70,7 +73,7 @@ ipcMain.on('search', (event, arg) => {
   }
   Promise.all(searchers.map(search => search(q))).then(result => {
     const hits = [].concat.apply([], result);
-    event.sender.send('searchResult', hits);
+    event.sender.send('search-result', hits);
   });
 });
 
@@ -87,8 +90,48 @@ ipcMain.on('close-login', () => {
   loadCredentialsOrLogin();
 });
 
+ipcMain.on('close-settings', () => {
+  settingsWindow.close();
+});
+
 ipcMain.on('send-notification', (event, arg) => {
   sendDesktopNotification(arg.title, arg.body);
+});
+
+ipcMain.on('logout', (event, arg) => {
+  session.defaultSession.clearStorageData({origin: API_ROOT});
+  createLoginWindow();
+  settingsWindow.close();
+});
+
+ipcMain.on('account', (event, arg) => {
+  createLoginWindow();
+  settingsWindow.close();
+});
+
+ipcMain.on('settings-load', (event, arg) => {
+  event.sender.send('settings-result', getSettings(appPath));
+});
+
+ipcMain.on('settings-save', (event, settings) => {
+  saveSettings(appPath, settings);
+  sendDesktopNotification('Settings saved ✓', 'Cuely has successfully saved new settings');
+  updateGlobalShortcut();
+  if (settings.showTrayIcon) {
+    loadTray();
+  } else {
+    if(tray) {
+      tray.destroy();
+      tray = null;
+    }
+  }
+  if (settings.showDockIcon) {
+    if(!app.dock.isVisible()) {
+      app.dock.show();
+    }
+  } else {
+    app.dock.hide();
+  }
 });
 
 //----------- UTILITY FUNCTIONS
@@ -140,12 +183,7 @@ function buildMenu() {
 
 function customMenuItems() {
   return [
-    { label: "Preferences...", accelerator: "Command+,", click: () => { createLoginWindow(); }},
-    { label: "Clear cookies", click: () => {
-        session.defaultSession.clearStorageData({origin: API_ROOT});
-        createLoginWindow();
-      }
-    }
+    { label: "Preferences...", accelerator: "Command+,", click: () => { createSettingsWindow(); }},
   ];
 }
 
@@ -190,7 +228,7 @@ function createSearchWindow() {
   });
 
   // and load the index.html of the app.
-  searchWindow.loadURL(`file://${__dirname}/index.html`);
+  searchWindow.loadURL(`file://${__dirname}/index.html?route=app`);
 
   // Emitted when the window is closed.
   searchWindow.on('closed', () => {
@@ -221,7 +259,6 @@ function createLoginWindow() {
   }
 
   // Create the browser window.
-  const bounds = calculatePositionAndSize();
   loginWindow = new BrowserWindow({
     width: 800,
     height: 730,
@@ -261,7 +298,7 @@ function createLoginWindow() {
     }
   });
 
-  loginWindow.loadURL(`file://${__dirname}/index.html?login=true`);
+  loginWindow.loadURL(`file://${__dirname}/index.html?route=login`);
 
   // Emitted when the window is closed.
   loginWindow.on('closed', () => {
@@ -272,14 +309,53 @@ function createLoginWindow() {
   });
 }
 
+function createSettingsWindow() {
+  appHide = false;
+  if (settingsWindow) {
+    settingsWindow.show();
+    return;
+  }
+
+  // Create the browser window.
+  settingsWindow = new BrowserWindow({
+    width: 500,
+    height: 500,
+    center: true
+  });
+
+  settingsWindow.loadURL(`file://${__dirname}/index.html?route=settings`);
+
+  // Emitted when the window is closed.
+  settingsWindow.on('closed', () => {
+    // Dereference the window object, usually you would store windows
+    // in an array if your app supports multi windows, this is the time
+    // when you should delete the corresponding element.
+    settingsWindow = null;
+  });
+}
+
 function loadCredentialsOrLogin() {
-  loadTray();
   useAuthCookies((csrf, sessionId) => {
     if (csrf && sessionId) {
       getAlgoliaCredentials(csrf, sessionId).then(([response, error]) => {
         if (response) {
           if (response.appId) {
             setAlgoliaCredentials(response);
+            // update settings
+            let settings = getSettings(appPath);
+            settings.account = {
+              email: response.email,
+              username: response.username,
+              userid: response.userid
+            }
+            saveSettings(appPath, settings);
+            if (settings.showTrayIcon) {
+              loadTray();
+            }
+            if (!settings.showDockIcon) {
+              app.dock.hide();
+            }
+
             endLogin();
           } else {
             createLoginWindow();
@@ -397,17 +473,25 @@ function loadTray() {
 }
 
 function endLogin() {
-  // init global shortcut
-  const ret = globalShortcut.register('CommandOrControl+Backspace', () => {
-    toggleHideOrCreate();
-  })
+  updateGlobalShortcut();
 
-  console.log(ret ? 'Registered global shurtcut' : 'Could not register global shortcut');
   if (!searchWindow) {
     createSearchWindow();
   }
   if (loginWindow) {
     loginWindow.close();
+  }
+}
+
+function updateGlobalShortcut() {
+  const shortcut = getSettings(appPath).globalShortcut;
+  if (!globalShortcut.isRegistered(shortcut)) {
+    globalShortcut.unregisterAll();
+    const ret = globalShortcut.register(getSettings(appPath).globalShortcut, () => {
+      toggleHideOrCreate();
+    })
+
+    console.log(ret ? `Registered global shurtcut <${shortcut}>` : `Could not register global shortcut <${shortcut}>`);
   }
 }
 
