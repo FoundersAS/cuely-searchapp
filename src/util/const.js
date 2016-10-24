@@ -8,3 +8,11 @@ export function isProduction() {
 export function isDevelopment() {
   return (process.env.NODE_ENV === 'development');
 }
+
+export function isBackendProduction() {
+  return (process.env.BACKEND === 'production');
+}
+
+export function isBackendDevelopment() {
+  return (process.env.BACKEND === 'development');
+}

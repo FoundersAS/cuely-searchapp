@@ -1,37 +1,6 @@
 import moment from 'moment';
-import { readFileSync, writeFileSync, existsSync } from 'fs';
 import request from 'superagent';
 import { API_ROOT } from './const.js';
-
-const settingsFile = '.cuely_prefs.json';
-const settingsDefaults = {
-  account: {},
-  globalShortcut: 'Cmd+Backspace',
-  showTrayIcon: true,
-  showDockIcon: true
-}
-
-// ---- SETTINGS
-export function getSettings(path) {
-  const file = `${path}/${settingsFile}`;
-  if (existsSync(file)) {
-    let settings = JSON.parse(readFileSync(`${path}/${settingsFile}`, 'utf8'));
-    for (let prop in settingsDefaults) {
-      if (!(prop in settings)) {
-        settings[prop] = settingsDefaults[prop];
-      }
-    }
-    return settings;
-  } else {
-    saveSettings(path, settingsDefaults);
-    return settingsDefaults;
-  }
-}
-
-export function saveSettings(path, settings) {
-  const file = `${path}/${settingsFile}`;
-  writeFileSync(file, JSON.stringify(settings, null, 2), 'utf8'); 
-}
 
 // ---- API CALLS
 export function getAlgoliaCredentials(csrfToken, sessionId) {
