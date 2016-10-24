@@ -1,7 +1,9 @@
 import electron, { ipcMain, session } from 'electron';
 import { search as searchGdrive, setAlgoliaCredentials } from './src/external/gdrive';
-import { getAlgoliaCredentials, getSyncStatus, startSync, getSettings, saveSettings } from './src/util.js';
-import { API_ROOT, isDevelopment } from './src/const.js';
+import { getAlgoliaCredentials, getSyncStatus, startSync } from './src/util/util.js';
+import { API_ROOT, isDevelopment } from './src/util/const.js';
+import { initPrefs } from './src/util/prefs.js';
+import { initSegment } from './src/util/segment.js';
 
 const { app, dialog, BrowserWindow, Menu, MenuItem, Tray, globalShortcut} = electron;
 
@@ -21,13 +23,15 @@ let credentials;
 let appHide = true;
 let screenBounds;
 let syncPollerTimeout;
-let appPath;
+let prefs;
+let segment;
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.on('ready', () => {
-  appPath = app.getPath('userData');
+  const appPath = app.getPath('userData');
+  prefs = initPrefs(appPath);
   buildMenu();
   loadCredentialsOrLogin();
 });
@@ -110,11 +114,11 @@ ipcMain.on('account', (event, arg) => {
 });
 
 ipcMain.on('settings-load', (event, arg) => {
-  event.sender.send('settings-result', getSettings(appPath));
+  event.sender.send('settings-result', prefs.getAll());
 });
 
 ipcMain.on('settings-save', (event, settings) => {
-  saveSettings(appPath, settings);
+  prefs.saveAll(settings);
   sendDesktopNotification('Settings saved ✓', 'Cuely has successfully saved new settings');
   updateGlobalShortcut();
   if (settings.showTrayIcon) {
@@ -342,19 +346,25 @@ function loadCredentialsOrLogin() {
           if (response.appId) {
             setAlgoliaCredentials(response);
             // update settings
-            let settings = getSettings(appPath);
+            let settings = prefs.getAll();
             settings.account = {
               email: response.email,
               username: response.username,
-              userid: response.userid
+              name: response.name,
+              userid: response.userid,
+              segmentIdentified: response.segmentIdentified
             }
-            saveSettings(appPath, settings);
+            prefs.saveAll(settings);
             if (settings.showTrayIcon) {
               loadTray();
             }
             if (!settings.showDockIcon) {
               app.dock.hide();
             }
+
+            // init segment
+            segment = initSegment(response.segmentKey);
+            segment.identify();
 
             endLogin();
           } else {
@@ -373,6 +383,8 @@ function loadCredentialsOrLogin() {
             app.quit();
           }
         });
+      }).catch(err => {
+        console.log(err);
       });
     } else {
       createLoginWindow();
@@ -484,10 +496,10 @@ function endLogin() {
 }
 
 function updateGlobalShortcut() {
-  const shortcut = getSettings(appPath).globalShortcut;
+  const shortcut = prefs.getAll().globalShortcut;
   if (!globalShortcut.isRegistered(shortcut)) {
     globalShortcut.unregisterAll();
-    const ret = globalShortcut.register(getSettings(appPath).globalShortcut, () => {
+    const ret = globalShortcut.register(shortcut, () => {
       toggleHideOrCreate();
     })
 

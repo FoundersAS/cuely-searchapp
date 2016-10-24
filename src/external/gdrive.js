@@ -1,6 +1,6 @@
 import AlgoliaSearch from 'algoliasearch';
-import { fromIsoDateToElapsed, cutStringWithTags } from '../util.js';
-import { ALGOLIA_INDEX } from '../const.js';
+import { fromIsoDateToElapsed, cutStringWithTags } from '../util/util.js';
+import { ALGOLIA_INDEX } from '../util/const.js';
 
 const algoliaConf = {
   indexName: ALGOLIA_INDEX
