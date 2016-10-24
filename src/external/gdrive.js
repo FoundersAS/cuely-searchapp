@@ -44,25 +44,23 @@ export function search(query) {
       }
 
       let title = highlightedValue('title', hit);
-      let path = '';
       const isFolder = hit.secondary_keywords.indexOf('folders') > -1;
       if (isFolder) {
           let highlightedIndex = title.indexOf('<em>');
           if (highlightedIndex > 20 && title.length > 30) {
             title = '…' + title.substring(highlightedIndex - 20);
           }
-      } else {
-        path = JSON.parse(highlightedValue('path', hit));
-        if (!isFolder && path.length > 0) {
-          let highlightedIndex = path.findIndex(x => x.indexOf('<em>') > -1);
-          if (highlightedIndex < 0) {
-            highlightedIndex = path.length - 1;
-          }
-          let folder = cutStringWithTags(path[highlightedIndex], 27, 'em', '…');
-          path = (highlightedIndex > 0 ? '…/' : '') + folder + ((highlightedIndex < path.length - 1) ? '/…' : '');
-        } else {
-          path = '';
+      }
+      let path = JSON.parse(highlightedValue('path', hit));
+      if (path.length > 0) {
+        let highlightedIndex = path.findIndex(x => x.indexOf('<em>') > -1);
+        if (highlightedIndex < 0) {
+          highlightedIndex = path.length - 1;
         }
+        let folder = cutStringWithTags(path[highlightedIndex], 27, 'em', '…');
+        path = (highlightedIndex > 0 ? '…/' : '') + folder + ((highlightedIndex < path.length - 1) ? '/…' : '');
+      } else {
+        path = '';
       }
 
       return {
