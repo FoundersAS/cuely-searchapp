@@ -1,5 +1,5 @@
 import Analytics from 'analytics-node';
-import { isBackendDevelopment } from './const.js';
+import { isDevelopment } from './const.js';
 import { Prefs } from './prefs.js';
 
 class SegmentConnector {
@@ -10,7 +10,7 @@ class SegmentConnector {
 
   identify() {
     if (!this.user.segmentIdentified) {
-      const userid = isBackendDevelopment() ? 'developer' : this.user.userid;
+      const userid = isDevelopment() ? 'developer' : this.user.userid;
 
       this.analytics.identify({
         userId: userid,
