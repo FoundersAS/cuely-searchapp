@@ -120,7 +120,7 @@ export default class Settings extends Component {
               </div>
               <div className="both">
                 <div className="actions">
-                  <a href="#" onClick={this.handleAccount}>Manage</a>
+                  <a href="#" onClick={this.handleAccount}>Integrations</a>
                   <a href="#" onClick={this.handleLogout}>Logout</a>
                 </div>
               </div>
@@ -128,7 +128,7 @@ export default class Settings extends Component {
           </div>
           <hr />
           <div>
-            <div className="title">Global shortcut</div>
+            <div className="title">Set Global Shortcut</div>
             <div className="options">
               <div className="row">
                 <div className="left">
