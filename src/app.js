@@ -24,6 +24,7 @@ export default class App extends Component {
     this.handleActionIconLinkClick = ::this.handleActionIconLinkClick;
     this.renderSelectedItemContent = ::this.renderSelectedItemContent;
     this.handleMouseEnter = ::this.handleMouseEnter;
+    this.openExternalLink = ::this.openExternalLink;
     this.state = {
       searchResults: [],
       selectedIndex: -1,
@@ -31,6 +32,7 @@ export default class App extends Component {
       keyFocus: false
     }
     this.hoverDisabled = false;
+    this.segmentTimer = null;
   }
 
   componentDidMount() {
@@ -108,10 +110,7 @@ export default class App extends Component {
       index = (index < 1) ? index : index - 1;
       this.setState({ selectedIndex: index, keyFocus: true });
     } else if (e.key === 'Enter') {
-      if (index > -1) {
-        shell.openExternal(this.state.searchResults[index].webLink);
-        ipcRenderer.send('hide-search');
-      }
+      this.openExternalLink(index, 'enter');
     }
 
     this.hideHover();
@@ -126,7 +125,16 @@ export default class App extends Component {
   }
 
   handleInput(e) {
-    ipcRenderer.send('search', e.target.value);
+    const q = e.target.value;
+    ipcRenderer.send('search', q);
+    if (this.segmentTimer) {
+      clearTimeout(this.segmentTimer);
+    }
+    if (q.length > 0) {
+      this.segmentTimer = setTimeout(() => {
+        ipcRenderer.send('track', { name: 'Search', props: { query: q } });
+      }, 1000);
+    }
   }
 
   handleClick(e) {
@@ -140,19 +148,20 @@ export default class App extends Component {
 
   handleDoubleClick(e) {
     e.preventDefault();
-    const index = this.getIndex(e.target.id);
-    if (index > -1) {
-      shell.openExternal(this.state.searchResults[index].webLink);
-      ipcRenderer.send('hide-search');
-    }
+    this.openExternalLink(this.getIndex(e.target.id), 'double click');
   }
 
   handleExternalLink(e) {
     e.preventDefault();
-    const index = this.state.selectedIndex;
+    this.openExternalLink(this.state.selectedIndex, 'view in app button');
+  }
 
-    shell.openExternal(this.state.searchResults[index].webLink);
-    ipcRenderer.send('hide-search');
+  openExternalLink(index, triggerType) {
+    if (index > -1) {
+      shell.openExternal(this.state.searchResults[index].webLink);
+      ipcRenderer.send('hide-search');
+      ipcRenderer.send('track', { name: 'Open link', props: { type: triggerType } });
+    }
   }
 
   handleActionIconLinkClick(e) {
@@ -163,6 +172,7 @@ export default class App extends Component {
       clipboard.writeText(this.state.searchResults[index].webLink);
       const docName = this.state.searchResults[index].titleRaw;
       ipcRenderer.send('send-notification', { title: 'Copied link to clipboard ✓', body: `Cuely has copied link for document '${docName}' to clipboard` });
+      ipcRenderer.send('track', { name: 'Copy link', props: {} });
     }
     index = this.state.selectedIndex;
     const link = document.getElementById("searchItemLink_" + index);

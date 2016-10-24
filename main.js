@@ -1,6 +1,6 @@
 import electron, { ipcMain, session } from 'electron';
 import { search as searchGdrive, setAlgoliaCredentials } from './src/external/gdrive';
-import { getAlgoliaCredentials, getSyncStatus, startSync } from './src/util/util.js';
+import { getAlgoliaCredentials, getSyncStatus, startSync, setSegmentStatus } from './src/util/util.js';
 import { API_ROOT, isDevelopment } from './src/util/const.js';
 import { initPrefs } from './src/util/prefs.js';
 import { initSegment } from './src/util/segment.js';
@@ -136,6 +136,10 @@ ipcMain.on('settings-save', (event, settings) => {
   } else {
     app.dock.hide();
   }
+});
+
+ipcMain.on('track', (event, arg) => {
+  segment.track(arg.name, arg.props);
 });
 
 //----------- UTILITY FUNCTIONS
@@ -364,7 +368,10 @@ function loadCredentialsOrLogin() {
 
             // init segment
             segment = initSegment(response.segmentKey);
-            segment.identify();
+            const identified = segment.identify();
+            if (identified) {
+              setSegmentStatus(csrf, sessionId, identified);
+            }
 
             endLogin();
           } else {

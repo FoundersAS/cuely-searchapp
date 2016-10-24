@@ -8,9 +8,13 @@ class SegmentConnector {
     this.analytics = new Analytics(writeKey);
   }
 
+  _userId() {
+    return isDevelopment() ? 'developer' : this.user.userid;
+  }
+
   identify() {
     if (!this.user.segmentIdentified) {
-      const userid = isDevelopment() ? 'developer' : this.user.userid;
+      const userid = this._userId();
 
       this.analytics.identify({
         userId: userid,
@@ -23,8 +27,20 @@ class SegmentConnector {
       this.user.segmentIdentified = true;
       Prefs.saveAccount(this.user);
       console.log(`Segment identify sent: ${userid}, ${this.user.name}, ${this.user.email}`);
+      return true;
     }
+    return false;
   } 
+
+  track(eventName, eventProps) {
+    if (this.user.segmentIdentified) {
+      this.analytics.track({
+        userId: this._userId(),
+        event: eventName,
+        properties: eventProps
+      });
+    }
+  }
 }
 
 let Segment;
