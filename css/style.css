@@ -53,6 +53,44 @@ em {
   overflow: auto;
 }
 
+.search_suggestions_content table {
+  color: #111;
+  white-space: pre-wrap;
+  font-size: 12px;
+  font-weight: 300;
+  font-family: "BlinkMacSystemFont";
+  overflow: scroll;
+  border-collapse: collapse;
+  display: block;
+}
+
+.search_suggestions_content table td {
+  border: 1px solid #DEDEDE;
+  padding: .3rem;
+  text-align: left;
+  min-width: 120px;
+}
+
+.search_suggestions_content table th {
+  background-color: #fdfee3;
+  padding: .3rem;
+  text-align: left;
+  min-width: 120px;
+}
+
+table tr:first-child th {
+  border-top: 0;
+}
+table tr td:first-child,
+table tr th:first-child {
+  border-left: 0;
+  padding-left: .5rem;
+}
+table tr td:last-child,
+table tr th:last-child {
+  border-right: 0;
+}
+
 .search_suggestions_content .title_drive {
   background-color: #E8E8E8;
   color: #111;

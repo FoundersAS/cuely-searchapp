@@ -1,6 +1,7 @@
 import moment from 'moment';
 import request from 'superagent';
 import { API_ROOT } from './const.js';
+import Baby from 'babyparse';
 
 // ---- API CALLS
 export function getAlgoliaCredentials(csrfToken, sessionId) {
@@ -12,16 +13,22 @@ export function getSyncStatus(csrfToken, sessionId) {
 }
 
 export function startSync(csrfToken, sessionId) {
-  return callApi('/home/sync', csrfToken, sessionId, 'text/html');
+  return callApi('/home/sync', csrfToken, sessionId, {}, 'POST', 'text/html');
 }
 
-function callApi(endpoint, csrfToken, sessionId, accept = 'application/json') {
+export function setSegmentStatus(csrfToken, sessionId, identified) {
+  return callApi('/home/update_segment', csrfToken, sessionId, { identified }, 'POST');
+}
+
+function callApi(endpoint, csrfToken, sessionId, params = {}, method = 'GET', accept = 'application/json') {
   console.log("calling api: " + API_ROOT + endpoint);
-  return request
-    .post(API_ROOT + endpoint)
+  const call_fn = (method == 'POST') ? request.post : request.get;
+
+  return call_fn(API_ROOT + endpoint)
     .set('Accept', accept)
     .set('X-CSRFToken', csrfToken)
     .set('Cookie', `csrftoken=${csrfToken}; sessionid=${sessionId}`)
+    .query(params)
     .timeout(10000)
     .then(response => {
       return [response.body, null];
@@ -127,4 +134,11 @@ export function cutStringWithTags(s, maxLen, tagName, ellipsis='…') {
   const appendEndTag = tagCount === tagEndCount || Math.abs(tagCount - tagEndCount) > 1;
 
   return cut + (appendEllipsis ? ellipsis : '') + (appendEndTag ? tagEnd : '');
+}
+
+export function parseCsv(csvOrTsv) {
+  const rows = Baby.parse(csvOrTsv).data;
+  // skip all empty rows
+  const idx = rows.findIndex((row, index, array) => row.filter(value => value.length > 0).length > 0);
+  return idx < 0 ? [] : rows.slice(idx);
 }
