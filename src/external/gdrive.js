@@ -43,7 +43,12 @@ export function search(query) {
         content = highlightedValue('content', hit).replace(/\n\s*\n/g, '\n\n').replace(/<em>/g, '<em class="algolia_highlight">');
       }
       if (['csv', 'tsv', 'comma', 'tab', 'spreadsheet'].filter(x => hit.mime_type.indexOf(x) > -1).length > 0) {
-        content = parseCsv(content);
+        try {
+          content = parseCsv(content);
+        } catch (e) {
+          console.log(`Could not parse: ${hit.title}`);
+          console.log(e);
+        }
       }
 
       let title = highlightedValue('title', hit);
