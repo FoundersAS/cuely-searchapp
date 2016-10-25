@@ -73,9 +73,11 @@ em {
 
 .search_suggestions_content table th {
   background-color: #fdfee3;
+  border: 1px solid #DEDEDE;
   padding: .3rem;
   text-align: left;
   min-width: 120px;
+  font-weight: 500;
 }
 
 table tr:first-child th {
