@@ -42,7 +42,7 @@ export function search(query) {
       if (hit.content && hit.content.length > 0) {
         content = highlightedValue('content', hit).replace(/\n\s*\n/g, '\n\n').replace(/<em>/g, '<em class="algolia_highlight">');
       }
-      if (['csv', 'tsv', 'comma', 'tab', 'spreadsheet'].filter(x => hit.mime_type.indexOf(x) > -1).length > 0) {
+      if (['csv', 'tsv', 'comma', 'tab', 'google-apps.spreadsheet'].filter(x => hit.mime_type.indexOf(x) > -1).length > 0) {
         try {
           content = parseCsv(content);
         } catch (e) {
