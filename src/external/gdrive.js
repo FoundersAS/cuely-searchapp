@@ -1,5 +1,5 @@
 import AlgoliaSearch from 'algoliasearch';
-import { fromIsoDateToElapsed, cutStringWithTags } from '../util/util.js';
+import { fromIsoDateToElapsed, cutStringWithTags, parseCsv } from '../util/util.js';
 import { ALGOLIA_INDEX } from '../util/const.js';
 
 const algoliaConf = {
@@ -41,6 +41,9 @@ export function search(query) {
       let content = null;
       if (hit.content && hit.content.length > 0) {
         content = highlightedValue('content', hit).replace(/\n\s*\n/g, '\n\n').replace(/<em>/g, '<em class="algolia_highlight">');
+      }
+      if (['csv', 'tsv', 'comma', 'tab', 'spreadsheet'].filter(x => hit.mime_type.indexOf(x) > -1).length > 0) {
+        content = parseCsv(content);
       }
 
       let title = highlightedValue('title', hit);

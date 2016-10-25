@@ -1,6 +1,7 @@
 import moment from 'moment';
 import request from 'superagent';
 import { API_ROOT } from './const.js';
+import Baby from 'babyparse';
 
 // ---- API CALLS
 export function getAlgoliaCredentials(csrfToken, sessionId) {
@@ -133,4 +134,11 @@ export function cutStringWithTags(s, maxLen, tagName, ellipsis='…') {
   const appendEndTag = tagCount === tagEndCount || Math.abs(tagCount - tagEndCount) > 1;
 
   return cut + (appendEllipsis ? ellipsis : '') + (appendEndTag ? tagEnd : '');
+}
+
+export function parseCsv(csvOrTsv) {
+  const rows = Baby.parse(csvOrTsv).data;
+  // skip all empty rows
+  const idx = rows.findIndex((row, index, array) => row.filter(value => value.length > 0).length > 0);
+  return idx < 0 ? [] : rows.slice(idx);
 }

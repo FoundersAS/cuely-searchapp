@@ -4,8 +4,6 @@ import { ipcRenderer, shell, clipboard } from 'electron';
 
 import { Scrollbars } from 'react-custom-scrollbars';
 import SearchBar from './components/SearchBar';
-// import CuelyLogo from './logos/cuely-logo.svg';
-// import GoogleLogo from './logos/google-logo.png';
 
 export default class App extends Component {
   constructor(props){
@@ -48,14 +46,20 @@ export default class App extends Component {
   }
 
   componentDidUpdate() {
-    const content = document.getElementById("searchSuggestionsContent");
+    const  content = document.getElementById("searchSuggestionsContent");
     if (content) {
       // scroll the content to first highlight result (or to beginning if there's no highlighted result)
       const elms = document.getElementsByClassName("algolia_highlight");
       if (elms && elms.length > 0) {
-        content.scrollTop = elms[0].offsetTop - 150;
+        let elm = elms[0];
+        if (elm.parentElement.nodeName === 'TD' || elm.parentElement.nodeName === 'TH') {
+          elm = elm.parentElement;
+        }
+        content.scrollTop = elm.offsetTop - 150;
+        content.scrollLeft = elm.offsetLeft - 50;
       } else {
         content.scrollTop = 0;
+        content.scrollLeft = 0;
       }
     }
 
@@ -261,6 +265,41 @@ export default class App extends Component {
     )
   }
 
+  renderRow(row, i) {
+    let cells = [];
+    for (let k=0;k < row.length;k++) {
+      if (i === -1) {
+        cells.push(<th key={`tableHeader_${k}`} dangerouslySetInnerHTML={{ __html: row[k] }}></th>);
+      } else {
+        cells.push(<td key={`tableCell${i}_${k}`} dangerouslySetInnerHTML={{ __html: row[k] }}></td>);
+      }
+    }
+
+    return (
+      <tr key={`tableRow${i}`}>
+        {cells}
+      </tr>
+    )
+  }
+
+  renderContentValue(content) {
+    if (content instanceof Array) {
+      return (
+        <table id="searchSuggestionsContentTable">
+          <thead>
+            {this.renderRow(content[0], -1)}
+          </thead>
+          <tbody>
+            {content.slice(1).map(this.renderRow)}
+          </tbody>
+        </table>
+      )
+    }
+    return (
+      <pre id="searchSuggestionsContentPre" dangerouslySetInnerHTML={{ __html: content }} />
+    )
+  }
+
   renderSelectedItemContent(i) {
     if (i < 0) {
       return null;
@@ -283,7 +322,7 @@ export default class App extends Component {
                                 : <div key={`avatar_${i}_${user.name}`} className={user.nameHighlight ? "avatar no_avatar active" : "avatar no_avatar"}>{this.initials(user.name)}</div>))}
           </div>
           <div className="title_drive">contents</div>
-          <pre id="searchSuggestionsContentPre" dangerouslySetInnerHTML={{ __html: item.content }} />
+          {this.renderContentValue(item.content)}
         </div>
       )
     }
@@ -291,7 +330,7 @@ export default class App extends Component {
       return (
         <div>
           <div className="title_drive">contents</div>
-          <pre id="searchSuggestionsContentPre" dangerouslySetInnerHTML={{ __html: item.content }} />
+          {this.renderContentValue(item.content)}
         </div>
       )
     }

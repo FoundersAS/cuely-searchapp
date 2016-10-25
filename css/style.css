@@ -53,6 +53,31 @@ em {
   overflow: auto;
 }
 
+.search_suggestions_content table {
+  color: black;
+  white-space: pre-wrap;
+  font-size: 12px;
+  font-weight: 300;
+  margin: .5rem;
+  font-family: "BlinkMacSystemFont";
+  overflow: auto;
+  border-collapse: collapse;
+}
+
+.search_suggestions_content table td {
+  border: black 1px solid;
+  padding: .3rem;
+  text-align: left;
+  min-width: 120px;
+}
+
+.search_suggestions_content table th {
+  border: black 1px solid;
+  padding: .3rem;
+  text-align: left;
+  min-width: 120px;
+}
+
 .search_suggestions_content .title_drive {
   background-color: #E8E8E8;
   color: #111;
