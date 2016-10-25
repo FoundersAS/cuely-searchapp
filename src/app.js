@@ -7,6 +7,61 @@ import SearchBar from './components/SearchBar';
 // import CuelyLogo from './logos/cuely-logo.svg';
 // import GoogleLogo from './logos/google-logo.png';
 
+const icons = [
+  {
+    type: 'application/vnd.google-apps.document',
+    spriteOffset: 0
+  },
+  {
+    type: 'application/vnd.google-apps.spreadsheet',
+    spriteOffset: 3
+  },
+  {
+    type: 'image',
+    spriteOffset: 1
+  },
+  {
+    type: 'application/vnd.google-apps.presentation',
+    spriteOffset: 2
+  },
+  {
+    type: 'application/vnd.google-apps.form',
+    spriteOffset: 4
+  },
+  {
+    type: 'application/vnd.google-apps.drawing',
+    spriteOffset: 5
+  },
+  {
+    type: 'application/vnd.google-apps.folder',
+    spriteOffset: 6
+  },
+  {
+    type: 'intercom',
+    spriteOffset: 7
+  },
+  {
+    type: 'salesforce',
+    spriteOffset: 8
+  },
+  {
+    type: 'trello',
+    spriteOffset: 9
+  },
+  {
+    type: 'github',
+    spriteOffset: 10
+  },
+  {
+    type: 'stripe',
+    spriteOffset: 11
+  },
+  {
+    type: 'application/pdf',
+    spriteOffset: 12
+  }
+]
+
 export default class App extends Component {
   constructor(props){
     super();
@@ -222,33 +277,76 @@ export default class App extends Component {
   renderItem(item, i) {
     const liClass = (i === this.state.selectedIndex) ? 'search_suggestions_card_highlight' : 'search_suggestions_card';
     // const icon = item.displayIcon ? item.displayIcon : (item.type === 'intra' ? CuelyLogo : GoogleLogo);
-    const icon = item.displayIcon;
+    const icon = this.getIcon(item);
 
     return (
       <li key={i} className={liClass} ref={`searchItem_${i}`}>
         <a href="#" onClick={this.handleClick} onDoubleClick={this.handleDoubleClick} onKeyDown={this.handleKeyDown} onMouseMove={this.handleMouseMove} className="search_suggestion_card_link" id={`searchItemLink_${i}`}>
-          <img src={icon} className="search_suggestions_logo" />
+          <div style={icon.inlineStyle} className={icon.style} />
           <div className="search_suggestions_data">
             <div className="heading">
               <div className="title" dangerouslySetInnerHTML={{ __html: item.title }} />
-              <div className="avatars">
-                {item.metaInfo.users[0].avatar
-                    ? <div style={{ backgroundImage: 'url(' + item.metaInfo.users[0].avatar + ')' }} className={item.metaInfo.users[0].nameHighlight ? "avatar active" : "avatar"} />
-                    : <div className={item.metaInfo.users[0].nameHighlight ? "avatar no_avatar active" : "avatar no_avatar"}>{this.initials(item.metaInfo.users[0].name)}</div>}
-              </div>
+              {this.renderAvatar(item)}
             </div>
-            <div className="body">
-              <span className="meta_icon glyphicons glyphicons-clock"></span>
-              <span className="meta_data">{item.metaInfo.time}</span>
-              {item.metaInfo.path.length > 0
-                  ? <span><span className="meta_icon glyphicons glyphicons-folder-open"></span><span className="meta_data" dangerouslySetInnerHTML={{ __html: item.metaInfo.path }} /></span>
-                  : null}
-            </div>
+            {this.renderBody(item)}
           </div>
         </a>
-        <span id={`actionIcon_${i}`} className="action_icon glyphicons glyphicons-link" onClick={this.handleActionIconLinkClick} onMouseEnter={this.handleMouseEnter}></span>
+        {this.renderActionItems(item,i)}
       </li>
     )
+  }
+
+  getIcon(item){
+    let displayIcon = {
+      'inlineStyle': {backgroundImage: 'url(' + item.displayIcon + ')'},
+      'style': 'search_suggestions_logo'
+    };
+    
+    for (let itemIcons of icons){
+      if (itemIcons.type == item.type){
+        const verticalOffset = itemIcons.spriteOffset*(-25) + 'px';
+
+        displayIcon.inlineStyle = { 'backgroundPosition': '0 ' + verticalOffset };
+        displayIcon.style = displayIcon.style + ' ' + 'search_suggestions_logo_sprite';
+        return (displayIcon);
+      }
+    }
+
+    return (displayIcon);
+  }
+
+  renderAvatar(item) {
+    if (item.metaInfo){
+      return (
+        <div className="avatars">
+          {item.metaInfo.users[0].avatar
+              ? <div style={{ backgroundImage: 'url(' + item.metaInfo.users[0].avatar + ')' }} className={item.metaInfo.users[0].nameHighlight ? "avatar active" : "avatar"} />
+              : <div className={item.metaInfo.users[0].nameHighlight ? "avatar no_avatar active" : "avatar no_avatar"}>{this.initials(item.metaInfo.users[0].name)}</div>}
+        </div>
+      );
+    }
+  }
+
+  renderBody(item) {
+    if (item.metaInfo){
+      return (
+        <div className="body">
+          <span className="meta_icon glyphicons glyphicons-clock"></span>
+          <span className="meta_data">{item.metaInfo.time}</span>
+          {item.metaInfo.path.length > 0
+              ? <span><span className="meta_icon glyphicons glyphicons-folder-open"></span><span className="meta_data" dangerouslySetInnerHTML={{ __html: item.metaInfo.path }} /></span>
+              : null}
+        </div>
+      );
+    }
+  }
+
+  renderActionItems(item,i) {
+    if (item.metaInfo){
+      return (
+        <span id={`actionIcon_${i}`} className="action_icon glyphicons glyphicons-link" onClick={this.handleActionIconLinkClick} onMouseEnter={this.handleMouseEnter}></span>
+      );
+    }
   }
 
   renderSelectedItemContent(i) {

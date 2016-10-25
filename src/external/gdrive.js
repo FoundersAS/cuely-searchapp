@@ -64,7 +64,8 @@ export function search(query) {
       }
 
       return {
-        type: 'gdrive',
+        typeMeta: 'gdrive',
+        type: hit.mime_type,
         title: title,
         titleRaw: hit.title,
         content: content,

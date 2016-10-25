@@ -222,8 +222,17 @@ em {
 .search_suggestions_logo {
   width: 25px;
   height: 25px;
-  padding: .35rem .5rem .3rem 0;
+  padding: 0 .5rem 0 0;
+  margin-top: .35rem;
   pointer-events: none;
+  background-size: 25px 25px;
+  background-repeat: no-repeat;
+}
+
+.search_suggestions_logo_sprite {
+  background: url('../assets/images/other/cuely_icons_sprite@2x.png');
+  background-size: 25px 325px;
+  background-repeat: no-repeat;
 }
 
 .search_suggestions_data {

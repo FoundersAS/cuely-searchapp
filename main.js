@@ -7,6 +7,30 @@ import { initSegment } from './src/util/segment.js';
 
 const { app, dialog, BrowserWindow, Menu, MenuItem, Tray, globalShortcut} = electron;
 
+const newKeywords = [
+  {
+    type: 'application/vnd.google-apps.document',
+    typeMeta: 'gdrive',
+    keywords: ['doc','docs','documents','document','gdoc','google doc','google document'],
+    title: '<em>Create a new Google Document</em>',
+    link: 'https://google.com/docs/create'
+  },
+  {
+    type: 'application/vnd.google-apps.spreadsheet',
+    typeMeta: 'gdrive',
+    keywords: ['sheet','sheets','spreadsheet','spreadsheets','google sheet'],
+    title: '<em>Create a new Google Sheet</em>',
+    link: 'https://google.com/sheets/create'
+  },
+  {
+    type: 'application/vnd.google-apps.presentation',
+    typeMeta: 'gdrive',
+    keywords: ['slide','slides','google slide','google slides','prezo','presentation','google presentation'],
+    title: '<em>Create a new Google Presentation</em>',
+    link: 'https://google.com/slides/create'
+  }
+];
+
 const searchCatalog = {
   // intra: searchIntra,
   gdrive: searchGdrive
@@ -63,6 +87,8 @@ ipcMain.on('log', (event, arg) => {
 ipcMain.on('search', (event, arg) => {
   let searchers = [];
   let q = arg;
+  const words = arg.split(' ');
+
   if (arg.indexOf(' ') > -1) {
     const words = arg.split(' ');
     const searcher = words[0];
@@ -76,7 +102,12 @@ ipcMain.on('search', (event, arg) => {
     searchers = Object.keys(searchCatalog).map(key => searchCatalog[key]);
   }
   Promise.all(searchers.map(search => search(q))).then(result => {
-    const hits = [].concat.apply([], result);
+    let hits = [].concat.apply([], result);
+
+    const newItemType = getNewKeywordType(arg);
+    if (newItemType){
+      hits.unshift(getNewItem(newItemType));
+    }
     event.sender.send('search-result', hits);
   });
 });
@@ -505,6 +536,41 @@ function updateGlobalShortcut() {
 
     console.log(ret ? `Registered global shurtcut <${shortcut}>` : `Could not register global shortcut <${shortcut}>`);
   }
+}
+
+function getNewKeywordType(arg){
+  const words = arg.split('new ');
+  if (words.length < 2){
+    return null;
+  }
+  else {
+    for (let item of newKeywords){
+      for (let keyword of item.keywords){
+        if (keyword.indexOf(words[1].trim()) != -1){
+          return item;
+        }
+      }
+    }
+    return null;
+  }
+}
+
+function getNewItem(item){
+  const newItem = {
+    metaType: item.typeMeta,
+    type: item.type,
+    title: item.title,
+    titleRaw: null,
+    content: null,
+    metaInfo: null,
+    displayIcon: null,
+    webLink: item.link,
+    thumbnailLink: null,
+    modified: null,
+    _algolia: null
+  }
+
+  return newItem;
 }
 
 function hide() {
