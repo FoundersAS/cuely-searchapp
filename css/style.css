@@ -484,10 +484,10 @@ table tr th:last-child {
 }
 
 .settings_body .options .actions a {
-  padding: 5px;
+  padding: 6px;
   margin-right: 5px;
   border-radius: 2px;
-  width: 70px;
+  width: 100px;
   color: rgb(255, 255, 255);
   background-color: rgb(16, 135, 221);
   text-decoration: none;
