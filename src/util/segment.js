@@ -8,22 +8,20 @@ class SegmentConnector {
     this.analytics = new Analytics(writeKey);
   }
 
-  _userId(name) {
-    return isDevelopment() ? 'developer_' + name : this.user.userid;
+  _userId() {
+    return isDevelopment() ? 'developer_' + this.user.email.split('@')[0] : this.user.userid;
   }
 
   identify() {
     if (!this.user.segmentIdentified) {
-      let name, company;
-      [name, company] = this.user.email.split('@');
-      const userid = this._userId(name);
+      const userid = this._userId();
 
       this.analytics.identify({
         userId: userid,
         traits: {
           name: this.user.name,
           email: this.user.email,
-          company: company
+          company: this.user.email.split('@')[1]
         }
       });
       this.user.segmentIdentified = true;
