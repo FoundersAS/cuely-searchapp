@@ -47,7 +47,7 @@ let tray;
 let credentials;
 let appHide = true;
 let screenBounds;
-let syncPollerTimeout;
+let syncPollerTimeouts = {};
 let prefs;
 let segment;
 
@@ -186,8 +186,8 @@ ipcMain.on('track', (event, arg) => {
 });
 
 //----------- UTILITY FUNCTIONS
-function sendSyncDone() {
-  sendDesktopNotification('Synchronization complete ✓', 'Cuely has finished indexing your Google Drive');
+function sendSyncDone(integrationName) {
+  sendDesktopNotification('Synchronization complete ✓', 'Cuely has finished indexing your ' + integrationName);
 }
 
 function sendDesktopNotification(title, body) {
@@ -317,37 +317,22 @@ function createLoginWindow() {
     center: true
   });
 
-  // Listen to all requests in order to catch button click for 'Resyncing'.
-  // This hack is needed, because it's otherwise not possible to react on javascript events
-  // within an <iframe> due to browser security/sandboxing when iframe's url is on different domain.
-  loginWindow.webContents.session.webRequest.onBeforeRequest({}, (details, callback) => {
-    callback({ cancel: false });
-    if (details.url.endsWith('/home/sync/')) {
-      startSyncPoller(false);
-    }
-  });
   // remove 'x-frame-options' header to allow embedding external pages into 'iframe'
+  // also, capture possible redirects for completing various oauth flows
   loginWindow.webContents.session.webRequest.onHeadersReceived({}, (details, callback) => {
-    if(details.responseHeaders['x-frame-options']) {
-        delete details.responseHeaders['x-frame-options'];
+    for (let header in details.responseHeaders) {
+      if (header.toLowerCase() === 'x-frame-options') {
+        delete details.responseHeaders[header];
+      }
+    }
+    const urlNoParams = details.url.split('?')[0]
+    if (urlNoParams.indexOf('complete/google-oauth2/') > -1) {
+      startSyncPoller('google-oauth2', 'Google Drive');
+    }
+    if (urlNoParams.indexOf('complete/intercom-oauth/') > -1) {
+      startSyncPoller('intercom-oauth', 'Intercom account');
     }
     callback({ cancel: false, responseHeaders: details.responseHeaders });
-  });
-
-  // capture redirects to reload our own index.html
-  let oauthSuccess = false;
-  loginWindow.webContents.on('will-navigate', (event, url) => {
-    if (url.indexOf('complete/google-oauth2/?state') > -1) {
-      oauthSuccess = true;
-    }
-  });
-
-  loginWindow.webContents.on('did-navigate', (event, url) => {
-    if (oauthSuccess && url.endsWith('/home/#')) {
-      oauthSuccess = false;
-      event.preventDefault();
-      startSyncPoller(true);
-    }
   });
 
   loginWindow.loadURL(`file://${__dirname}/index.html?route=login`);
@@ -455,51 +440,50 @@ function useAuthCookies(callback) {
   });
 }
 
-function startSyncPoller(callApiSync) {
-  if (syncPollerTimeout) {
+function startSyncPoller(type, integrationName) {
+  if (syncPollerTimeouts[type]) {
     // already running
     return;
   }
 
   let syncing = false;
-  syncPollerTimeout = setInterval(() => {
+  syncPollerTimeouts[type] = setInterval(() => {
     useAuthCookies((csrf, sessionId) => {
       if (csrf && sessionId) {
-        getSyncStatus(csrf, sessionId).then(([response, error]) => {
+        getSyncStatus(csrf, sessionId, type).then(([response, error]) => {
           if (error) {
             return;
           }
           if (syncing && !response.in_progress) {
-            clearInterval(syncPollerTimeout);
-            syncPollerTimeout = null;
+            clearInterval(syncPollerTimeouts[type]);
+            syncPollerTimeouts[type] = null;
             // send desktop notification
-            sendSyncDone();
+            sendSyncDone(integrationName);
           }
           syncing = response.in_progress;
         });
       } else {
-        clearInterval(syncPollerTimeout);
-        syncPollerTimeout = null;
+        clearInterval(syncPollerTimeouts[type]);
+        syncPollerTimeouts[type] = null;
       }
     });
   }, 5000);
 
-  if (callApiSync) {
-    useAuthCookies((csrf, sessionId) => {
-      if (csrf && sessionId) {
-        startSync(csrf, sessionId);
-      }
-    });
-    loadCredentialsOrLogin();
-  }
+  useAuthCookies((csrf, sessionId) => {
+    if (csrf && sessionId) {
+      startSync(csrf, sessionId, type);
+    }
+  });
+  loadCredentialsOrLogin();
+
   if (loginWindow) {
     loginWindow.hide();
   }
   dialog.showMessageBox({
     type: 'info',
     title: 'Cuely app',
-    message: "Cuely has started to sync with your Google Drive. You will receive a notification once it's done.",
-    detail: "You may start searching already now using Cmd + Backspace. The results will depend on how many documents have been synced so far.",
+    message: `Cuely has started to sync with your ${integrationName}. You will receive a notification once it's done.`,
+    detail: "You may start searching already now using Cmd + Backspace. The results will depend on how much data has been synced so far.",
     buttons: ['Ok']
   }, () => {
     endLogin();

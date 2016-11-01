@@ -8,12 +8,12 @@ export function getAlgoliaCredentials(csrfToken, sessionId) {
   return callApi('/home/algolia_key', csrfToken, sessionId);
 }
 
-export function getSyncStatus(csrfToken, sessionId) {
-  return callApi('/home/sync_status', csrfToken, sessionId);
+export function getSyncStatus(csrfToken, sessionId, provider) {
+  return callApi('/home/sync_status', csrfToken, sessionId, { provider });
 }
 
-export function startSync(csrfToken, sessionId) {
-  return callApi('/home/sync', csrfToken, sessionId, {}, 'POST', 'text/html');
+export function startSync(csrfToken, sessionId, provider) {
+  return callApi('/home/sync', csrfToken, sessionId, { provider }, 'POST', 'text/html');
 }
 
 export function setSegmentStatus(csrfToken, sessionId, identified) {
