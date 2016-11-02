@@ -418,7 +418,7 @@ function startSyncPoller(type, integrationName) {
     return;
   }
 
-  let syncing = false;
+  let syncing = true;
   syncPollerTimeouts[type] = setInterval(() => {
     useAuthCookies((csrf, sessionId) => {
       if (csrf && sessionId) {
