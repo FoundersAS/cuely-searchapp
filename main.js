@@ -6,7 +6,7 @@ import { initPrefs } from './src/util/prefs.js';
 import { initSegment } from './src/util/segment.js';
 import AutoLaunch from 'auto-launch';
 
-const { app, dialog, BrowserWindow, Menu, MenuItem, Tray, globalShortcut} = electron;
+const { app, dialog, BrowserWindow, Menu, MenuItem, Tray, globalShortcut } = electron;
 
 let newKeywords = [
   {
@@ -46,15 +46,6 @@ let syncPollerTimeouts = {};
 let prefs;
 let segment;
 
-
-//Start Cuely on computer restart
-const cuelyAutoLauncher = new AutoLaunch({
-    name: 'Cuely',
-    isHidden: true
-});
-
-cuelyAutoLauncher.enable();
-
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
@@ -62,6 +53,7 @@ app.on('ready', () => {
   const appPath = app.getPath('userData');
   prefs = initPrefs(appPath);
   buildMenu();
+  setupAutoLauncher();
   loadCredentialsOrLogin();
 });
 
@@ -582,5 +574,17 @@ function toggleHideOrCreate() {
     toggleHide();
   } else {
     createSearchWindow();
+  }
+}
+
+function setupAutoLauncher() {
+  if(!isDevelopment()) {
+    // Start Cuely on computer restart
+    const cuelyAutoLauncher = new AutoLaunch({
+      name: 'Cuely',
+      isHidden: true
+    });
+
+    cuelyAutoLauncher.enable();
   }
 }
