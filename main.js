@@ -32,11 +32,6 @@ let newKeywords = [
   }
 ];
 
-const searchCatalog = {
-  // intra: searchIntra,
-  gdrive: searchGdrive
-}
-
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let searchWindow;
@@ -94,26 +89,8 @@ ipcMain.on('log', (event, arg) => {
 });
 
 ipcMain.on('search', (event, arg) => {
-  let searchers = [];
-  let q = arg;
-  const words = arg.split(' ');
-
-  if (arg.indexOf(' ') > -1) {
-    const words = arg.split(' ');
-    const searcher = words[0];
-    const query = words.slice(1).join(' ');
-    if (searcher in searchCatalog && query.trim()) {
-      searchers.push(searchCatalog[searcher]);
-      q = query;
-    }
-  }
-  if (searchers.length < 1) {
-    searchers = Object.keys(searchCatalog).map(key => searchCatalog[key]);
-  }
-  if (q == ''){
-    q = prefs.settings.account.name;
-  }
-  Promise.all(searchers.map(search => search(q))).then(result => {
+  let q = (arg === '') ? prefs.settings.account.name : arg;
+  searchGdrive(q).then(result => {
     let hits = [].concat.apply([], result);
 
     const newItemType = getNewKeywordType(arg);
