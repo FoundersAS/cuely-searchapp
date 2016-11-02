@@ -1,5 +1,5 @@
 import electron, { ipcMain, session } from 'electron';
-import { search as searchGdrive, setAlgoliaCredentials } from './src/external/gdrive';
+import { search as searchAlgolia, setAlgoliaCredentials } from './src/util/search';
 import { getAlgoliaCredentials, getSyncStatus, startSync, setSegmentStatus } from './src/util/util.js';
 import { API_ROOT, isDevelopment } from './src/util/const.js';
 import { initPrefs } from './src/util/prefs.js';
@@ -90,7 +90,7 @@ ipcMain.on('log', (event, arg) => {
 
 ipcMain.on('search', (event, arg) => {
   let q = (arg === '') ? prefs.settings.account.name : arg;
-  searchGdrive(q).then(result => {
+  searchAlgolia(q).then(result => {
     let hits = [].concat.apply([], result);
 
     const newItemType = getNewKeywordType(arg);
