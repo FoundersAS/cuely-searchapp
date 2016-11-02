@@ -294,12 +294,15 @@ function createLoginWindow() {
         delete details.responseHeaders[header];
       }
     }
-    const urlNoParams = details.url.split('?')[0]
+    const urlNoParams = details.url.split('?')[0];
     if (urlNoParams.indexOf('complete/google-oauth2/') > -1) {
       startSyncPoller('google-oauth2', 'Google Drive');
     }
     if (urlNoParams.indexOf('complete/intercom-oauth/') > -1) {
       startSyncPoller('intercom-oauth', 'Intercom account');
+    }
+    if (urlNoParams.indexOf('complete/intercom-apikeys/') > -1) {
+      startSyncPoller('intercom-apikeys', 'Intercom account');
     }
     callback({ cancel: false, responseHeaders: details.responseHeaders });
   });
