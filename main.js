@@ -10,22 +10,22 @@ const { app, dialog, BrowserWindow, Menu, MenuItem, Tray, globalShortcut} = elec
 
 let newKeywords = [
   {
-    type: 'application/vnd.google-apps.document',
-    typeMeta: 'gdrive',
+    mime: 'application/vnd.google-apps.document',
+    type: 'gdrive',
     keywords: ['doc','docs','documents','document','gdoc','google doc','google document'],
     title: '<em>Create a new Google Document</em>',
     link: 'https://docs.google.com/a/your.domain.com/document/create'
   },
   {
-    type: 'application/vnd.google-apps.spreadsheet',
-    typeMeta: 'gdrive',
+    mime: 'application/vnd.google-apps.spreadsheet',
+    type: 'gdrive',
     keywords: ['sheet','sheets','spreadsheet','spreadsheets','google sheet'],
     title: '<em>Create a new Google Sheet</em>',
     link: 'https://docs.google.com/a/your.domain.com/spreadsheet/ccc?new'
   },
   {
-    type: 'application/vnd.google-apps.presentation',
-    typeMeta: 'gdrive',
+    mime: 'application/vnd.google-apps.presentation',
+    type: 'gdrive',
     keywords: ['slide','slides','google slide','google slides','prezo','presentation','google presentation'],
     title: '<em>Create a new Google Presentation</em>',
     link: 'https://docs.google.com/a/your.domain.com/presentation/create'
@@ -563,8 +563,8 @@ function getNewKeywordType(arg){
 
 function getNewItem(item){
   const newItem = {
-    metaType: item.typeMeta,
     type: item.type,
+    mime: item.mime,
     title: item.title,
     titleRaw: null,
     content: null,

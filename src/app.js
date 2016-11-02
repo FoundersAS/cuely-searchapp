@@ -337,7 +337,7 @@ export default class App extends Component {
     };
     
     for (let itemIcons of icons){
-      if (itemIcons.type == item.type){
+      if (itemIcons.type == item.mime){
         const verticalOffset = itemIcons.spriteOffset*(-25) + 'px';
 
         displayIcon.inlineStyle = { 'backgroundPosition': '0 ' + verticalOffset };
@@ -350,7 +350,7 @@ export default class App extends Component {
   }
 
   renderAvatar(item) {
-    if (item.metaInfo){
+    if (item.metaInfo.users){
       return (
         <div className="avatars">
           {item.metaInfo.users[0].avatar
@@ -367,7 +367,7 @@ export default class App extends Component {
         <div className="body">
           <span className="meta_icon glyphicons glyphicons-clock"></span>
           <span className="meta_data">{item.metaInfo.time}</span>
-          {item.metaInfo.path.length > 0
+          {item.metaInfo.path && item.metaInfo.path.length > 0
               ? <span><span className="meta_icon glyphicons glyphicons-folder-open"></span><span className="meta_data" dangerouslySetInnerHTML={{ __html: item.metaInfo.path }} /></span>
               : null}
         </div>
