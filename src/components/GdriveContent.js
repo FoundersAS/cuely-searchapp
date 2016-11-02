@@ -9,13 +9,16 @@ export default class GdriveContent extends Component {
     super();
     this.fixLinks = ::this.fixLinks;
     this.linkify = ::this.linkify;
-    // this.checkProtocol = ::this.checkProtocol;
-    // this.newLineRemover = ::this.newLineRemover;
     this.openLink = ::this.openLink;
   }
 
+  componentDidMount() {
+    // force update on initial rendering
+    this.componentDidUpdate();
+  }
+
   componentDidUpdate() {
-    for (let itemLink of document.getElementsByClassName("content_link")){
+    for (let itemLink of document.getElementsByClassName("content_link")) {
       itemLink.addEventListener("click", this.openLink, false);
     }
   }
@@ -61,6 +64,7 @@ export default class GdriveContent extends Component {
   }
 
   render() {
+    console.log('did render');
     const item = this.props.item;
     if (!item) {
       return null;

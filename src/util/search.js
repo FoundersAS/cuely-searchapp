@@ -39,13 +39,24 @@ export function search(query) {
 }
 
 function intercom(hit) {
+  let content = {
+    monthlySpend: hit.intercom_monthly_spend || 0,
+    plan: hit.intercom_plan || '',
+    segments: hit.intercom_segments || '',
+    sessions: hit.intercom_session_count || 0
+  }
+  let { events, conversations } = JSON.parse(highlightedValue('intercom_content', hit));
+  events.reverse();
+  content.events = events.map(e => ({ name: e.name, time: fromIsoDateToElapsed(e.timestamp * 1000) }));
+  content.conversations = conversations;
+  content.conversationsCount = conversations.length;
+
   return {
     type: 'intercom',
     mime: 'intercom',
     title: highlightedValue('intercom_title', hit),
     titleRaw: hit.intercom_title,
-    // content: JSON.parse(highlightedValue('intercom_content', hit)),
-    content: null,
+    content: content,
     metaInfo: {
       time: fromIsoDateToElapsed(hit.last_updated),
       open: hit.intercom_conversation_open

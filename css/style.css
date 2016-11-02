@@ -101,7 +101,7 @@ table tr th:last-child {
   border-right: 0;
 }
 
-.search_suggestions_content .title_drive {
+.search_suggestions_content .title_drive, .title_intercom {
   background-color: #E8E8E8;
   color: #111;
   font-size: 10px;
@@ -110,6 +110,27 @@ table tr th:last-child {
   font-weight: 300;
   height: 1.1rem;
   padding: .3rem 0 0 .5rem;
+}
+
+.search_suggestions_content .section_intercom {
+  padding: .5rem .75rem;
+  font-size: 13px;
+  font-weight: 300;
+  line-height: 1.7em;
+}
+
+.search_suggestions_content .section_intercom .row {
+  display: flex;
+  flex-flow: row wrap;
+}
+
+.search_suggestions_content .section_intercom .small_cell {
+  width: 35%;
+  color: #A5A5A5;
+}
+
+.search_suggestions_content .section_intercom .big_cell {
+  width: 65%;
 }
 
 .no_preview{
