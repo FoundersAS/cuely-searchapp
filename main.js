@@ -4,30 +4,31 @@ import { getAlgoliaCredentials, getSyncStatus, startSync, setSegmentStatus } fro
 import { API_ROOT, isDevelopment } from './src/util/const.js';
 import { initPrefs } from './src/util/prefs.js';
 import { initSegment } from './src/util/segment.js';
+import AutoLaunch from 'auto-launch';
 
 const { app, dialog, BrowserWindow, Menu, MenuItem, Tray, globalShortcut} = electron;
 
-const newKeywords = [
+let newKeywords = [
   {
     type: 'application/vnd.google-apps.document',
     typeMeta: 'gdrive',
     keywords: ['doc','docs','documents','document','gdoc','google doc','google document'],
     title: '<em>Create a new Google Document</em>',
-    link: 'https://google.com/docs/create'
+    link: 'https://docs.google.com/a/your.domain.com/document/create'
   },
   {
     type: 'application/vnd.google-apps.spreadsheet',
     typeMeta: 'gdrive',
     keywords: ['sheet','sheets','spreadsheet','spreadsheets','google sheet'],
     title: '<em>Create a new Google Sheet</em>',
-    link: 'https://google.com/sheets/create'
+    link: 'https://docs.google.com/a/your.domain.com/spreadsheet/ccc?new'
   },
   {
     type: 'application/vnd.google-apps.presentation',
     typeMeta: 'gdrive',
     keywords: ['slide','slides','google slide','google slides','prezo','presentation','google presentation'],
     title: '<em>Create a new Google Presentation</em>',
-    link: 'https://google.com/slides/create'
+    link: 'https://docs.google.com/a/your.domain.com/presentation/create'
   }
 ];
 
@@ -49,6 +50,15 @@ let screenBounds;
 let syncPollerTimeout;
 let prefs;
 let segment;
+
+
+//Start Cuely on computer restart
+const cuelyAutoLauncher = new AutoLaunch({
+    name: 'Cuely',
+    isHidden: true
+});
+
+cuelyAutoLauncher.enable();
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
@@ -79,7 +89,6 @@ ipcMain.on('hide-search', () => {
   app.hide();
 });
 
-
 ipcMain.on('log', (event, arg) => {
   console.log(arg);
 });
@@ -100,6 +109,9 @@ ipcMain.on('search', (event, arg) => {
   }
   if (searchers.length < 1) {
     searchers = Object.keys(searchCatalog).map(key => searchCatalog[key]);
+  }
+  if (q == ''){
+    q = prefs.settings.account.name;
   }
   Promise.all(searchers.map(search => search(q))).then(result => {
     let hits = [].concat.apply([], result);
@@ -278,6 +290,7 @@ function createSearchWindow() {
     searchWindow = null;
   });
   searchWindow.on('show', () => {
+    searchWindow.webContents.send('focus-element', '#searchBar');
     const bounds = calculatePositionAndSize();
     if (bounds.screenWidth != screenBounds.screenWidth || bounds.screenHeight != screenBounds.screenHeight) {
       // reposition, needed because of external screen(s) might be (un)plugged
@@ -554,6 +567,8 @@ function getNewKeywordType(arg){
     for (let item of newKeywords){
       for (let keyword of item.keywords){
         if (keyword.indexOf(words[1].trim()) != -1){
+          const domain = prefs.settings.account.email.split('@')[1];
+          item.link = item.link.replace('your.domain.com', domain);
           return item;
         }
       }

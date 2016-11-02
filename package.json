@@ -36,6 +36,7 @@
   "dependencies": {
     "algoliasearch": "^3.18.1",
     "analytics-node": "^2.1.0",
+    "auto-launch": "^5.0.1",
     "babel-core": "^6.14.0",
     "babel-polyfill": "^6.13.0",
     "babel-preset-es2015": "^6.14.0",
@@ -43,10 +44,15 @@
     "babel-preset-stage-0": "^6.5.0",
     "babyparse": "^0.4.6",
     "electron": "^1.4.1",
+    "json-loader": "^0.5.4",
+    "markdown-it": "^8.0.1",
+    "marked": "^0.3.6",
     "moment": "^2.15.1",
     "react": "^15.3.2",
     "react-custom-scrollbars": "^4.0.0",
     "react-dom": "^15.3.2",
+    "react-markdown": "^2.4.2",
+    "showdown": "^1.4.3",
     "superagent": "^2.3.0"
   },
   "devDependencies": {

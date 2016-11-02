@@ -1,9 +1,11 @@
 import React, {Component} from 'react';
 import ReactDOM from 'react-dom';
 import { ipcRenderer, shell, clipboard } from 'electron';
-
+import showdown from 'showdown';
 import { Scrollbars } from 'react-custom-scrollbars';
 import SearchBar from './components/SearchBar';
+
+const converter = new showdown.Converter();
 
 const icons = [
   {
@@ -63,6 +65,7 @@ const icons = [
 export default class App extends Component {
   constructor(props){
     super();
+    this.openContentExternalLink = ::this.openContentExternalLink;
     this.handleInput = ::this.handleInput;
     this.handleKeyUp = ::this.handleKeyUp;
     this.handleKeyDown = ::this.handleKeyDown;
@@ -78,6 +81,10 @@ export default class App extends Component {
     this.renderSelectedItemContent = ::this.renderSelectedItemContent;
     this.handleMouseEnter = ::this.handleMouseEnter;
     this.openExternalLink = ::this.openExternalLink;
+    this.linkify = ::this.linkify;
+    this.newLineRemover = ::this.newLineRemover;
+    this.checkProtocol = ::this.checkProtocol;
+    this.fixLinks = ::this.fixLinks;
     this.state = {
       searchResults: [],
       selectedIndex: -1,
@@ -96,7 +103,11 @@ export default class App extends Component {
       // show desktop notification
       new Notification(arg.title, arg);
     });
-    // start empty search (should return 10 most recent items)
+    ipcRenderer.on('focus-element', (event, selector) => {
+      //set focus on searchbar after window comes into foreground
+      this.refs.searchBar.setFocus();
+    });
+    // start empty search (should return 10 most recent items by signed in user name)
     ipcRenderer.send('search', '');
   }
 
@@ -116,6 +127,11 @@ export default class App extends Component {
         content.scrollTop = 0;
         content.scrollLeft = 0;
       }
+
+    }
+
+    for (let itemLink of document.getElementsByClassName("content_link")){
+      itemLink.addEventListener("click", this.openContentExternalLink, false);
     }
 
     // adjust the window height to the height of the list
@@ -129,6 +145,7 @@ export default class App extends Component {
       }
     }
     this.refs.searchBar.setFocus();
+
   }
 
   getElementHeight(id) {
@@ -169,7 +186,7 @@ export default class App extends Component {
       index = (index < 1) ? index : index - 1;
       this.setState({ selectedIndex: index, keyFocus: true });
     } else if (e.key === 'Enter') {
-      this.openExternalLink(index, 'enter');
+      this.openExternalLink(this.state.searchResults[index].webLink, 'enter');
     }
 
     this.hideHover();
@@ -207,20 +224,23 @@ export default class App extends Component {
 
   handleDoubleClick(e) {
     e.preventDefault();
-    this.openExternalLink(this.getIndex(e.target.id), 'double click');
+    this.openExternalLink(this.state.searchResults[this.getIndex(e.target.id)].webLink, 'double click');
   }
 
   handleExternalLink(e) {
     e.preventDefault();
-    this.openExternalLink(this.state.selectedIndex, 'view in app button');
+    this.openExternalLink(this.state.searchResults[this.state.selectedIndex].webLink, 'view in app button');
   }
 
-  openExternalLink(index, triggerType) {
-    if (index > -1) {
-      shell.openExternal(this.state.searchResults[index].webLink);
-      ipcRenderer.send('hide-search');
-      ipcRenderer.send('track', { name: 'Open link', props: { type: triggerType } });
-    }
+  openContentExternalLink(e) {
+    e.preventDefault();
+    this.openExternalLink(e.srcElement.href, 'clicked link in content text');
+  }
+
+  openExternalLink(link, triggerType) {
+    shell.openExternal(link);
+    ipcRenderer.send('hide-search');
+    ipcRenderer.send('track', { name: 'Open link', props: { type: triggerType } });
   }
 
   handleActionIconLinkClick(e) {
@@ -393,6 +413,12 @@ export default class App extends Component {
         </table>
       )
     }
+    else if (typeof(content) === 'string'){
+      content = this.linkify(content); 
+      content = converter.makeHtml(content);
+      content = this.newLineRemover(content);
+      
+    }
     return (
       <pre id="searchSuggestionsContentPre" dangerouslySetInnerHTML={{ __html: content }} />
     )
@@ -441,6 +467,53 @@ export default class App extends Component {
     } else {
       transitionDiv.style.display = 'block';
     }
+  }
+
+  linkify(text) {
+    const urlFullRegex =/(www.)?[-A-Za-z0-9+&@#\/%=~_|]*(<em class="algolia_highlight">)[-A-Za-z0-9+&@#\/%=~_|]*(<\/em>)[-A-Za-z0-9+&@#\/%=~_|]*[.](com|net|me|io|org|edu|co|dk|de)|(\b(https?|ftp|file):\/\/[-A-Za-z0-9+&@#\/%?=~_|!:,.;]*(<em class="algolia_highlight">)[-A-Za-z0-9+&@#\/%?=~_|!:,.;]*(<\/em>)[-A-Za-z0-9+&@#\/%?=~_|!:,.;]*)|(\b(https?|ftp|file):\/\/[-A-Za-z0-9+&@#\/%?=~_|!:,.;]*[-A-Za-z0-9+&@#\/%=~_|]|(www.)?[-A-Za-z0-9+&@#\/%=~_|]+[.](com|net|me|io|org|edu|co|dk|de))/ig;
+
+    return text.replace(urlFullRegex, this.fixLinks);
+  }
+
+  fixLinks(url) {
+    const urlEmRegex = /(www.)?[-A-Za-z0-9+&@#\/%=~_|]*(<em class="algolia_highlight">)[-A-Za-z0-9+&@#\/%=~_|]*(<\/em>)[-A-Za-z0-9+&@#\/%=~_|]*[.](com|net|me|io|org|edu|co|dk|de)|(\b(https?|ftp|file):\/\/[-A-Za-z0-9+&@#\/%?=~_|!:,.;]*(<em class="algolia_highlight">)[-A-Za-z0-9+&@#\/%?=~_|!:,.;]*(<\/em>)[-A-Za-z0-9+&@#\/%?=~_|!:,.;]*)/;
+
+    if (urlEmRegex.test(url)){
+      let first_part = url.split('<em class="algolia_highlight">')[0];
+      let second_part = url.split('<em class="algolia_highlight">')[1].split('</em>')[0];
+      let third_part = url.split('<em class="algolia_highlight">')[1].split('</em>')[1];
+
+      return '<a href="' + this.checkProtocol(first_part) + second_part + third_part + '" class="content_link">' + url + '</a>';
+    }
+    else {
+      return '<a href="' + this.checkProtocol(url) + '" class="content_link">' + url + '</a>';
+    }
+  }
+
+  checkProtocol(url){
+    var urlProtocolRegex =/(\b(https?|ftp|file):\/\/)/;
+
+    if (!urlProtocolRegex.test(url)){
+      return 'http://' + url;
+    }
+    else {
+      return url;
+    }
+  }
+
+  newLineRemover(text) {
+    var urlRegex = /(\n\n)|\r?\n|\r/g;
+    var urlRegexPar = /((<p>)[\s\S]*?(<\/p>))/g;
+
+    text = text.replace(urlRegexPar, function(line){
+      return line.replace(/\r?\n|\r/g, function(){
+        return '<br>';
+      });
+    });
+
+    return text.replace(urlRegex, function(line) {
+      return '';
+    });
   }
 
   renderSearchResults() {

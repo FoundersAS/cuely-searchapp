@@ -53,6 +53,14 @@ em {
   overflow: auto;
 }
 
+.search_suggestions_content pre p:first-child {
+  margin-top: 0;
+}
+
+.search_suggestions_content pre li + li {
+  margin-top: 0.5rem;
+}
+
 .search_suggestions_content table {
   color: #111;
   white-space: pre-wrap;
