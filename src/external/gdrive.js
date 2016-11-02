@@ -41,7 +41,7 @@ export function search(query) {
 function intercom(hit) {
   return {
     type: 'intercom',
-    mime: null,
+    mime: 'intercom',
     title: highlightedValue('intercom_title', hit),
     titleRaw: hit.intercomTitle,
     // content: JSON.parse(highlightedValue('intercom_content', hit)),
