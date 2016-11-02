@@ -9,8 +9,8 @@ export default class GdriveContent extends Component {
     super();
     this.fixLinks = ::this.fixLinks;
     this.linkify = ::this.linkify;
-    this.checkProtocol = ::this.checkProtocol;
-    this.newLineRemover = ::this.newLineRemover;
+    // this.checkProtocol = ::this.checkProtocol;
+    // this.newLineRemover = ::this.newLineRemover;
     this.openLink = ::this.openLink;
   }
 
@@ -61,10 +61,10 @@ export default class GdriveContent extends Component {
   }
 
   render() {
-    if (!this.props.item) {
+    const item = this.props.item;
+    if (!item) {
       return null;
     }
-    const item = this.props.item;
     if (!item.content) {
       return (
         <div>
@@ -110,27 +110,21 @@ export default class GdriveContent extends Component {
   fixLinks(url) {
     const urlEmRegex = /(www.)?[-A-Za-z0-9+&@#\/%=~_|]*(<em class="algolia_highlight">)[-A-Za-z0-9+&@#\/%=~_|]*(<\/em>)[-A-Za-z0-9+&@#\/%=~_|]*[.](com|net|me|io|org|edu|co|dk|de)|(\b(https?|ftp|file):\/\/[-A-Za-z0-9+&@#\/%?=~_|!:,.;]*(<em class="algolia_highlight">)[-A-Za-z0-9+&@#\/%?=~_|!:,.;]*(<\/em>)[-A-Za-z0-9+&@#\/%?=~_|!:,.;]*)/;
 
-    if (urlEmRegex.test(url)){
-      let first_part = url.split('<em class="algolia_highlight">')[0];
-      let second_part = url.split('<em class="algolia_highlight">')[1].split('</em>')[0];
-      let third_part = url.split('<em class="algolia_highlight">')[1].split('</em>')[1];
-
-      return '<a href="' + this.checkProtocol(first_part) + second_part + third_part + '" class="content_link">' + url + '</a>';
+    let href = null;
+    if (urlEmRegex.test(url)) {
+      const [first, rest] = url.split('<em class="algolia_highlight">');
+      const [second, third] = rest.split('</em>');
+      href = this.checkProtocol(first) + second + third;
+    } else {
+      href = this.checkProtocol(url);
     }
-    else {
-      return '<a href="' + this.checkProtocol(url) + '" class="content_link">' + url + '</a>';
-    }
+    return `<a href="${href}" class="content_link">${url}</a>`
   }
 
   checkProtocol(url){
     var urlProtocolRegex =/(\b(https?|ftp|file):\/\/)/;
 
-    if (!urlProtocolRegex.test(url)) {
-      return 'http://' + url;
-    }
-    else {
-      return url;
-    }
+    return urlProtocolRegex.test(url) ? url : 'http://' + url;
   }
 
   newLineRemover(text) {
@@ -138,14 +132,10 @@ export default class GdriveContent extends Component {
     var urlRegexPar = /((<p>)[\s\S]*?(<\/p>))/g;
 
     text = text.replace(urlRegexPar, line => {
-      return line.replace(/\r?\n|\r/g, () => {
-        return '<br>';
-      });
+      return line.replace(/\r?\n|\r/g, () => '<br>');
     });
 
-    return text.replace(urlRegex, line => {
-      return '';
-    });
+    return text.replace(urlRegex, () => '');
   }
 
   openLink(e) {
