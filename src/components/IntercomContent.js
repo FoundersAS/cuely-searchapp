@@ -14,13 +14,34 @@ export default class IntercomContent extends Component {
     return (
       <div className="section_intercom">
       {events.map((e, i) => (
-        <div className="row" key={`eventRow_${i}`}>
+        <div className="row" key={`event_${i}`}>
           <div className="big_cell" dangerouslySetInnerHTML={{ __html: e.name }} />
           <div className="small_cell">{e.time}</div>
         </div>
       ))}
       </div>
-    )
+    );
+  }
+
+  renderConversations(userId, conversations) {
+    if (!conversations) {
+      return null;
+    }
+    return (
+      <div className="section_intercom_conversations">
+        {conversations.map((c, i) => (
+          <div className={i === 0 ? "conversation_first" : "conversation"} key={`conversation_${i}`}>
+            <div className="status">{c.open ? "Open" : "Closed" }</div>
+            {c.items.map((item, k) => (
+              <div className="conversation_item" key={`conversationItem_${k}`}>
+                <div className={userId === item.authorId ? "message_owner" : "message"} dangerouslySetInnerHTML={{ __html: item.body }} />
+                <div className="author" dangerouslySetInnerHTML={{ __html: item.author }} /> | <div className="time">{item.time}</div>
+              </div>
+            ))}
+          </div>
+        ))}
+      </div>
+    );
   }
 
   render() {
@@ -58,6 +79,7 @@ export default class IntercomContent extends Component {
         {this.renderEvents(item.content.events)}
         
         <div className="title_intercom">Conversations</div>
+        {this.renderConversations(item.userId, item.content.conversations)}
       </div>
     )
   }
