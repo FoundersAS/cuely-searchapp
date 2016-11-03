@@ -126,7 +126,6 @@ export default class App extends Component {
 
     // adjust the window height to the height of the list
     const winHeight = (this.state.searchResults.length > 0 ? 397 : 0) + this.getElementHeight("searchBar");
-    console.log(winHeight);
     ipcRenderer.send('search-rendered', { height: winHeight });
      
     if (this.refs.scrollbars && this.state.selectedIndex > -1) {
@@ -310,12 +309,12 @@ export default class App extends Component {
           <div className="search_suggestions_data">
             <div className="heading">
               <div className="title" dangerouslySetInnerHTML={{ __html: item.title }} />
-              {this.renderAvatar(item)}
+              {item.metaInfo && item.metaInfo.users ? this.renderAvatar(item) : null}
             </div>
-            {this.renderBody(item)}
+            {item.metaInfo ? this.renderBody(item) : null}
           </div>
         </a>
-        {this.renderActionItems(item,i)}
+        {item.metaInfo ? this.renderActionItems(item,i) : null}
       </li>
     )
   }
@@ -340,7 +339,6 @@ export default class App extends Component {
   }
 
   renderAvatar(item) {
-    if (item.metaInfo.users){
       return (
         <div className="avatars">
           {item.metaInfo.users[0].avatar
@@ -348,11 +346,9 @@ export default class App extends Component {
               : <div className={item.metaInfo.users[0].nameHighlight ? "avatar no_avatar active" : "avatar no_avatar"}>{this.initials(item.metaInfo.users[0].name)}</div>}
         </div>
       );
-    }
   }
 
   renderBody(item) {
-    if (item.metaInfo){
       return (
         <div className="body">
           <span className="meta_icon glyphicons glyphicons-clock"></span>
@@ -362,7 +358,6 @@ export default class App extends Component {
               : null}
         </div>
       );
-    }
   }
 
   renderActionItems(item,i) {
@@ -370,15 +365,6 @@ export default class App extends Component {
       return (
         <span id={`actionIcon_${i}`} className="action_icon glyphicons glyphicons-link" onClick={this.handleActionIconLinkClick} onMouseEnter={this.handleMouseEnter}></span>
       );
-    }
-  }
-
-  handleContentScroll(e) {
-    const transitionDiv = document.getElementById("contentBottomTransition");
-    if ((e.target.scrollHeight - e.target.clientHeight - e.target.scrollTop) < 15 || (e.target.scrollLeft > 0)) {
-      transitionDiv.style.display = 'none';
-    } else {
-      transitionDiv.style.display = 'block';
     }
   }
 
@@ -413,7 +399,7 @@ export default class App extends Component {
     return (
       <div className="search_suggestions" id="searchSuggestions" onKeyUp={this.handleKeyUp} onKeyDown={this.handleContentKeyDown}>
         <div className="search_suggestions_list" id="searchSuggestionsList">
-          <div className="empty_results_set">Sorry, your search did not match any items.</div>
+          <div className="empty_results_set">Sorry, your search does not match any items.</div>
         </div>
         <div className="search_suggestions_content" id="searchSuggestionsContent" tabIndex="0">
         </div>

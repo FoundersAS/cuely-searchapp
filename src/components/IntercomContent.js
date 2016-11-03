@@ -12,15 +12,23 @@ export default class IntercomContent extends Component {
     }
 
     return (
-      <div className="section_intercom">
-      {events.map((e, i) => (
-        <div className="row" key={`eventRow_${i}`}>
-          <div className="big_cell" dangerouslySetInnerHTML={{ __html: e.name }} />
-          <div className="small_cell">{e.time}</div>
-        </div>
-      ))}
+      <div className="content_section_text">
+        {events.map((e, i) => (
+          <div className="content_row content_row_list" key={`eventRow_${i}`}>
+            <div className="content_list_value" dangerouslySetInnerHTML={{ __html: e.name }} />
+            <div className="content_list_right_side">{e.time}</div>
+          </div>
+        ))}
       </div>
     )
+  }
+
+  renderAttribute(attr) {
+    return (attr ? attr : '/');
+  }
+
+  renderAttributeSpend(attr) {
+    return (attr ? '$'+ attr + '/month' : '/');
   }
 
   render() {
@@ -30,34 +38,38 @@ export default class IntercomContent extends Component {
     }
     return (
       <div>
-        <div className="title_intercom">User info</div>
-        <div className="section_intercom">
-          <div className="row">
-            <div className="small_cell">Revenue</div>
-            <div className="big_cell">${item.content.monthlySpend}/month</div>
+        <div className="content_section_title">User info</div>
+        <div className="content_section_text">
+          <div className="content_row">
+            <div className="content_attribute_name">Company</div>
+            <div className="content_attribute_value">{this.renderAttributeSpend(item.content.company)}</div>
           </div>
-          <div className="row">
-            <div className="small_cell">Plan</div>
-            <div className="big_cell">{item.content.plan}</div>
+          <div className="content_row">
+            <div className="content_attribute_name">Revenue</div>
+            <div className="content_attribute_value">{this.renderAttributeSpend(item.content.monthlySpend)}</div>
           </div>
-          <div className="row">
-            <div className="small_cell">Web sessions</div>
-            <div className="big_cell">{item.content.sessions}</div>
+          <div className="content_row">
+            <div className="content_attribute_name">Plan</div>
+            <div className="content_attribute_value">{this.renderAttribute(item.content.plan)}</div>
           </div>
-          <div className="row">
-            <div className="small_cell">Conversations</div>
-            <div className="big_cell">{item.content.conversationsCount}</div>
+          <div className="content_row">
+            <div className="content_attribute_name">Web sessions</div>
+            <div className="content_attribute_value">{this.renderAttribute(item.content.sessions)}</div>
           </div>
-          <div className="row">
-            <div className="small_cell">Segments</div>
-            <div className="big_cell">{item.content.segments}</div>
+          <div className="content_row">
+            <div className="content_attribute_name">Conversations</div>
+            <div className="content_attribute_value">{this.renderAttribute(item.content.conversationsCount)}</div>
+          </div>
+          <div className="content_row">
+            <div className="content_attribute_name">Segments</div>
+            <div className="content_attribute_value">{this.renderAttribute(item.content.segments)}</div>
           </div>          
         </div>
 
-        <div className="title_intercom">Latest activity</div>
+        <div className="content_section_title">Latest events</div>
         {this.renderEvents(item.content.events)}
         
-        <div className="title_intercom">Conversations</div>
+        <div className="content_section_title">Conversations</div>
       </div>
     )
   }

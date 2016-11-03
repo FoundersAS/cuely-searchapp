@@ -2,7 +2,7 @@ html {
   -webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
   -moz-box-sizing: border-box; /* Firefox, other Gecko */
   box-sizing: border-box; /* Opera/IE 8+ */
-  border: 10px solid rgba(0, 0, 0, 0.6);
+  border: 8px solid rgba(40, 69, 127, 0.55);
   -webkit-app-region: drag;
 }
 
@@ -52,10 +52,6 @@ em {
 .search_suggestions_content pre {
   color: black;
   white-space: pre-wrap;
-  font-size: 13px;
-  line-height: 17px;
-  font-weight: 300;
-  padding: .75rem .5rem;
   margin: 0;
   font-family: "BlinkMacSystemFont";
   overflow: auto;
@@ -109,7 +105,7 @@ table tr th:last-child {
   border-right: 0;
 }
 
-.search_suggestions_content .title_drive, .title_intercom {
+.search_suggestions_content .content_section_title {
   background-color: #E8E8E8;
   color: #111;
   font-size: 10px;
@@ -127,25 +123,33 @@ table tr th:last-child {
   font-size: 14px;
 }
 
-.search_suggestions_content .section_intercom {
+.search_suggestions_content .content_section_text {
   padding: .5rem .75rem;
   font-size: 13px;
   font-weight: 300;
   line-height: 1.7em;
 }
 
-.search_suggestions_content .section_intercom .row {
+.search_suggestions_content .content_row {
   display: flex;
   flex-flow: row wrap;
 }
 
-.search_suggestions_content .section_intercom .small_cell {
-  width: 35%;
-  color: #A5A5A5;
+.search_suggestions_content .content_row.content_row_list {
+  justify-content: space-between;
 }
 
-.search_suggestions_content .section_intercom .big_cell {
-  width: 65%;
+.search_suggestions_content .content_attribute_name {
+   color: #888;
+   width: 35%;
+}
+
+.search_suggestions_content .content_list_value {
+   text-transform: capitalize;
+}
+
+.search_suggestions_content .content_list_right_side {
+  color: #888;
 }
 
 .search_suggestions_content img {
@@ -233,7 +237,7 @@ table tr th:last-child {
   border: none;
   line-height: 2em;
   font-size: 16px;
-  background-color: #D7D7D7;
+  background-color: #D7D7D7 !important;
 }
 
 .search_suggestion_card_link, .search_suggestion_card_link_no_hover {
@@ -250,7 +254,6 @@ table tr th:last-child {
 }
 
 .search_suggestions_card_link_action_hover {
-  background-color: #E0E0E0;
   display: flex;
   text-decoration: none;
   color: inherit;
@@ -418,7 +421,7 @@ table tr th:last-child {
   font-size: 12px;
   font-weight: 300;
   color: rgba(240, 240, 240, 0.9);
-  background-color: rgba(0, 0, 0, 0.75);
+  background-color: rgba(40, 69, 127, 0.8);
   padding: 0.5rem 0.75rem;
   border-radius: 1.5rem;
   cursor: pointer;
@@ -429,7 +432,7 @@ table tr th:last-child {
 }
 
 .content_bottom_view_link:hover {
-  background-color: rgba(0, 0, 0, 0.85);
+  background-color: rgba(40, 69, 127, 0.9);
   color: rgba(240, 240, 240, 0.95);
 }
 

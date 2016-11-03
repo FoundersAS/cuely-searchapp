@@ -59,12 +59,11 @@ export default class GdriveContent extends Component {
       content = this.newLineRemover(content);
     }
     return (
-      <pre id="searchSuggestionsContentPre" dangerouslySetInnerHTML={{ __html: content }} />
+      <pre id="searchSuggestionsContentPre" className="content_section_text" dangerouslySetInnerHTML={{ __html: content }} />
     )
   }
 
   render() {
-    console.log('did render');
     const item = this.props.item;
     if (!item) {
       return null;
@@ -72,20 +71,20 @@ export default class GdriveContent extends Component {
     if (!item.content) {
       return (
         <div>
-          <div className="title_drive">contents</div>
+          <div className="content_section_title">contents</div>
           <div className="no_preview">No preview available.</div>
         </div>
       )
     } else if (item.metaInfo.users.length > 1) {
       return (
         <div>
-          <div className="title_drive">Co-authors</div>
+          <div className="content_section_title">Co-authors</div>
           <div className="avatars">
-            {item.metaInfo.users.map(user => (
+            {item.metaInfo.users.map((user, i) => (
                     user.avatar ? <div key={`avatar_${i}_${user.name}`} style={{ backgroundImage: 'url(' + user.avatar + ')' }} className={user.nameHighlight ? "avatar active" : "avatar"} />
                                 : <div key={`avatar_${i}_${user.name}`} className={user.nameHighlight ? "avatar no_avatar active" : "avatar no_avatar"}>{this.initials(user.name)}</div>))}
           </div>
-          <div className="title_drive">contents</div>
+          <div className="content_section_title">contents</div>
           {this.renderContentValue(item.content)}
         </div>
       )
@@ -93,7 +92,7 @@ export default class GdriveContent extends Component {
     else {
       return (
         <div>
-          <div className="title_drive">contents</div>
+          <div className="content_section_title">contents</div>
           {this.renderContentValue(item.content)}
         </div>
       )
