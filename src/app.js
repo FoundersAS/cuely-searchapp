@@ -109,6 +109,7 @@ export default class App extends Component {
     });
     // start empty search (should return 10 most recent items by signed in user name)
     ipcRenderer.send('search', '');
+
   }
 
   componentDidUpdate() {
@@ -135,7 +136,8 @@ export default class App extends Component {
     }
 
     // adjust the window height to the height of the list
-    const winHeight = (this.state.searchResults.length > 0 ? 400 : 0) + this.getElementHeight("searchBar");
+    const winHeight = (this.state.searchResults.length > 0 ? 397 : 0) + this.getElementHeight("searchBar");
+    console.log(winHeight);
     ipcRenderer.send('search-rendered', { height: winHeight });
      
     if (this.refs.scrollbars && this.state.selectedIndex > -1) {
@@ -520,7 +522,7 @@ export default class App extends Component {
     return (
       <div className="search_suggestions" id="searchSuggestions" onKeyUp={this.handleKeyUp} onKeyDown={this.handleContentKeyDown}>
         <div className="search_suggestions_list" id="searchSuggestionsList">
-          <Scrollbars autoHeight autoHeightMin={0} autoHeightMax={400} style={{ border: 'none' }} ref="scrollbars">
+          <Scrollbars autoHeight autoHeightMin={0} autoHeightMax={397} style={{ border: 'none' }} ref="scrollbars">
             <ul id="searchSuggestionsList">
               {this.state.searchResults.map(this.renderItem)}
             </ul>
@@ -529,7 +531,18 @@ export default class App extends Component {
         <div className="search_suggestions_content" id="searchSuggestionsContent" onKeyDown={this.handleContentKeyDown} onScroll={this.handleContentScroll} tabIndex="0">
           {this.renderSelectedItemContent(this.state.selectedIndex)}
           <div className="content_bottom_view_link" onClick={this.handleExternalLink}>View in App<span className="glyphicons glyphicons-new-window"></span></div>
-          <div className="content_bottom_transition" id="contentBottomTransition"></div>
+        </div>
+      </div>
+    );
+  }
+
+  renderEmptyResults() {
+    return (
+      <div className="search_suggestions" id="searchSuggestions" onKeyUp={this.handleKeyUp} onKeyDown={this.handleContentKeyDown}>
+        <div className="search_suggestions_list" id="searchSuggestionsList">
+          <div className="empty_results_set">Sorry, your search did not match any items.</div>
+        </div>
+        <div className="search_suggestions_content" id="searchSuggestionsContent" tabIndex="0">
         </div>
       </div>
     );
@@ -543,13 +556,13 @@ export default class App extends Component {
           onKeyUp={this.handleKeyUp}
           onKeyDown={this.handleKeyDown}
           onInput={this.handleInput}
-          className={open ? "search_bar_open" : "search_bar"}
+          className={"search_bar_open"}
           id="searchBar"
           ref="searchBar"
           selectedIndex={this.state.selectedIndex}
           clearInput={this.state.clearInput}
         />
-        {open ? this.renderSearchResults() : null}
+        {open ? this.renderSearchResults() : this.renderEmptyResults()}
       </div>
     );
   }

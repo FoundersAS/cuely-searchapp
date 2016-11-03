@@ -5,10 +5,22 @@ export default class SearchBar extends Component {
   constructor(props){
     super();
     this.setFocus = ::this.setFocus;
+    this.resizable = ::this.resizable;
   }
 
   componentDidMount() {
-    ReactDOM.findDOMNode(this.refs.input).focus();
+    const input = ReactDOM.findDOMNode(this.refs.input);
+    input.focus();
+
+    this.resizable(input, 11);
+  }
+
+  resizable (el, factor) {
+    var int = Number(factor) || 7.7;
+    function resize() {el.style.width = ((el.value.length+1) * int) + 'px'}
+    var e = 'keyup,keypress,focus,blur,change'.split(',');
+    for (var i in e) el.addEventListener(e[i],resize,false);
+    resize();
   }
 
   componentDidUpdate() {
@@ -29,14 +41,14 @@ export default class SearchBar extends Component {
     return (
       <div className={this.props.className} id={this.props.id}>
         <span className="search_bar_icon glyphicons glyphicons-search"/>
-        <input
-          type="text"
-          placeholder="Search your company Google Drive"
-          className="search_bar_input"
-          onKeyUp={this.props.onKeyUp}
-          onKeyDown={this.props.onKeyDown}
-          onInput={this.props.onInput}
-          ref='input' />
+          <input
+            type="text"
+            placeholder="Search your company Drive"
+            className="search_bar_input"
+            onKeyUp={this.props.onKeyUp}
+            onKeyDown={this.props.onKeyDown}
+            onInput={this.props.onInput}
+            ref='input' />
       </div>
     );
   }

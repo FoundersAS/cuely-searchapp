@@ -128,7 +128,7 @@ ipcMain.on('search-rendered', (event, arg) => {
   // Resize the window after search results have been rendered to html/dom, due to weird GUI artifacts
   // when resizing elements, e.g. <ul> component. Probably happens because of frameless and transparent window.
   if (searchWindow.getSize()[1] !== arg.height) {
-    searchWindow.setSize(searchWindow.getSize()[0], arg.height, false);
+    searchWindow.setSize(searchWindow.getSize()[0], 469, false);
   }
 });
 
@@ -251,10 +251,10 @@ function calculatePositionAndSize() {
   const screen = getScreenProps();
   // try to account for small and big screens
   // const w = Math.round(Math.max(800, Math.min(1000, screen.width / 3)));
-  const w = 800;
+  const w = 820;
   return {
     width: w,
-    height: 62,
+    height: 469,
     x: Math.round(screen.center.x - (w / 2)),
     y: Math.round(screen.center.y / 2),
     screenWidth: screen.width,

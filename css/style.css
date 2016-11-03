@@ -1,8 +1,16 @@
+html {
+  -webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
+  -moz-box-sizing: border-box; /* Firefox, other Gecko */
+  box-sizing: border-box; /* Opera/IE 8+ */
+  border: 10px solid rgba(0, 0, 0, 0.6);
+  -webkit-app-region: drag;
+}
+
 body {
   padding: 0px;
   margin: 0px;
   font-family: "BlinkMacSystemFont";
-  overflow: hidden;
+  overflow: hidden; 
 }
 
 em {
@@ -21,13 +29,13 @@ em {
 }
 
 .search_suggestions {
-  display: flex;$
+  display: flex;
   width: 100%;
   padding: 0;
   margin: 0;
   background-color: none;
   border-top: 0;
-  border-radius: 0 0 .35em .35em;
+  -webkit-app-region: no-drag;
 }
 
 .search_suggestions_content {
@@ -35,7 +43,7 @@ em {
   margin: 0;
   background-color: #F9F9F9;
   overflow: auto;
-  height: 400px;
+  height: 397px;
   border-left: 1px solid #DEDEDE;
   outline: none;
   font-family: "BlinkMacSystemFont";
@@ -112,7 +120,7 @@ table tr th:last-child {
   padding: .3rem 0 0 .5rem;
 }
 
-.no_preview{
+.no_preview, .empty_results_set{
   text-align: center;
   position: relative;
   top: 150px;
@@ -130,7 +138,7 @@ table tr th:last-child {
   padding: 0;
   width: 50%;
   background-color: #E8E8E8;
-  height: 400px;
+  height: 397px;
 }
 
 .search_suggestions_list ul {
@@ -185,8 +193,8 @@ table tr th:last-child {
   z-index: 100;
   right: .5rem;
   top: 2.65rem;
-  cursor: pointer;
   padding: .4rem;
+  cursor: pointer;
 }
 
 .search_suggestions_card_highlight .action_icon {
@@ -236,28 +244,35 @@ table tr th:last-child {
 .search_bar {
   width: 100%;
   background-color: #EEE;
-  border-radius: .35em;
+  display: flex;
+  flex-wrap: nowrap;
+  -webkit-app-region: drag;
 }
 
 .search_bar_open {
   width: 100%;
   background-color: #EEE;
-  border-radius: .35em .35em 0 0;
   border-bottom: 1px solid #D2D2D2;
+  display: flex;
+  flex-wrap: nowrap;
+  -webkit-app-region: drag;
 }
 
 .search_bar_input {
   line-height: 2em;
   background: none;
   border: none;
-  width: 90%;
   height: 2em;
   font-size: 24px;
   font-weight: 300;
   color: black;
   outline: none;
   padding: .3em .5rem;
-  -webkit-app-region: drag;
+  -webkit-app-region: no-drag;
+  position: relative;
+  min-width: 300px!important;
+  max-width: 99.99%!important;
+  transition: width 0.25s;
 }
 
 .search_bar_icon {
@@ -345,7 +360,6 @@ table tr th:last-child {
 
 .avatars .active {
   opacity: 1;
-  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.6);
 }
 
 .search_suggestions_data .body {
@@ -378,8 +392,8 @@ table tr th:last-child {
 
 .content_bottom_view_link {
   position: absolute;
-  bottom: 1rem;
-  right: 1rem;
+  bottom: 1.25rem;
+  right: 1.25rem;
   font-size: 12px;
   font-weight: 300;
   color: rgba(240, 240, 240, 0.9);
@@ -396,14 +410,6 @@ table tr th:last-child {
 .content_bottom_view_link:hover {
   background-color: rgba(0, 0, 0, 0.85);
   color: rgba(240, 240, 240, 0.95);
-}
-
-.content_bottom_transition {
-  position: absolute;
-  top: 447px;
-  width: 100%;
-  bottom: 0px;
-  background: linear-gradient( to bottom, rgba(252, 252, 252, 0.1), rgba(252, 252, 252, 0.92) , rgba(252, 252, 252, 1) );
 }
 
 .login_frame {
