@@ -31,14 +31,14 @@ export default class IntercomContent extends Component {
     return (
       <div>
         <div className="content_section_title">Conversations</div>
-        <div className="content_section_text section_intercom_conversations">
+        <div className="content_section_text content_section_conversation">
           {conversations.map((c, i) => (
             <div className={i === 0 ? "conversation_first" : "conversation"} key={`conversation_${i}`}>
-              <div className="status">{c.open ? "Status: Open" : "Status: Closed" }</div>
+              <div className="status">{c.open ? "Conversation status: Open" : "Conversation status: Closed" }</div>
               {c.items.map((item, k) => (
                 <div className="conversation_item" key={`conversationItem_${k}`}>
-                  <div className={userId === item.authorId ? "message_owner" : "message"} dangerouslySetInnerHTML={{ __html: item.body }} />
-                  <div className="conversation_metaInfo">
+                  <div className={userId === item.authorId ? "message message_owner" : "message"} dangerouslySetInnerHTML={{ __html: item.body }} />
+                  <div className={userId === item.authorId ? "conversation_metaInfo" : "conversation_metaInfo align_left"}>
                     <div className="author" dangerouslySetInnerHTML={{ __html: item.author }} /><div className="time">&nbsp;{item.time}</div>
                   </div>
                 </div>

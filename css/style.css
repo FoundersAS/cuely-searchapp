@@ -57,8 +57,12 @@ em {
   overflow: auto;
 }
 
-.search_suggestions_content pre p:first-child {
+.search_suggestions_content .content_section_text p:first-child {
   margin-top: 0;
+}
+
+.search_suggestions_content .content_section_text p:last-child {
+  margin-bottom: 0;
 }
 
 .search_suggestions_content pre li + li {
@@ -66,7 +70,7 @@ em {
 }
 
 .search_suggestions_content table {
-  color: #111;
+  color: #333;
   white-space: pre-wrap;
   font-size: 12px;
   font-weight: 300;
@@ -128,53 +132,66 @@ table tr th:last-child {
   font-size: 13px;
   font-weight: 300;
   line-height: 1.7em;
-  color: #111;
+  color: #333;
 }
 
-.search_suggestions_content .section_intercom_conversations .status {
+.search_suggestions_content .content_section_conversation .status {
   width: 100%;
   text-align: center;
   font-size: 12px;
-  margin: 1rem 0;
+  font-weight: 500;
+  margin: 0.5rem 0;
   color: #888;
 }
 
-.search_suggestions_content .section_intercom_conversations .conversation_item .message {
-  border: #EEEEAA 1px solid;
-  border-radius: 3px;
-  padding: 0 .5rem .5rem .5rem;
-  margin-bottom: .25rem;
+.search_suggestions_content .content_section_conversation .conversation_item .message {
+  border: #F2F2CE 1px solid;
+  border-radius: 2px;
+  padding: .5rem;
+  line-height: 20px;
   background-color: #FFFFEF;
 }
 
-.search_suggestions_content .section_intercom_conversations .conversation_item .message_owner {
-  border: #DDDDDD 1px solid;
-  border-radius: 3px;
-  padding: 0 .5rem .5rem .5rem;
-  margin-bottom: .25rem;
-  background-color: #EFEFEF;
+.search_suggestions_content .content_section_conversation .conversation_item .message_owner {
+  border: #DEDEDE 1px solid;
+  background-color: #E8E8E8;
 }
 
-.search_suggestions_content .section_intercom_conversations .conversation_metaInfo {
+.search_suggestions_content .content_section_conversation .conversation_item .message p {
+  margin-bottom: 0;
+  margin-top: .5rem;
+}
+
+.search_suggestions_content .content_section_conversation .conversation_item .message p:first-child {
+  margin-top: 0;
+}
+
+.search_suggestions_content .content_section_conversation .conversation_item .message p:last-child {
+  margin-bottom: 0;
+}
+
+.search_suggestions_content .content_section_conversation .conversation_metaInfo {
+  margin-top: 0.35rem;
   display: flex;
   justify-content: flex-end;
 }
 
-.search_suggestions_content .section_intercom_conversations .conversation_item .message p {
-  margin-bottom: 0;
+.search_suggestions_content .content_section_conversation .conversation_metaInfo.align_left {
+  justify-content: flex-start;
+  padding-left: 0.5rem;
 }
 
-.search_suggestions_content .section_intercom_conversations .conversation_item .author {
+.search_suggestions_content .content_section_conversation .conversation_item .author {
   display: inline-block;
   font-size: 12px;
   margin-bottom: 1rem;
 }
 
-.search_suggestions_content .section_intercom_conversations .conversation_item .time {
+.search_suggestions_content .content_section_conversation .conversation_item .time {
   display: inline-block;
   font-size: 12px;
   margin-bottom: 1rem;
-  color: #888;
+  color: #AAA;
 }
 
 .search_suggestions_content .content_row {
