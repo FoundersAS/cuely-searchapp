@@ -1,41 +1,36 @@
 import electron, { ipcMain, session } from 'electron';
-import { search as searchGdrive, setAlgoliaCredentials } from './src/external/gdrive';
+import { search as searchAlgolia, setAlgoliaCredentials } from './src/util/search';
 import { getAlgoliaCredentials, getSyncStatus, startSync, setSegmentStatus } from './src/util/util.js';
 import { API_ROOT, isDevelopment } from './src/util/const.js';
 import { initPrefs } from './src/util/prefs.js';
 import { initSegment } from './src/util/segment.js';
 import AutoLaunch from 'auto-launch';
 
-const { app, dialog, BrowserWindow, Menu, MenuItem, Tray, globalShortcut} = electron;
+const { app, dialog, BrowserWindow, Menu, MenuItem, Tray, globalShortcut } = electron;
 
 let newKeywords = [
   {
-    type: 'application/vnd.google-apps.document',
-    typeMeta: 'gdrive',
+    mime: 'application/vnd.google-apps.document',
+    type: 'gdrive',
     keywords: ['doc','docs','documents','document','gdoc','google doc','google document'],
     title: '<em>Create a new Google Document</em>',
     link: 'https://docs.google.com/a/your.domain.com/document/create'
   },
   {
-    type: 'application/vnd.google-apps.spreadsheet',
-    typeMeta: 'gdrive',
+    mime: 'application/vnd.google-apps.spreadsheet',
+    type: 'gdrive',
     keywords: ['sheet','sheets','spreadsheet','spreadsheets','google sheet'],
     title: '<em>Create a new Google Sheet</em>',
     link: 'https://docs.google.com/a/your.domain.com/spreadsheet/ccc?new'
   },
   {
-    type: 'application/vnd.google-apps.presentation',
-    typeMeta: 'gdrive',
+    mime: 'application/vnd.google-apps.presentation',
+    type: 'gdrive',
     keywords: ['slide','slides','google slide','google slides','prezo','presentation','google presentation'],
     title: '<em>Create a new Google Presentation</em>',
     link: 'https://docs.google.com/a/your.domain.com/presentation/create'
   }
 ];
-
-const searchCatalog = {
-  // intra: searchIntra,
-  gdrive: searchGdrive
-}
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -47,18 +42,9 @@ let tray;
 let credentials;
 let appHide = true;
 let screenBounds;
-let syncPollerTimeout;
+let syncPollerTimeouts = {};
 let prefs;
 let segment;
-
-
-//Start Cuely on computer restart
-const cuelyAutoLauncher = new AutoLaunch({
-    name: 'Cuely',
-    isHidden: true
-});
-
-cuelyAutoLauncher.enable();
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
@@ -67,6 +53,7 @@ app.on('ready', () => {
   const appPath = app.getPath('userData');
   prefs = initPrefs(appPath);
   buildMenu();
+  setupAutoLauncher();
   loadCredentialsOrLogin();
 });
 
@@ -94,26 +81,8 @@ ipcMain.on('log', (event, arg) => {
 });
 
 ipcMain.on('search', (event, arg) => {
-  let searchers = [];
-  let q = arg;
-  const words = arg.split(' ');
-
-  if (arg.indexOf(' ') > -1) {
-    const words = arg.split(' ');
-    const searcher = words[0];
-    const query = words.slice(1).join(' ');
-    if (searcher in searchCatalog && query.trim()) {
-      searchers.push(searchCatalog[searcher]);
-      q = query;
-    }
-  }
-  if (searchers.length < 1) {
-    searchers = Object.keys(searchCatalog).map(key => searchCatalog[key]);
-  }
-  if (q == ''){
-    q = prefs.settings.account.name;
-  }
-  Promise.all(searchers.map(search => search(q))).then(result => {
+  let q = (arg === '') ? prefs.settings.account.name : arg;
+  searchAlgolia(q).then(result => {
     let hits = [].concat.apply([], result);
 
     const newItemType = getNewKeywordType(arg);
@@ -186,8 +155,8 @@ ipcMain.on('track', (event, arg) => {
 });
 
 //----------- UTILITY FUNCTIONS
-function sendSyncDone() {
-  sendDesktopNotification('Synchronization complete ✓', 'Cuely has finished indexing your Google Drive');
+function sendSyncDone(integrationName) {
+  sendDesktopNotification('Synchronization complete ✓', 'Cuely has finished indexing your ' + integrationName);
 }
 
 function sendDesktopNotification(title, body) {
@@ -317,37 +286,25 @@ function createLoginWindow() {
     center: true
   });
 
-  // Listen to all requests in order to catch button click for 'Resyncing'.
-  // This hack is needed, because it's otherwise not possible to react on javascript events
-  // within an <iframe> due to browser security/sandboxing when iframe's url is on different domain.
-  loginWindow.webContents.session.webRequest.onBeforeRequest({}, (details, callback) => {
-    callback({ cancel: false });
-    if (details.url.endsWith('/home/sync/')) {
-      startSyncPoller(false);
-    }
-  });
   // remove 'x-frame-options' header to allow embedding external pages into 'iframe'
+  // also, capture possible redirects for completing various oauth flows
   loginWindow.webContents.session.webRequest.onHeadersReceived({}, (details, callback) => {
-    if(details.responseHeaders['x-frame-options']) {
-        delete details.responseHeaders['x-frame-options'];
+    for (let header in details.responseHeaders) {
+      if (header.toLowerCase() === 'x-frame-options') {
+        delete details.responseHeaders[header];
+      }
+    }
+    const urlNoParams = details.url.split('?')[0];
+    if (urlNoParams.indexOf('complete/google-oauth2/') > -1) {
+      startSyncPoller('google-oauth2', 'Google Drive');
+    }
+    if (urlNoParams.indexOf('complete/intercom-oauth/') > -1) {
+      startSyncPoller('intercom-oauth', 'Intercom account');
+    }
+    if (urlNoParams.indexOf('complete/intercom-apikeys/') > -1) {
+      startSyncPoller('intercom-apikeys', 'Intercom account');
     }
     callback({ cancel: false, responseHeaders: details.responseHeaders });
-  });
-
-  // capture redirects to reload our own index.html
-  let oauthSuccess = false;
-  loginWindow.webContents.on('will-navigate', (event, url) => {
-    if (url.indexOf('complete/google-oauth2/?state') > -1) {
-      oauthSuccess = true;
-    }
-  });
-
-  loginWindow.webContents.on('did-navigate', (event, url) => {
-    if (oauthSuccess && url.endsWith('/home/#')) {
-      oauthSuccess = false;
-      event.preventDefault();
-      startSyncPoller(true);
-    }
   });
 
   loginWindow.loadURL(`file://${__dirname}/index.html?route=login`);
@@ -455,51 +412,50 @@ function useAuthCookies(callback) {
   });
 }
 
-function startSyncPoller(callApiSync) {
-  if (syncPollerTimeout) {
+function startSyncPoller(type, integrationName) {
+  if (syncPollerTimeouts[type]) {
     // already running
     return;
   }
 
-  let syncing = false;
-  syncPollerTimeout = setInterval(() => {
+  let syncing = true;
+  syncPollerTimeouts[type] = setInterval(() => {
     useAuthCookies((csrf, sessionId) => {
       if (csrf && sessionId) {
-        getSyncStatus(csrf, sessionId).then(([response, error]) => {
+        getSyncStatus(csrf, sessionId, type).then(([response, error]) => {
           if (error) {
             return;
           }
           if (syncing && !response.in_progress) {
-            clearInterval(syncPollerTimeout);
-            syncPollerTimeout = null;
+            clearInterval(syncPollerTimeouts[type]);
+            syncPollerTimeouts[type] = null;
             // send desktop notification
-            sendSyncDone();
+            sendSyncDone(integrationName);
           }
           syncing = response.in_progress;
         });
       } else {
-        clearInterval(syncPollerTimeout);
-        syncPollerTimeout = null;
+        clearInterval(syncPollerTimeouts[type]);
+        syncPollerTimeouts[type] = null;
       }
     });
   }, 5000);
 
-  if (callApiSync) {
-    useAuthCookies((csrf, sessionId) => {
-      if (csrf && sessionId) {
-        startSync(csrf, sessionId);
-      }
-    });
-    loadCredentialsOrLogin();
-  }
+  useAuthCookies((csrf, sessionId) => {
+    if (csrf && sessionId) {
+      startSync(csrf, sessionId, type);
+    }
+  });
+  loadCredentialsOrLogin();
+
   if (loginWindow) {
     loginWindow.hide();
   }
   dialog.showMessageBox({
     type: 'info',
     title: 'Cuely app',
-    message: "Cuely has started to sync with your Google Drive. You will receive a notification once it's done.",
-    detail: "You may start searching already now using Cmd + Backspace. The results will depend on how many documents have been synced so far.",
+    message: `Cuely has started to sync with your ${integrationName}. You will receive a notification once it's done.`,
+    detail: "You may start searching already now using Cmd + Backspace. The results will depend on how much data has been synced so far.",
     buttons: ['Ok']
   }, () => {
     endLogin();
@@ -579,8 +535,8 @@ function getNewKeywordType(arg){
 
 function getNewItem(item){
   const newItem = {
-    metaType: item.typeMeta,
     type: item.type,
+    mime: item.mime,
     title: item.title,
     titleRaw: null,
     content: null,
@@ -621,5 +577,17 @@ function toggleHideOrCreate() {
     toggleHide();
   } else {
     createSearchWindow();
+  }
+}
+
+function setupAutoLauncher() {
+  if(!isDevelopment()) {
+    // Start Cuely on computer restart
+    const cuelyAutoLauncher = new AutoLaunch({
+      name: 'Cuely',
+      isHidden: true
+    });
+
+    cuelyAutoLauncher.enable();
   }
 }

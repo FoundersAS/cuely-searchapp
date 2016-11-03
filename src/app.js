@@ -1,11 +1,10 @@
 import React, {Component} from 'react';
 import ReactDOM from 'react-dom';
 import { ipcRenderer, shell, clipboard } from 'electron';
-import showdown from 'showdown';
 import { Scrollbars } from 'react-custom-scrollbars';
 import SearchBar from './components/SearchBar';
-
-const converter = new showdown.Converter();
+import GdriveContent from './components/GdriveContent';
+import IntercomContent from './components/IntercomContent';
 
 const icons = [
   {
@@ -78,13 +77,8 @@ export default class App extends Component {
     this.handleMouseMove = ::this.handleMouseMove;
     this.handleExternalLink = ::this.handleExternalLink;
     this.handleActionIconLinkClick = ::this.handleActionIconLinkClick;
-    this.renderSelectedItemContent = ::this.renderSelectedItemContent;
     this.handleMouseEnter = ::this.handleMouseEnter;
     this.openExternalLink = ::this.openExternalLink;
-    this.linkify = ::this.linkify;
-    this.newLineRemover = ::this.newLineRemover;
-    this.checkProtocol = ::this.checkProtocol;
-    this.fixLinks = ::this.fixLinks;
     this.state = {
       searchResults: [],
       selectedIndex: -1,
@@ -113,7 +107,7 @@ export default class App extends Component {
   }
 
   componentDidUpdate() {
-    const  content = document.getElementById("searchSuggestionsContent");
+    const content = document.getElementById("searchSuggestionsContent");
     if (content) {
       // scroll the content to first highlight result (or to beginning if there's no highlighted result)
       const elms = document.getElementsByClassName("algolia_highlight");
@@ -128,11 +122,6 @@ export default class App extends Component {
         content.scrollTop = 0;
         content.scrollLeft = 0;
       }
-
-    }
-
-    for (let itemLink of document.getElementsByClassName("content_link")){
-      itemLink.addEventListener("click", this.openContentExternalLink, false);
     }
 
     // adjust the window height to the height of the list
@@ -147,7 +136,6 @@ export default class App extends Component {
       }
     }
     this.refs.searchBar.setFocus();
-
   }
 
   getElementHeight(id) {
@@ -339,7 +327,7 @@ export default class App extends Component {
     };
     
     for (let itemIcons of icons){
-      if (itemIcons.type == item.type){
+      if (itemIcons.type == item.mime){
         const verticalOffset = itemIcons.spriteOffset*(-25) + 'px';
 
         displayIcon.inlineStyle = { 'backgroundPosition': '0 ' + verticalOffset };
@@ -352,7 +340,7 @@ export default class App extends Component {
   }
 
   renderAvatar(item) {
-    if (item.metaInfo){
+    if (item.metaInfo.users){
       return (
         <div className="avatars">
           {item.metaInfo.users[0].avatar
@@ -369,7 +357,7 @@ export default class App extends Component {
         <div className="body">
           <span className="meta_icon glyphicons glyphicons-clock"></span>
           <span className="meta_data">{item.metaInfo.time}</span>
-          {item.metaInfo.path.length > 0
+          {item.metaInfo.path && item.metaInfo.path.length > 0
               ? <span><span className="meta_icon glyphicons glyphicons-folder-open"></span><span className="meta_data" dangerouslySetInnerHTML={{ __html: item.metaInfo.path }} /></span>
               : null}
         </div>
@@ -385,83 +373,6 @@ export default class App extends Component {
     }
   }
 
-  renderRow(row, i) {
-    let cells = [];
-    for (let k=0;k < row.length;k++) {
-      if (i === -1) {
-        cells.push(<th key={`tableHeader_${k}`} dangerouslySetInnerHTML={{ __html: row[k] }}></th>);
-      } else {
-        cells.push(<td key={`tableCell${i}_${k}`} dangerouslySetInnerHTML={{ __html: row[k] }}></td>);
-      }
-    }
-
-    return (
-      <tr key={`tableRow${i}`}>
-        {cells}
-      </tr>
-    )
-  }
-
-  renderContentValue(content) {
-    if (content instanceof Array) {
-      return (
-        <table id="searchSuggestionsContentTable">
-          <thead>
-            {this.renderRow(content[0], -1)}
-          </thead>
-          <tbody>
-            {content.slice(1).map(this.renderRow)}
-          </tbody>
-        </table>
-      )
-    }
-    else if (typeof(content) === 'string'){
-      content = this.linkify(content); 
-      content = converter.makeHtml(content);
-      content = this.newLineRemover(content);
-      
-    }
-    return (
-      <pre id="searchSuggestionsContentPre" dangerouslySetInnerHTML={{ __html: content }} />
-    )
-  }
-
-  renderSelectedItemContent(i) {
-    if (i < 0) {
-      return null;
-    }
-    const item = this.state.searchResults[i];
-    if (!item.content) {
-      return (
-        <div>
-          <div className="title_drive">contents</div>
-          <div className="no_preview">No preview available.</div>
-        </div>
-      )
-    } else if (item.metaInfo.users.length > 1) {
-      return (
-        <div>
-          <div className="title_drive">Co-authors</div>
-          <div className="avatars">
-            {item.metaInfo.users.map(user => (
-                    user.avatar ? <div key={`avatar_${i}_${user.name}`} style={{ backgroundImage: 'url(' + user.avatar + ')' }} className={user.nameHighlight ? "avatar active" : "avatar"} />
-                                : <div key={`avatar_${i}_${user.name}`} className={user.nameHighlight ? "avatar no_avatar active" : "avatar no_avatar"}>{this.initials(user.name)}</div>))}
-          </div>
-          <div className="title_drive">contents</div>
-          {this.renderContentValue(item.content)}
-        </div>
-      )
-    }
-    else {
-      return (
-        <div>
-          <div className="title_drive">contents</div>
-          {this.renderContentValue(item.content)}
-        </div>
-      )
-    }
-  }
-
   handleContentScroll(e) {
     const transitionDiv = document.getElementById("contentBottomTransition");
     if ((e.target.scrollHeight - e.target.clientHeight - e.target.scrollTop) < 15 || (e.target.scrollLeft > 0)) {
@@ -471,54 +382,16 @@ export default class App extends Component {
     }
   }
 
-  linkify(text) {
-    const urlFullRegex =/(www.)?[-A-Za-z0-9+&@#\/%=~_|]*(<em class="algolia_highlight">)[-A-Za-z0-9+&@#\/%=~_|]*(<\/em>)[-A-Za-z0-9+&@#\/%=~_|]*[.](com|net|me|io|org|edu|co|dk|de)|(\b(https?|ftp|file):\/\/[-A-Za-z0-9+&@#\/%?=~_|!:,.;]*(<em class="algolia_highlight">)[-A-Za-z0-9+&@#\/%?=~_|!:,.;]*(<\/em>)[-A-Za-z0-9+&@#\/%?=~_|!:,.;]*)|(\b(https?|ftp|file):\/\/[-A-Za-z0-9+&@#\/%?=~_|!:,.;]*[-A-Za-z0-9+&@#\/%=~_|]|(www.)?[-A-Za-z0-9+&@#\/%=~_|]+[.](com|net|me|io|org|edu|co|dk|de))/ig;
-
-    return text.replace(urlFullRegex, this.fixLinks);
-  }
-
-  fixLinks(url) {
-    const urlEmRegex = /(www.)?[-A-Za-z0-9+&@#\/%=~_|]*(<em class="algolia_highlight">)[-A-Za-z0-9+&@#\/%=~_|]*(<\/em>)[-A-Za-z0-9+&@#\/%=~_|]*[.](com|net|me|io|org|edu|co|dk|de)|(\b(https?|ftp|file):\/\/[-A-Za-z0-9+&@#\/%?=~_|!:,.;]*(<em class="algolia_highlight">)[-A-Za-z0-9+&@#\/%?=~_|!:,.;]*(<\/em>)[-A-Za-z0-9+&@#\/%?=~_|!:,.;]*)/;
-
-    if (urlEmRegex.test(url)){
-      let first_part = url.split('<em class="algolia_highlight">')[0];
-      let second_part = url.split('<em class="algolia_highlight">')[1].split('</em>')[0];
-      let third_part = url.split('<em class="algolia_highlight">')[1].split('</em>')[1];
-
-      return '<a href="' + this.checkProtocol(first_part) + second_part + third_part + '" class="content_link">' + url + '</a>';
-    }
-    else {
-      return '<a href="' + this.checkProtocol(url) + '" class="content_link">' + url + '</a>';
-    }
-  }
-
-  checkProtocol(url){
-    var urlProtocolRegex =/(\b(https?|ftp|file):\/\/)/;
-
-    if (!urlProtocolRegex.test(url)){
-      return 'http://' + url;
-    }
-    else {
-      return url;
-    }
-  }
-
-  newLineRemover(text) {
-    var urlRegex = /(\n\n)|\r?\n|\r/g;
-    var urlRegexPar = /((<p>)[\s\S]*?(<\/p>))/g;
-
-    text = text.replace(urlRegexPar, function(line){
-      return line.replace(/\r?\n|\r/g, function(){
-        return '<br>';
-      });
-    });
-
-    return text.replace(urlRegex, function(line) {
-      return '';
-    });
-  }
-
   renderSearchResults() {
+    const selectedItem = this.state.selectedIndex > -1 ? this.state.searchResults[this.state.selectedIndex] : null;
+    let contentComponent = null;
+    if (selectedItem) {
+      if (selectedItem.type === 'gdrive') {
+        contentComponent = (<GdriveContent openExternalLink={this.openExternalLink} item={selectedItem} />);
+      } else if (selectedItem.type === 'intercom') {
+        contentComponent = (<IntercomContent item={selectedItem} />);
+      }
+    }
     return (
       <div className="search_suggestions" id="searchSuggestions" onKeyUp={this.handleKeyUp} onKeyDown={this.handleContentKeyDown}>
         <div className="search_suggestions_list" id="searchSuggestionsList">
@@ -529,7 +402,7 @@ export default class App extends Component {
           </Scrollbars>
         </div>
         <div className="search_suggestions_content" id="searchSuggestionsContent" onKeyDown={this.handleContentKeyDown} onScroll={this.handleContentScroll} tabIndex="0">
-          {this.renderSelectedItemContent(this.state.selectedIndex)}
+          {contentComponent}
           <div className="content_bottom_view_link" onClick={this.handleExternalLink}>View in App<span className="glyphicons glyphicons-new-window"></span></div>
         </div>
       </div>
