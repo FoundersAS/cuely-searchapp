@@ -1,6 +1,7 @@
 import AlgoliaSearch from 'algoliasearch';
-import { fromIsoDateToElapsed, cutStringWithTags, parseCsv } from '../util/util.js';
+import { cutStringWithTags, parseCsv } from '../util/util.js';
 import { ALGOLIA_INDEX } from '../util/const.js';
+import moment from 'moment';
 
 const algoliaConf = {
   indexName: ALGOLIA_INDEX
@@ -12,6 +13,7 @@ let settings = {
   hitsPerPage: 10,
   getRankingInfo: true
 };
+moment.locale('en-gb');
 
 export function setAlgoliaCredentials(credentials) {
   algoliaClient = AlgoliaSearch(credentials.appId, credentials.searchKey);
@@ -46,9 +48,26 @@ function intercom(hit) {
     sessions: hit.intercom_session_count || 0
   }
   let { events, conversations } = JSON.parse(highlightedValue('intercom_content', hit));
-  events.reverse();
-  content.events = events.map(e => ({ name: e.name, time: fromIsoDateToElapsed(e.timestamp * 1000) }));
-  content.conversations = conversations;
+  content.events = events.map(e => ({ name: e.name, time: moment(e.timestamp * 1000).fromNow() }));
+  content.conversations = conversations.map(c => {
+    return {
+      subject: c.subject,
+      open: c.open,
+      items: c.items.filter(item => item.body).map(item => ({
+        body: item.body,
+        time: moment(item.timestamp * 1000).fromNow(),
+        timestamp: item.timestamp,
+        author: item.author,
+        authorId: item.author_id
+      }))
+    };
+  });
+  content.conversations.sort((a, b) => {
+    if (a.open && b.open) {
+      return b.items.slice(-1)[0].timestamp - a.items.slice(-1)[0].timestamp;
+    }
+    return a.open ? -1 : 1;
+  });
   content.conversationsCount = conversations.length;
 
   return {
@@ -56,10 +75,11 @@ function intercom(hit) {
     mime: 'intercom',
     title: highlightedValue('intercom_title', hit),
     titleRaw: hit.intercom_title,
+    userId: hit.intercom_user_id,
     content: content,
     metaInfo: {
-      time: fromIsoDateToElapsed(hit.last_updated),
-      open: hit.intercom_conversation_open
+      time: moment(hit.last_updated).fromNow(),
+      open: content.conversations.filter(x => x.open).length > 0,
     },
     displayIcon: hit.icon_link,
     webLink: hit.webview_link,
@@ -125,7 +145,7 @@ function gdrive(hit) {
     titleRaw: hit.title,
     content: content,
     metaInfo: {
-      time: fromIsoDateToElapsed(hit.last_updated),
+      time: moment(hit.last_updated).fromNow(),
       users: users,
       path: path
     },

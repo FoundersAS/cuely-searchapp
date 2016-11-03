@@ -128,6 +128,68 @@ table tr th:last-child {
   font-size: 13px;
   font-weight: 300;
   line-height: 1.7em;
+  padding: .5rem;
+}
+
+.search_suggestions_content .section_intercom_conversations {
+  font-size: 12px;
+  font-weight: 300;
+  line-height: 1.7em;
+}
+
+.search_suggestions_content .section_intercom_conversations .status {
+  width: 100%;
+  text-align: center;
+  font-size: 13px;
+  font-style: italic;
+  font-weight: 500;
+  margin-bottom: .5rem;
+}
+
+.search_suggestions_content .section_intercom_conversations .conversation_first {
+  padding: .5rem;
+}
+
+.search_suggestions_content .section_intercom_conversations .conversation {
+  padding: .5rem;
+  border-top: #000000 dashed 1px;
+  padding-top: 1rem;
+}
+
+.search_suggestions_content .section_intercom_conversations .conversation_item {
+}
+
+.search_suggestions_content .section_intercom_conversations .conversation_item .message {
+  border: #EEEEAA 1px solid;
+  border-radius: 3px;
+  padding: 0 .5rem .5rem .5rem;
+  margin-bottom: .25rem;
+  background-color: #FFFFEF;
+}
+
+.search_suggestions_content .section_intercom_conversations .conversation_item .message_owner {
+  border: #DDDDDD 1px solid;
+  border-radius: 3px;
+  padding: 0 .5rem .5rem .5rem;
+  margin-bottom: .25rem;
+  background-color: #EFEFEF;
+}
+
+.search_suggestions_content .section_intercom_conversations .conversation_item .message p {
+  margin-bottom: 0;
+}
+
+.search_suggestions_content .section_intercom_conversations .conversation_item .author {
+  display: inline-block;
+  font-weight: 600;
+  font-size: 11px;
+  margin-bottom: 1rem;
+}
+
+.search_suggestions_content .section_intercom_conversations .conversation_item .time {
+  display: inline-block;
+  font-size: 11px;
+  margin-bottom: 1rem;
 }
 
 .search_suggestions_content .content_row {

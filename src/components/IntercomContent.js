@@ -20,7 +20,28 @@ export default class IntercomContent extends Component {
           </div>
         ))}
       </div>
-    )
+    );
+  }
+
+  renderConversations(userId, conversations) {
+    if (!conversations) {
+      return null;
+    }
+    return (
+      <div className="section_intercom_conversations">
+        {conversations.map((c, i) => (
+          <div className={i === 0 ? "conversation_first" : "conversation"} key={`conversation_${i}`}>
+            <div className="status">{c.open ? "Open" : "Closed" }</div>
+            {c.items.map((item, k) => (
+              <div className="conversation_item" key={`conversationItem_${k}`}>
+                <div className={userId === item.authorId ? "message_owner" : "message"} dangerouslySetInnerHTML={{ __html: item.body }} />
+                <div className="author" dangerouslySetInnerHTML={{ __html: item.author }} /> | <div className="time">{item.time}</div>
+              </div>
+            ))}
+          </div>
+        ))}
+      </div>
+    );
   }
 
   renderAttribute(attr) {
@@ -70,6 +91,8 @@ export default class IntercomContent extends Component {
         {this.renderEvents(item.content.events)}
         
         <div className="content_section_title">Conversations</div>
+        {this.renderConversations(item.userId, item.content.conversations)}
+
       </div>
     )
   }
