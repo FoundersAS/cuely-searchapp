@@ -42,6 +42,7 @@ export function search(query) {
 
 function intercom(hit) {
   let content = {
+    company: hit.intercom_company || '',
     monthlySpend: hit.intercom_monthly_spend || 0,
     plan: hit.intercom_plan || '',
     segments: hit.intercom_segments || '',

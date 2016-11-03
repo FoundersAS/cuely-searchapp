@@ -63,7 +63,7 @@ export default class IntercomContent extends Component {
         <div className="content_section_text">
           <div className="content_row">
             <div className="content_attribute_name">Company</div>
-            <div className="content_attribute_value">{this.renderAttributeSpend(item.content.company)}</div>
+            <div className="content_attribute_value">{this.renderAttribute(item.content.company)}</div>
           </div>
           <div className="content_row">
             <div className="content_attribute_name">Revenue</div>
