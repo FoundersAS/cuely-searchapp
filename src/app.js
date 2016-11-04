@@ -405,12 +405,14 @@ export default class App extends Component {
     if (item) {
       if (item.type === 'gdrive') {
         content = () => (<GdriveContent openExternalLink={this.openExternalLink} item={item} />);
-        itemStatus = () => (
-          <span>
-            <span className="meta_icon glyphicons glyphicons-folder-open"></span>
-            <span className="meta_data" dangerouslySetInnerHTML={{ __html: item.metaInfo.path }} />
-          </span>
-        );
+        if (item.metaInfo.path && item.metaInfo.path.length > 0) {
+          itemStatus = () => (
+            <span>
+              <span className="meta_icon glyphicons glyphicons-folder-open"></span>
+              <span className="meta_data" dangerouslySetInnerHTML={{ __html: item.metaInfo.path }} />
+            </span>
+          );
+        }
       } else if (item.type === 'intercom') {
         content = () => (<IntercomContent item={item} />);
         if (item.content.conversationsCount > 0) {
