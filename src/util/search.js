@@ -50,6 +50,7 @@ function intercom(hit) {
   }
   // in case of intercom, the content is a json object that may contain highlighted (<em>...</em>) snippets
   // as atribute names, so we must remove those before using the json later on
+  // NOTE: do not change old style function to arrow function, becuase it won't work ('this' has different scope in arrow functions)
   let { events, conversations } = JSON.parse(highlightedValue('intercom_content', hit), function(key, value) {
     const new_value = (typeof value  === 'string' || value instanceof String) ? value.replace('<em>', '<em class="algolia_highlight">') : value;
     if (key.indexOf('<em>') > -1) {
