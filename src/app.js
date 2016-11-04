@@ -360,7 +360,6 @@ export default class App extends Component {
     }
   }
 
-
   renderSearchResults() {
     const selectedItem = this.state.selectedIndex > -1 ? this.state.searchResults[this.state.selectedIndex] : null;
     return (
@@ -393,28 +392,30 @@ export default class App extends Component {
   }
 
   getIntegrationComponent(item) {
-    // This functino is meant to be used anytime there is integration dependent rendering
+    // This function is meant to be used anytime there is integration dependent rendering
     // (to avoid if statements every time we need to do something gdrive/intercom/etc specific).
     let content = () => null;
     let itemStatus = () => null;
 
-    if (item.type === 'gdrive') {
-      content = () => (<GdriveContent openExternalLink={this.openExternalLink} item={item} />);
-      itemStatus = () => (
-        <span>
-          <span className="meta_icon glyphicons glyphicons-folder-open"></span>
-          <span className="meta_data" dangerouslySetInnerHTML={{ __html: item.metaInfo.path }} />
-        </span>
-      );
-    } else if (item.type === 'intercom') {
-      content = () => (<IntercomContent item={item} />);
-      if (item.content.conversationsCount > 0) {
+    if (item) {
+      if (item.type === 'gdrive') {
+        content = () => (<GdriveContent openExternalLink={this.openExternalLink} item={item} />);
         itemStatus = () => (
           <span>
-            <span className="meta_icon glyphicons glyphicons-conversation"></span>
-            <span className="meta_data">{item.metaInfo.open ? "Open" : "Closed"}</span>
+            <span className="meta_icon glyphicons glyphicons-folder-open"></span>
+            <span className="meta_data" dangerouslySetInnerHTML={{ __html: item.metaInfo.path }} />
           </span>
         );
+      } else if (item.type === 'intercom') {
+        content = () => (<IntercomContent item={item} />);
+        if (item.content.conversationsCount > 0) {
+          itemStatus = () => (
+            <span>
+              <span className="meta_icon glyphicons glyphicons-conversation"></span>
+              <span className="meta_data">{item.metaInfo.open ? "Open" : "Closed"}</span>
+            </span>
+          );
+        }
       }
     }
 
