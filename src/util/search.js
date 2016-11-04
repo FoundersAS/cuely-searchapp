@@ -40,6 +40,20 @@ export function search(query) {
   });
 }
 
+function removeAlgoliaHighlight(json_obj) {
+  // removes Algolia <em>..</em> highlights from attribute names (but not values)
+  let output = {};
+  for (let key in json_obj) {
+    const new_key = key.replace('<em>', '').replace('</em>', '');
+    if (Object.prototype.toString.apply(json_obj[key]) === '[object Object]') {
+      output[new_key] = allKeysToUpperCase(json_obj[key]);
+    } else {
+      output[new_key] = json_obj[key];
+    }
+  }
+  return output;
+}
+
 function intercom(hit) {
   let content = {
     company: hit.intercom_company || '',
@@ -48,7 +62,9 @@ function intercom(hit) {
     segments: hit.intercom_segments || '',
     sessions: hit.intercom_session_count || 0
   }
-  let { events, conversations } = JSON.parse(highlightedValue('intercom_content', hit));
+  // in case of intercom, the content is a json object that may contain highlighted (<em>...</em>) snippets
+  // as atribute names, so we must remove those before using the json later on
+  let { events, conversations } = removeAlgoliaHighlight(JSON.parse(highlightedValue('intercom_content', hit)));
   content.events = events.map(e => ({ name: e.name, time: moment(e.timestamp * 1000).fromNow() }));
   content.conversations = conversations.map(c => {
     return {
@@ -64,7 +80,7 @@ function intercom(hit) {
     };
   });
   content.conversations.sort((a, b) => {
-    if (a.open && b.open) {
+    if (a.open === b.open) {
       return b.items.slice(-1)[0].timestamp - a.items.slice(-1)[0].timestamp;
     }
     return a.open ? -1 : 1;
