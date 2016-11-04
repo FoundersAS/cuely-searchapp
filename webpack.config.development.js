@@ -17,6 +17,9 @@ var config = {
     }, {
       test: /\.png|\.svg$/,
       loaders: ['file-loader']
+    }, {
+      test: /\.scss$/,
+      loader: 'style!css!sass'
     }]
   },
   output: {

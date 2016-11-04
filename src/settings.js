@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { ipcRenderer } from 'electron';
+require('../css/style-settings.scss');
 
 export default class Settings extends Component {
   constructor(props){

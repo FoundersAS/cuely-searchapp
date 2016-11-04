@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { ipcRenderer } from 'electron';
 import { API_ROOT } from './util/const.js';
+require('../css/style-settings.scss');
 
 export default class Login extends Component {
   handleClick(e) {

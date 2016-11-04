@@ -14,7 +14,7 @@ export default class IntercomContent extends Component {
     return (
       <div className="content_section_text">
         {events.map((e, i) => (
-          <div className="content_row content_row_list" key={`eventRow_${i}`}>
+          <div className="content_row style_space_between" key={`eventRow_${i}`}>
             <div className="content_list_value" dangerouslySetInnerHTML={{ __html: e.name }} />
             <div className="content_list_right_side">{e.time}</div>
           </div>
@@ -38,7 +38,7 @@ export default class IntercomContent extends Component {
               {c.items.map((item, k) => (
                 <div className="conversation_item" key={`conversationItem_${k}`}>
                   <div className={userId === item.authorId ? "message message_owner" : "message"} dangerouslySetInnerHTML={{ __html: item.body }} />
-                  <div className={userId === item.authorId ? "conversation_metaInfo" : "conversation_metaInfo align_left"}>
+                  <div className={userId === item.authorId ? "conversation_metaInfo style_space_between" : "conversation_metaInfo style_space_between"}>
                     <div className="author" dangerouslySetInnerHTML={{ __html: item.author }} /><div className="time">&nbsp;{item.time}</div>
                   </div>
                 </div>

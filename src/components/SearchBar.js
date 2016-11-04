@@ -43,7 +43,7 @@ export default class SearchBar extends Component {
         <span className="search_bar_icon glyphicons glyphicons-search"/>
           <input
             type="text"
-            placeholder="Search your company Drive"
+            placeholder="Search your company items"
             className="search_bar_input"
             onKeyUp={this.props.onKeyUp}
             onKeyDown={this.props.onKeyDown}

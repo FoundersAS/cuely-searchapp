@@ -5,6 +5,7 @@ import { Scrollbars } from 'react-custom-scrollbars';
 import SearchBar from './components/SearchBar';
 import GdriveContent from './components/GdriveContent';
 import IntercomContent from './components/IntercomContent';
+require('../css/style.scss');
 
 const icons = [
   {
@@ -77,7 +78,7 @@ export default class App extends Component {
     this.handleMouseMove = ::this.handleMouseMove;
     this.handleExternalLink = ::this.handleExternalLink;
     this.handleActionIconLinkClick = ::this.handleActionIconLinkClick;
-    this.handleMouseEnter = ::this.handleMouseEnter;
+    //this.handleMouseEnter = ::this.handleMouseEnter;
     this.openExternalLink = ::this.openExternalLink;
     this.state = {
       searchResults: [],
@@ -261,17 +262,19 @@ export default class App extends Component {
     this.hoverDisabled = false;
   }
 
+/*
   handleMouseEnter(e) {
     const index = this.getIndex(e.target.id);
     if (index > -1) {
       const link = document.getElementById("searchItemLink_" + index);
-      link.className = "search_suggestions_card_link_action_hover";
+      //link.className = "search_suggestions_card_link_action_hover";
     }
   }
+*/
 
   hideHover() {
     this.hoverDisabled = true;
-    this.applyClassToSuggestions('search_suggestion_card_link_no_hover');
+    //this.applyClassToSuggestions('search_suggestion_card_link_no_hover');
   }
 
   showHover() {
@@ -298,7 +301,7 @@ export default class App extends Component {
   }
 
   renderItem(item, i) {
-    const liClass = (i === this.state.selectedIndex) ? 'search_suggestions_card_highlight' : 'search_suggestions_card';
+    const liClass = (i === this.state.selectedIndex) ? 'search_suggestions_card search_suggestions_card_highlight' : 'search_suggestions_card';
     // const icon = item.displayIcon ? item.displayIcon : (item.type === 'intra' ? CuelyLogo : GoogleLogo);
     const icon = this.getIcon(item);
 
@@ -363,7 +366,7 @@ export default class App extends Component {
   renderActionItems(item,i) {
     if (item.metaInfo){
       return (
-        <span id={`actionIcon_${i}`} className="action_icon glyphicons glyphicons-link" onClick={this.handleActionIconLinkClick} onMouseEnter={this.handleMouseEnter}></span>
+        <span id={`actionIcon_${i}`} className="action_icon glyphicons glyphicons-link" onClick={this.handleActionIconLinkClick}></span>
       );
     }
   }
