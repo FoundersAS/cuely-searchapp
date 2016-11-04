@@ -42,13 +42,24 @@ export function search(query) {
 
 function intercom(hit) {
   let content = {
-    company: hit.intercom_company || '',
+    company: highlightedValue('intercom_company', hit),
     monthlySpend: hit.intercom_monthly_spend || 0,
     plan: hit.intercom_plan || '',
     segments: hit.intercom_segments || '',
     sessions: hit.intercom_session_count || 0
   }
-  let { events, conversations } = JSON.parse(highlightedValue('intercom_content', hit));
+  // in case of intercom, the content is a json object that may contain highlighted (<em>...</em>) snippets
+  // as atribute names, so we must remove those before using the json later on
+  const content_text = removeAlgoliaHighlight(highlightedValue('intercom_content', hit), ['open', 'timestamp']);
+  // NOTE: do not change old style function to arrow function in next line, because it won't work ('this' has different scope in arrow functions)
+  let { events, conversations } = JSON.parse(content_text, function(key, value) {
+    const new_value = (typeof value  === 'string' || value instanceof String) ? value.replace('<em>', '<em class="algolia_highlight">') : value;
+    if (key.indexOf('<em>') > -1) {
+      this[key.replace('<em>', '').replace('</em>', '')] = new_value;
+      return;
+    }
+    return new_value;
+  });
   content.events = events.map(e => ({ name: e.name, time: moment(e.timestamp * 1000).fromNow() }));
   content.conversations = conversations.map(c => {
     return {
@@ -64,7 +75,7 @@ function intercom(hit) {
     };
   });
   content.conversations.sort((a, b) => {
-    if (a.open && b.open) {
+    if (a.open === b.open) {
       return b.items.slice(-1)[0].timestamp - a.items.slice(-1)[0].timestamp;
     }
     return a.open ? -1 : 1;
@@ -163,4 +174,16 @@ function highlightedValue(attribute, hit, emptyIfNotHighlighted) {
     return hit._highlightResult[attribute].value;
   }
   return emptyIfNotHighlighted ? "" : hit[attribute];
+}
+
+function removeAlgoliaHighlight(json_text, json_keys) {
+  let result = json_text;
+  for (let json_key of json_keys) {
+    const re = new RegExp(`"${json_key}":\\s*.*?,`, "g");
+    const matches = (json_text.match(re) || []).filter(m => m.indexOf('<em>') > 0);
+    for (let m of matches) {
+      result = result.replace(m, m.replace('<em>', '').replace('</em>', ''));
+    }
+  }
+  return result;
 }

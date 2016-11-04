@@ -65,7 +65,6 @@ const icons = [
 export default class App extends Component {
   constructor(props){
     super();
-    this.openContentExternalLink = ::this.openContentExternalLink;
     this.handleInput = ::this.handleInput;
     this.handleKeyUp = ::this.handleKeyUp;
     this.handleKeyDown = ::this.handleKeyDown;
@@ -80,6 +79,7 @@ export default class App extends Component {
     this.handleActionIconLinkClick = ::this.handleActionIconLinkClick;
     //this.handleMouseEnter = ::this.handleMouseEnter;
     this.openExternalLink = ::this.openExternalLink;
+    this.getIntegrationComponent = ::this.getIntegrationComponent;
     this.state = {
       searchResults: [],
       selectedIndex: -1,
@@ -222,11 +222,6 @@ export default class App extends Component {
     this.openExternalLink(this.state.searchResults[this.state.selectedIndex].webLink, 'view in app button');
   }
 
-  openContentExternalLink(e) {
-    e.preventDefault();
-    this.openExternalLink(e.srcElement.href, 'clicked link in content text');
-  }
-
   openExternalLink(link, triggerType) {
     shell.openExternal(link);
     ipcRenderer.send('hide-search');
@@ -303,6 +298,7 @@ export default class App extends Component {
   renderItem(item, i) {
     const liClass = (i === this.state.selectedIndex) ? 'search_suggestions_card search_suggestions_card_highlight' : 'search_suggestions_card';
     // const icon = item.displayIcon ? item.displayIcon : (item.type === 'intra' ? CuelyLogo : GoogleLogo);
+
     const icon = this.getIcon(item);
 
     return (
@@ -356,9 +352,7 @@ export default class App extends Component {
         <div className="body">
           <span className="meta_icon glyphicons glyphicons-clock"></span>
           <span className="meta_data">{item.metaInfo.time}</span>
-          {item.metaInfo.path && item.metaInfo.path.length > 0
-              ? <span><span className="meta_icon glyphicons glyphicons-folder-open"></span><span className="meta_data" dangerouslySetInnerHTML={{ __html: item.metaInfo.path }} /></span>
-              : null}
+          {this.getIntegrationComponent(item).itemStatus()}
         </div>
       );
   }
@@ -373,14 +367,6 @@ export default class App extends Component {
 
   renderSearchResults() {
     const selectedItem = this.state.selectedIndex > -1 ? this.state.searchResults[this.state.selectedIndex] : null;
-    let contentComponent = null;
-    if (selectedItem) {
-      if (selectedItem.type === 'gdrive') {
-        contentComponent = (<GdriveContent openExternalLink={this.openExternalLink} item={selectedItem} />);
-      } else if (selectedItem.type === 'intercom') {
-        contentComponent = (<IntercomContent item={selectedItem} />);
-      }
-    }
     return (
       <div className="search_suggestions" id="searchSuggestions" onKeyUp={this.handleKeyUp} onKeyDown={this.handleContentKeyDown}>
         <div className="search_suggestions_list" id="searchSuggestionsList">
@@ -391,7 +377,7 @@ export default class App extends Component {
           </Scrollbars>
         </div>
         <div className="search_suggestions_content" id="searchSuggestionsContent" onKeyDown={this.handleContentKeyDown} onScroll={this.handleContentScroll} tabIndex="0">
-          {contentComponent}
+          {this.getIntegrationComponent(selectedItem).content()}
           <div className="content_bottom_view_link" onClick={this.handleExternalLink}>View in App<span className="glyphicons glyphicons-new-window"></span></div>
         </div>
       </div>
@@ -408,6 +394,37 @@ export default class App extends Component {
         </div>
       </div>
     );
+  }
+
+  getIntegrationComponent(item) {
+    // This function is meant to be used anytime there is integration dependent rendering
+    // (to avoid if statements every time we need to do something gdrive/intercom/etc specific).
+    let content = () => null;
+    let itemStatus = () => null;
+
+    if (item) {
+      if (item.type === 'gdrive') {
+        content = () => (<GdriveContent openExternalLink={this.openExternalLink} item={item} />);
+        itemStatus = () => (
+          <span>
+            <span className="meta_icon glyphicons glyphicons-folder-open"></span>
+            <span className="meta_data" dangerouslySetInnerHTML={{ __html: item.metaInfo.path }} />
+          </span>
+        );
+      } else if (item.type === 'intercom') {
+        content = () => (<IntercomContent item={item} />);
+        if (item.content.conversationsCount > 0) {
+          itemStatus = () => (
+            <span>
+              <span className="meta_icon glyphicons glyphicons-conversation"></span>
+              <span className="meta_data">{item.metaInfo.open ? "Open" : "Closed"}</span>
+            </span>
+          );
+        }
+      }
+    }
+
+    return { content, itemStatus };
   }
 
   render() {

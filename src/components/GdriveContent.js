@@ -13,7 +13,7 @@ export default class GdriveContent extends Component {
   }
 
   componentDidMount() {
-    // force update on initial rendering
+    // force didUpdate on initial rendering
     this.componentDidUpdate();
   }
 

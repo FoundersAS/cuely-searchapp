@@ -24,7 +24,6 @@ export default class IntercomContent extends Component {
   }
 
   renderConversations(userId, conversations) {
-    console.log(conversations);
     if (!conversations || conversations.length == 0) {
       return null;
     }
@@ -69,7 +68,7 @@ export default class IntercomContent extends Component {
         <div className="content_section_text">
           <div className="content_row">
             <div className="content_attribute_name">Company</div>
-            <div className="content_attribute_value">{this.renderAttribute(item.content.company)}</div>
+            <div className="content_attribute_value" dangerouslySetInnerHTML={{ __html: item.content.company }} />
           </div>
           <div className="content_row">
             <div className="content_attribute_name">Revenue</div>
