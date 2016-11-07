@@ -53,9 +53,9 @@ function intercom(hit) {
   const content_text = removeAlgoliaHighlight(highlightedValue('intercom_content', hit), ['open', 'timestamp']);
   // NOTE: do not change old style function to arrow function in next line, because it won't work ('this' has different scope in arrow functions)
   let { events, conversations } = JSON.parse(content_text, function(key, value) {
-    const new_value = (typeof value  === 'string' || value instanceof String) ? value.replace('<em>', '<em class="algolia_highlight">') : value;
+    const new_value = (typeof value  === 'string' || value instanceof String) ? value.replace(/<em>/g, '<em class="algolia_highlight">') : value;
     if (key.indexOf('<em>') > -1) {
-      this[key.replace('<em>', '').replace('</em>', '')] = new_value;
+      this[key.replace(/<em>/g, '').replace(/<\/em>/g, '')] = new_value;
       return;
     }
     return new_value;
@@ -182,8 +182,13 @@ function removeAlgoliaHighlight(json_text, json_keys) {
     const re = new RegExp(`"${json_key}":\\s*.*?,`, "g");
     const matches = (json_text.match(re) || []).filter(m => m.indexOf('<em>') > 0);
     for (let m of matches) {
-      result = result.replace(m, m.replace('<em>', '').replace('</em>', ''));
+      result = result.replace(m, m.replace(/<em>/g, '').replace(/<\/em>/g, ''));
     }
+  }
+  // also remove escaped '<em>' tags which can happen when Algolia highlights a letter in an escape sequence such as unicode character: \ud83d -> \<em>u</em>d83d
+  // this is needed, because otherwise json parser will choke on it
+  if (result.indexOf('\\<em>') > -1) {
+    result = result.split('\\<em>').map(token => token.replace('</em>', '')).join('\\');
   }
   return result;
 }
