@@ -8,7 +8,7 @@
     "dev": "concurrently -k 'babel-node server.js' 'BACKEND=development npm start'",
     "dev:prod": "concurrently -k 'babel-node server.js' 'BACKEND=production npm start'",
     "clean": "rm -rf ./dist ./Cuely-*",
-    "build": "webpack --config webpack.config.production.js && electron-packager . Cuely --platform=darwin --arch=all --prune --overwrite --icon ./cuely_icon",
+    "build": "webpack --config webpack.config.production.js && electron-packager . Cuely --platform=darwin --arch=all --app-bundle-id=\"com.cuely.search\" --app-version=\"1.0.0\" --build-version=\"1.0.100\" --prune --overwrite --icon ./cuely_icon --osx-sign",
     "build:zip": "npm run build && zip -r -y -9 ./Cuely-darwin-x64/Cuely.zip ./Cuely-darwin-x64/Cuely.app"
   },
   "babel": {
