@@ -77,7 +77,7 @@ export default class App extends Component {
     this.handleMouseMove = ::this.handleMouseMove;
     this.handleExternalLink = ::this.handleExternalLink;
     this.handleActionIconLinkClick = ::this.handleActionIconLinkClick;
-    //this.handleMouseEnter = ::this.handleMouseEnter;
+    this.handleMouseEnter = ::this.handleMouseEnter;
     this.openExternalLink = ::this.openExternalLink;
     this.getIntegrationComponent = ::this.getIntegrationComponent;
     this.state = {
@@ -206,9 +206,15 @@ export default class App extends Component {
   handleClick(e) {
     e.preventDefault();
     const index = this.getIndex(e.target.id);
+
     if (index > -1) {
-      this.setState({ selectedIndex: index, keyFocus: false });
-      this.hideHover();
+      if (index == this.state.selectedIndex){
+        this.handleDoubleClick(e);
+      }
+      else {
+        this.setState({ selectedIndex: index, keyFocus: false });
+        this.hideHover();
+      }  
     }
   }
 
@@ -257,15 +263,13 @@ export default class App extends Component {
     this.hoverDisabled = false;
   }
 
-/*
   handleMouseEnter(e) {
     const index = this.getIndex(e.target.id);
     if (index > -1) {
       const link = document.getElementById("searchItemLink_" + index);
-      //link.className = "search_suggestions_card_link_action_hover";
+      link.className = "search_suggestions_card_link_action_hover";
     }
   }
-*/
 
   hideHover() {
     this.hoverDisabled = true;
@@ -360,7 +364,7 @@ export default class App extends Component {
   renderActionItems(item,i) {
     if (item.metaInfo){
       return (
-        <span id={`actionIcon_${i}`} className="action_icon glyphicons glyphicons-link" onClick={this.handleActionIconLinkClick}></span>
+        <span id={`actionIcon_${i}`} className="action_icon glyphicons glyphicons-link" onClick={this.handleActionIconLinkClick} onMouseEnter={this.handleMouseEnter}></span>
       );
     }
   }
@@ -402,7 +406,7 @@ export default class App extends Component {
     let content = () => null;
     let itemStatus = () => null;
 
-    if (item) {
+    if (item && item.metaInfo) {
       if (item.type === 'gdrive') {
         content = () => (<GdriveContent openExternalLink={this.openExternalLink} item={item} />);
         if (item.metaInfo.path && item.metaInfo.path.length > 0) {
