@@ -304,6 +304,9 @@ function createLoginWindow() {
     if (urlNoParams.indexOf('complete/intercom-apikeys/') > -1) {
       startSyncPoller('intercom-apikeys', 'Intercom account');
     }
+    if (urlNoParams.indexOf('complete/pipedrive-apikeys/') > -1) {
+      startSyncPoller('pipedrive-apikeys', 'Pipedrive account');
+    }
     callback({ cancel: false, responseHeaders: details.responseHeaders });
   });
 

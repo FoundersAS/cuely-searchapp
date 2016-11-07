@@ -5,6 +5,7 @@ import { Scrollbars } from 'react-custom-scrollbars';
 import SearchBar from './components/SearchBar';
 import GdriveContent from './components/GdriveContent';
 import IntercomContent from './components/IntercomContent';
+import PipedriveContent from './components/PipedriveContent';
 require('../css/style.scss');
 
 const icons = [
@@ -59,7 +60,11 @@ const icons = [
   {
     type: 'application/pdf',
     spriteOffset: 12
-  }
+  },
+  {
+    type: 'pipedrive',
+    spriteOffset: 13
+  },
 ]
 
 export default class App extends Component {
@@ -427,6 +432,14 @@ export default class App extends Component {
             </span>
           );
         }
+      } else if (item.type === 'pipedrive') {
+        content = () => (<PipedriveContent openExternalLink={this.openExternalLink} item={item} />);
+        itemStatus = () => (
+          <span>
+            <span className="meta_icon glyphicons glyphicons-flag"></span>
+            <span className="meta_data">{item.metaInfo.status}&nbsp;/&nbsp;{item.metaInfo.stage}</span>
+          </span>
+        );
       }
     }
 

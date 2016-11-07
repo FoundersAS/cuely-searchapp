@@ -2,7 +2,7 @@ import React, {Component} from 'react';
 import ReactDOM from 'react-dom';
 
 export default class IntercomContent extends Component {
-  constructor(props){
+  constructor(props) {
     super();
   }
 

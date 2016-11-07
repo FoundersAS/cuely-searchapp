@@ -31,6 +31,8 @@ export function search(query) {
         return gdrive(hit);
       } else if (keywords.indexOf('intercom') > -1) {
         return intercom(hit);
+      } else if (keywords.indexOf('pipedrive') > -1) {
+        return pipedrive(hit);
       } else {
         return null;
       }
@@ -38,6 +40,43 @@ export function search(query) {
   }).catch(err => {
     console.log(err);
   });
+}
+
+function pipedrive(hit) {
+  let content = {
+    company: highlightedValue('pipedrive_deal_company', hit),
+    value: hit.pipedrive_deal_value,
+    currency: hit.pipedrive_deal_currency,
+  }
+  // NOTE: do not change old style function to arrow function in next line, because it won't work ('this' has different scope in arrow functions)
+  let { contacts, users, activities } = JSON.parse(highlightedValue('pipedrive_content', hit), function(key, value) {
+    const new_value = (typeof value  === 'string' || value instanceof String) ? value.replace(/<em>/g, '<em class="algolia_highlight">') : value;
+    if (key.indexOf('<em>') > -1) {
+      this[key.replace(/<em>/g, '').replace(/<\/em>/g, '')] = new_value;
+      return;
+    }
+    return new_value;
+  });
+  content.contacts = contacts;
+  content.users = users;
+
+  return {
+    type: 'pipedrive',
+    mime: 'pipedrive',
+    title: highlightedValue('pipedrive_title', hit),
+    titleRaw: hit.pipedrive_title,
+    content: content,
+    metaInfo: {
+      time: moment(hit.last_updated).fromNow(),
+      status: hit.pipedrive_deal_status,
+      stage: hit.pipedrive_deal_stage
+    },
+    displayIcon: hit.icon_link,
+    webLink: hit.webview_link,
+    thumbnailLink: null,
+    modified: hit.last_updated,
+    _algolia: hit._rankingInfo
+  }
 }
 
 function intercom(hit) {
