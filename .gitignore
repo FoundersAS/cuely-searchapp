@@ -38,6 +38,7 @@ jspm_packages
 
 # Vi
 *.swp
+*.swo
 
 # builds
 dist
