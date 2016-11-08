@@ -22,7 +22,7 @@ class Preferences {
         }
       }
     } else {
-      this.saveSettings(settingsDefaults);
+      this.saveAll(settingsDefaults);
     }
   }
 

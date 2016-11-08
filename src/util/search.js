@@ -228,7 +228,7 @@ function removeAlgoliaHighlight(json_text, json_keys) {
 }
 
 function cleanJsonContent(content_text, json_keys) {
-  // in case of json formatted content, the parsed json object that may contain highlighted (<em>...</em>) snippets
+  // in case of json formatted content, the parsed json object may contain highlighted (<em>...</em>) snippets
   // as atribute names, so we must remove those before using the json later on
   const content = removeAlgoliaHighlight(content_text, json_keys);
   // NOTE: do not change old style function to arrow function in next line, because it won't work ('this' has different scope in arrow functions)
