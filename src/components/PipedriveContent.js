@@ -132,7 +132,7 @@ export default class PipedriveContent extends Component {
         </div>
 
         {this.renderPeople(item.content.contacts, 'Associated contacts', 0)}
-        {this.renderPeople(item.content.users, 'Associated users', 1)}
+        {this.renderPeople(item.metaInfo.users, 'Associated users', 1)}
         {this.renderActivities(item.content.activities)}
       </div>
     )

@@ -50,13 +50,19 @@ function pipedrive(hit) {
   }
   let { contacts, users, activities } = cleanJsonContent(highlightedValue('pipedrive_content', hit), ['url', 'icon_url']);
   content.contacts = contacts;
-  content.users = users;
   content.activities = activities.map(a => ({
     subject: a.subject,
     username: a.user_name,
     doneTime: moment(a.done_time).fromNow(),
     contact: a.contact,
     type: a.type
+  }));
+
+  users = users.map(user => ({
+    avatar: user.icon_url,
+    name: user.name.replace(/<em>/g, '').replace(/<\/em>/g, ''),
+    nameHighlight: user.name.indexOf('<em>') > -1 ? user.name : null,
+    email: user.email
   }));
 
   return {
@@ -68,7 +74,8 @@ function pipedrive(hit) {
     metaInfo: {
       time: moment(hit.last_updated).fromNow(),
       status: hit.pipedrive_deal_status,
-      stage: hit.pipedrive_deal_stage
+      stage: hit.pipedrive_deal_stage,
+      users: users
     },
     displayIcon: hit.icon_link,
     webLink: hit.webview_link,
