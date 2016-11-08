@@ -48,15 +48,7 @@ function pipedrive(hit) {
     value: hit.pipedrive_deal_value,
     currency: hit.pipedrive_deal_currency,
   }
-  // NOTE: do not change old style function to arrow function in next line, because it won't work ('this' has different scope in arrow functions)
-  let { contacts, users, activities } = JSON.parse(highlightedValue('pipedrive_content', hit), function(key, value) {
-    const new_value = (typeof value  === 'string' || value instanceof String) ? value.replace(/<em>/g, '<em class="algolia_highlight">') : value;
-    if (key.indexOf('<em>') > -1) {
-      this[key.replace(/<em>/g, '').replace(/<\/em>/g, '')] = new_value;
-      return;
-    }
-    return new_value;
-  });
+  let { contacts, users, activities } = cleanJsonContent(highlightedValue('pipedrive_content', hit), ['url', 'icon_url']);
   content.contacts = contacts;
   content.users = users;
 
@@ -87,18 +79,7 @@ function intercom(hit) {
     segments: hit.intercom_segments || '',
     sessions: hit.intercom_session_count || 0
   }
-  // in case of intercom, the content is a json object that may contain highlighted (<em>...</em>) snippets
-  // as atribute names, so we must remove those before using the json later on
-  const content_text = removeAlgoliaHighlight(highlightedValue('intercom_content', hit), ['open', 'timestamp']);
-  // NOTE: do not change old style function to arrow function in next line, because it won't work ('this' has different scope in arrow functions)
-  let { events, conversations } = JSON.parse(content_text, function(key, value) {
-    const new_value = (typeof value  === 'string' || value instanceof String) ? value.replace(/<em>/g, '<em class="algolia_highlight">') : value;
-    if (key.indexOf('<em>') > -1) {
-      this[key.replace(/<em>/g, '').replace(/<\/em>/g, '')] = new_value;
-      return;
-    }
-    return new_value;
-  });
+  let { events, conversations } = cleanJsonContent(highlightedValue('intercom_content', hit), ['open', 'timestamp']);
   content.events = events.map(e => ({ name: e.name, time: moment(e.timestamp * 1000).fromNow() }));
   content.conversations = conversations.map(c => {
     return {
@@ -230,4 +211,19 @@ function removeAlgoliaHighlight(json_text, json_keys) {
     result = result.split('\\<em>').map(token => token.replace('</em>', '')).join('\\');
   }
   return result;
+}
+
+function cleanJsonContent(content_text, json_keys) {
+  // in case of json formatted content, the parsed json object that may contain highlighted (<em>...</em>) snippets
+  // as atribute names, so we must remove those before using the json later on
+  const content = removeAlgoliaHighlight(content_text, json_keys);
+  // NOTE: do not change old style function to arrow function in next line, because it won't work ('this' has different scope in arrow functions)
+  return JSON.parse(content, function(key, value) {
+    const new_value = (typeof value  === 'string' || value instanceof String) ? value.replace(/<em>/g, '<em class="algolia_highlight">') : value;
+    if (key.indexOf('<em>') > -1) {
+      this[key.replace(/<em>/g, '').replace(/<\/em>/g, '')] = new_value;
+      return;
+    }
+    return new_value;
+  });
 }
