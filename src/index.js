@@ -1,7 +1,9 @@
 import 'babel-polyfill'; // generators
 import React from 'react';
 import ReactDOM from 'react-dom';
+const { webFrame } = require('electron')
 
+webFrame.setZoomLevelLimits(1, 1);
 const render = () => {
   const urlParams = new URLSearchParams(window.location.search);
   const route = urlParams.get('route');
