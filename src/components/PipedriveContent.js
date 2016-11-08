@@ -1,6 +1,15 @@
 import React, {Component} from 'react';
 import ReactDOM from 'react-dom';
 
+const activityTypes = {
+  'call': 'glyphicons-earphone',
+  'meeting': 'glyphicons-family',
+  'task': 'glyphicons-clock',
+  'deadline': 'glyphicons-flag',
+  'email': 'glyphicons-send',
+  'lunch': 'glyphicons-coffee-cup',
+}
+
 export default class PipedriveContent extends Component {
   constructor(props) {
     super();
@@ -20,12 +29,11 @@ export default class PipedriveContent extends Component {
 
   openLink(e) {
     e.preventDefault();
-    console.log(e);
     // get actual <a> tag
     let el = e.target;
     while(el.nodeName !== 'A') {
       el = el.parentElement;
-      if (el.className === 'content_section_text') {
+      if (el.className === 'content_section_text' || el.nodeName === 'BODY') {
         // oops, no anchor tag found
         return;
       }
@@ -60,6 +68,42 @@ export default class PipedriveContent extends Component {
     )
   }
 
+  renderActivityIcon(activity) {
+    const iconClass = activityTypes[activity.type];
+    if (iconClass) {
+      return (<span className={`meta_icon glyphicons ${iconClass}`}></span>)
+    }
+    return null;
+  }
+
+  renderActivities(activites) {
+    if (!activites || activites.length == 0) {
+      return null;
+    }
+    return (
+      <div>
+        <div className="content_section_title">Activity</div>
+        <div className="content_section_text content_section_conversation">
+          {activites.map((activity, i) => (
+            <div className={i === 0 ? "conversation_first" : "conversation"} key={`activity_${i}`}>
+              
+              <div className="conversation_item">
+                <div className="message" dangerouslySetInnerHTML={{ __html: activity.subject }} />
+                <div className="conversation_metaInfo style_space_between">
+                  <span>
+                    <div className="type">{this.renderActivityIcon(activity)}</div>
+                    <div className="author" dangerouslySetInnerHTML={{ __html: `${activity.username} → ${activity.contact}` }} />
+                  </span>
+                  <div className="time">&nbsp;{activity.doneTime}</div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
   render() {
     const item = this.props.item;
     if (!item) {
@@ -89,6 +133,7 @@ export default class PipedriveContent extends Component {
 
         {this.renderPeople(item.content.contacts, 'Associated contacts', 0)}
         {this.renderPeople(item.content.users, 'Associated users', 1)}
+        {this.renderActivities(item.content.activities)}
       </div>
     )
   }

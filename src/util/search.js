@@ -51,6 +51,13 @@ function pipedrive(hit) {
   let { contacts, users, activities } = cleanJsonContent(highlightedValue('pipedrive_content', hit), ['url', 'icon_url']);
   content.contacts = contacts;
   content.users = users;
+  content.activities = activities.map(a => ({
+    subject: a.subject,
+    username: a.user_name,
+    doneTime: moment(a.done_time).fromNow(),
+    contact: a.contact,
+    type: a.type
+  }));
 
   return {
     type: 'pipedrive',

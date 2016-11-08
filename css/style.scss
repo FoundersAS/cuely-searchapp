@@ -341,6 +341,15 @@ em {
 					margin-bottom: 1rem;
 					color: #AAA;
 				}
+
+        .type {
+					display: inline-block;
+					font-size: 12px;
+          color: #888;
+					margin-bottom: 1rem;
+          margin-right: 0.5rem;
+          vertical-align: sub;
+        }
 			}
 		}
 	}
