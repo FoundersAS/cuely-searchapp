@@ -50,7 +50,7 @@ export default class PipedriveContent extends Component {
     return (value ? value + ' ' + currency : '/');
   }
 
-  renderPeople(item, title, groupIndex) {
+  renderUsers (item, title, groupIndex) {
     if (!item.metaInfo || !item.metaInfo.users || item.metaInfo.users.length == 0) {
       return null;
     }
@@ -63,6 +63,25 @@ export default class PipedriveContent extends Component {
                     user.avatar ? <div key={`avatar_${i}_${user.name}`} style={{ backgroundImage: 'url(' + user.avatar + ')' }} className={user.nameHighlight ? "avatar active" : "avatar"} />
                                 : <div key={`avatar_${i}_${user.name}`} className={user.nameHighlight ? "avatar no_avatar active" : "avatar no_avatar"}>{this.initials(user.name)}</div>))}
         </div>
+      </div>
+    )
+  }
+
+  renderContacts(people, title, groupIndex) {
+    if (!people || people.length == 0) {
+      return null;
+    }
+    return (
+      <div>
+        <div className="content_section_title">{title}&nbsp;({people.length})</div>
+        <div className="content_section_text">
+          {people.map((p, i) => (
+            <div className="content_row style_space_between" key={`peopleRow_${groupIndex}_${i}`}>
+              <a href={p.url} className="content_link"><div className="content_list_value" dangerouslySetInnerHTML={{ __html: p.name }} /></a>
+              <div className="content_list_right_side" dangerouslySetInnerHTML={{ __html: p.email }} />
+            </div>
+          ))}
+        </div> 
       </div>
     )
   }
@@ -110,7 +129,7 @@ export default class PipedriveContent extends Component {
     }
     return (
       <div>
-        {this.renderPeople(item, 'Collaborators', 1)}
+        {this.renderUsers(item, 'Collaborators', 1)}
         <div className="content_section_title">Deal info</div>
         <div className="content_section_text">
           <div className="content_row">
@@ -131,7 +150,7 @@ export default class PipedriveContent extends Component {
           </div>
         </div>
 
-        {this.renderPeople(item.content.contacts, 'Associated contacts', 0)}
+        {this.renderContacts(item.content.contacts, 'Associated contacts', 0)}
         {this.renderActivities(item.content.activities)}
       </div>
     )
