@@ -57,7 +57,7 @@ function pipedrive(hit) {
     contact: a.contact,
     type: a.type
   }));
-
+  console.log(users);
   users = users.map(user => ({
     avatar: user.icon_url,
     name: user.name.replace(/<em>/g, '').replace(/<\/em>/g, ''),

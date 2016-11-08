@@ -113,6 +113,7 @@ em {
 
 					.meta_data {
 						padding-right: .7rem;
+						text-transform: capitalize;
 					}
 
 					.meta_icon {
@@ -193,6 +194,10 @@ em {
 
 		.search_suggestions_card + .search_suggestions_card {
 			border-top: 1px solid #DEDEDE;
+		}
+
+		.search_suggestions_card:last-child {
+			border-bottom: 1px solid #DEDEDE;
 		}
 
 		.search_suggestions_card + .search_suggestions_card_highlight,

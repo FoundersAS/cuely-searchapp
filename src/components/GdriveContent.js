@@ -83,6 +83,7 @@ export default class GdriveContent extends Component {
             {item.metaInfo.users.map((user, i) => (
                     user.avatar ? <div key={`avatar_${i}_${user.name}`} style={{ backgroundImage: 'url(' + user.avatar + ')' }} className={user.nameHighlight ? "avatar active" : "avatar"} />
                                 : <div key={`avatar_${i}_${user.name}`} className={user.nameHighlight ? "avatar no_avatar active" : "avatar no_avatar"}>{this.initials(user.name)}</div>))}
+            }
           </div>
           <div className="content_section_title">contents</div>
           {this.renderContentValue(item.content)}

@@ -20,6 +20,10 @@ export function setSegmentStatus(csrfToken, sessionId, identified) {
   return callApi('/home/update_segment', csrfToken, sessionId, { identified }, 'POST');
 }
 
+export function getUserInitials(username) {
+  return username.split(' ').map(x => x[0]).slice(0, 2).join('');
+}
+
 function callApi(endpoint, csrfToken, sessionId, params = {}, method = 'GET', accept = 'application/json') {
   console.log("calling api: " + API_ROOT + endpoint);
   const call_fn = (method == 'POST') ? request.post : request.get;

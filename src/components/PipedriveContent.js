@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
 import ReactDOM from 'react-dom';
 
+
 const activityTypes = {
   'call': 'glyphicons-earphone',
   'meeting': 'glyphicons-family',
@@ -49,21 +50,19 @@ export default class PipedriveContent extends Component {
     return (value ? value + ' ' + currency : '/');
   }
 
-  renderPeople(people, title, groupIndex) {
-    if (!people || people.length == 0) {
+  renderPeople(item, title, groupIndex) {
+    if (!item.metaInfo || !item.metaInfo.users || item.metaInfo.users.length == 0) {
       return null;
     }
     return (
       <div>
-        <div className="content_section_title">{title}&nbsp;({people.length})</div>
-        <div className="content_section_text">
-          {people.map((p, i) => (
-            <div className="content_row style_space_between" key={`peopleRow_${groupIndex}_${i}`}>
-              <a href={p.url} className="content_link"><div className="content_list_value" dangerouslySetInnerHTML={{ __html: p.name }} /></a>
-              <div className="content_list_right_side" dangerouslySetInnerHTML={{ __html: p.email }} />
-            </div>
-          ))}
-        </div> 
+        <div className="content_section_title">{title}</div>
+        <div className="avatars">
+            {console.log(item.metaInfo.users)}
+            {item.metaInfo.users.map((user, i) => (
+                    user.avatar ? <div key={`avatar_${i}_${user.name}`} style={{ backgroundImage: 'url(' + user.avatar + ')' }} className={user.nameHighlight ? "avatar active" : "avatar"} />
+                                : <div key={`avatar_${i}_${user.name}`} className={user.nameHighlight ? "avatar no_avatar active" : "avatar no_avatar"}>{this.initials(user.name)}</div>))}
+        </div>
       </div>
     )
   }
@@ -111,6 +110,7 @@ export default class PipedriveContent extends Component {
     }
     return (
       <div>
+        {this.renderPeople(item, 'Collaborators', 1)}
         <div className="content_section_title">Deal info</div>
         <div className="content_section_text">
           <div className="content_row">
@@ -132,9 +132,13 @@ export default class PipedriveContent extends Component {
         </div>
 
         {this.renderPeople(item.content.contacts, 'Associated contacts', 0)}
-        {this.renderPeople(item.metaInfo.users, 'Associated users', 1)}
         {this.renderActivities(item.content.activities)}
       </div>
     )
+  }
+
+  // ---- UTILITIES
+  initials(username) {
+    return username.split(' ').map(x => x[0]).slice(0, 2).join('');
   }
 }
