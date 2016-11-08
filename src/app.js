@@ -283,7 +283,7 @@ export default class App extends Component {
 
   showHover() {
     this.hoverDisabled = false;
-    this.applyClassToSuggestions('search_suggestion_card_link');
+    this.applyClassToSuggestions('search_suggestions_card_link');
   }
 
   applyClassToSuggestions(klas) {
@@ -310,7 +310,7 @@ export default class App extends Component {
 
     return (
       <li key={i} className={liClass} ref={`searchItem_${i}`}>
-        <a href="#" onClick={this.handleClick} onDoubleClick={this.handleDoubleClick} onKeyDown={this.handleKeyDown} onMouseMove={this.handleMouseMove} className="search_suggestion_card_link" id={`searchItemLink_${i}`}>
+        <a href="#" onClick={this.handleClick} onDoubleClick={this.handleDoubleClick} onKeyDown={this.handleKeyDown} onMouseMove={this.handleMouseMove} className="search_suggestions_card_link" id={`searchItemLink_${i}`}>
           <div style={icon.inlineStyle} className={icon.style} />
           <div className="search_suggestions_data">
             <div className="heading">

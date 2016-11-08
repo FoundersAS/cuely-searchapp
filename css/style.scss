@@ -1,3 +1,7 @@
+* {
+	zoom: reset;
+}
+
 html {
   -webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
   -moz-box-sizing: border-box; /* Firefox, other Gecko */
@@ -148,7 +152,7 @@ em {
 			  cursor: pointer;
 			}
 
-			.search_suggestion_card_link {
+			.search_suggestions_card_link {
 				display: flex;
 				text-decoration: none;
 				color: inherit;
@@ -165,12 +169,12 @@ em {
 				background-color: #E0E0E0;
 			}
 
-			.search_suggestion_card_link:hover {
+			.search_suggestions_card_link:hover {
 				background-color: #E0E0E0;
 				cursor: pointer;
 			}
 
-			.search_suggestion_card_link:focus {
+			.search_suggestions_card_link:focus {
 				background-color: #D7D7D7;
 			}
 		}
@@ -178,7 +182,7 @@ em {
 		.search_suggestions_card_highlight {
 			background-color: #D7D7D7 !important;
 
-			.search_suggestion_card_link:hover,
+			.search_suggestions_card_link:hover,
 			.search_suggestions_card_link_action_hover {
 				background-color: #D7D7D7;
 			}
@@ -198,6 +202,10 @@ em {
 
 		.search_suggestions_card:last-child {
 			border-bottom: 1px solid #DEDEDE;
+		}
+
+		.search_suggestions_card_highlight:last-child {
+			border-bottom: 1px solid #D0D0D0;
 		}
 
 		.search_suggestions_card + .search_suggestions_card_highlight,
@@ -257,7 +265,7 @@ em {
 	}
 
 	.content_section_text {
-		padding: .5rem .75rem;
+		padding: .5rem;
 		font-size: 13px;
 		font-weight: 300;
 		line-height: 1.7em;
@@ -279,18 +287,21 @@ em {
 			   text-transform: capitalize;
 			}
 
-			.content_list_right_side {
-			  color: #888;
+			.content_attribute_name {
+			  color: #AAA;
+			  width: 35%;
 			}
 
-			.content_attribute_name {
-			   color: #888;
-			   width: 35%;
+			.content_attribute_value {
+				text-transform: capitalize;
 			}
 		}
 	}
 
-	.content_section_conversation {	
+	.content_section_conversation {
+		padding-top: .75rem;
+		padding-bottom: .75rem;
+
 		.status {
 			width: 100%;
 			text-align: center;
@@ -327,7 +338,7 @@ em {
 				background-color: #E8E8E8;
 			}
 
-			.conversation_metaInfo {
+			.conversation_meta {
 				margin-top: .25rem;
 				padding-left: .5rem;
 				display: flex;
@@ -350,7 +361,7 @@ em {
         .type {
 					display: inline-block;
 					font-size: 12px;
-          color: #888;
+          color: #AAA;
 					margin-bottom: 1rem;
           margin-right: 0.5rem;
           vertical-align: sub;
@@ -432,6 +443,11 @@ em {
 
 .style_flex_start {
   justify-content: flex-start !important;
+}
+
+.padding-top-bottom-075 {
+	padding-top: .75rem;
+	padding-bottom: .75rem
 }
 
 .search_bar_open {

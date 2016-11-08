@@ -88,10 +88,10 @@ export default class PipedriveContent extends Component {
               
               <div className="conversation_item">
                 <div className="message" dangerouslySetInnerHTML={{ __html: activity.subject }} />
-                <div className="conversation_metaInfo style_space_between">
+                <div className="conversation_meta style_space_between">
                   <span>
                     <div className="type">{this.renderActivityIcon(activity)}</div>
-                    <div className="author" dangerouslySetInnerHTML={{ __html: `${activity.username} → ${activity.contact}` }} />
+                    <div className="author" dangerouslySetInnerHTML={{ __html: `${activity.username.split(' ')[0]} → ${activity.contact}` }} />
                   </span>
                   <div className="time">&nbsp;{activity.doneTime}</div>
                 </div>

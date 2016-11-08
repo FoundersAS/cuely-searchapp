@@ -59,7 +59,7 @@ export default class GdriveContent extends Component {
       content = this.newLineRemover(content);
     }
     return (
-      <pre id="searchSuggestionsContentPre" className="content_section_text" dangerouslySetInnerHTML={{ __html: content }} />
+      <pre id="SuggestionsContentPre" className="content_section_text" dangerouslySetInnerHTML={{ __html: content }} />
     )
   }
 

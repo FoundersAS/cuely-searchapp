@@ -37,7 +37,7 @@ export default class IntercomContent extends Component {
               {c.items.map((item, k) => (
                 <div className="conversation_item" key={`conversationItem_${k}`}>
                   <div className={userId === item.authorId ? "message message_owner" : "message"} dangerouslySetInnerHTML={{ __html: item.body }} />
-                  <div className="conversation_metaInfo style_space_between">
+                  <div className="conversation_meta style_space_between">
                     <div className="author" dangerouslySetInnerHTML={{ __html: item.author }} /><div className="time">&nbsp;{item.time}</div>
                   </div>
                 </div>
