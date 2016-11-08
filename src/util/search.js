@@ -60,8 +60,8 @@ function pipedrive(hit) {
 
   users = users.map(user => ({
     avatar: user.icon_url,
-    name: user.name.replace(/<em>/g, '').replace(/<\/em>/g, ''),
-    nameHighlight: user.name.indexOf('<em>') > -1 ? user.name : null,
+    name: user.name.replace(/<em class="algolia_highlight">/g, '').replace(/<\/em>/g, ''),
+    nameHighlight: user.name.indexOf('<em class="algolia_highlight">') > -1 ? user.name : null,
     email: user.email
   }));
 
