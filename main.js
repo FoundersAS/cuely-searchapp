@@ -586,12 +586,29 @@ function toggleHideOrCreate() {
 
 function setupAutoLauncher() {
   if(!isDevelopment()) {
-    // Start Cuely on computer restart
-    const cuelyAutoLauncher = new AutoLaunch({
+
+    const cuelyLegacyLauncher = new AutoLaunch({
       name: 'Cuely',
       isHidden: true
     });
 
+    //cuelyLegacyLauncher.enable();
+
+    cuelyLegacyLauncher.isEnabled().then(function(isEnabled){
+      if(isEnabled){
+        cuelyLegacyLauncher.disable();
+      }
+    });
+
+    // Start Cuely on computer restart
+    let appPath = app.getPath('exe').split('.app/Content')[0] + '.app';
+    const cuelyAutoLauncher = new AutoLaunch({
+      name: 'Cuely',
+      isHidden: true,
+      path: appPath
+    });
+
     cuelyAutoLauncher.enable();
+
   }
 }

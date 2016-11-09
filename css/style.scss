@@ -113,6 +113,10 @@ em {
 
 					.meta_data {
 						padding-right: .7rem;
+						display: inline-block;
+					}
+
+					.meta_data:first-letter {
 						text-transform: capitalize;
 					}
 
@@ -279,17 +283,20 @@ em {
 			display: flex;
 			flex-flow: row wrap;
 
-			.content_list_value {
-			   text-transform: capitalize;
+			.content_list_value,
+			.content_attribute_value {
+				display: inline-block;
+			}
+
+			.content_list_value:first-letter,
+			.content_attribute_value:first-letter
+			 {
+				text-transform: capitalize;
 			}
 
 			.content_attribute_name {
 			  color: #AAA;
 			  width: 35%;
-			}
-
-			.content_attribute_value {
-				text-transform: capitalize;
 			}
 		}
 
