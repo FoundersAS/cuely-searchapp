@@ -278,7 +278,7 @@ export default class App extends Component {
 
   hideHover() {
     this.hoverDisabled = true;
-    //this.applyClassToSuggestions('search_suggestion_card_link_no_hover');
+    this.applyClassToSuggestions('search_suggestions_card_link_no_hover');
   }
 
   showHover() {

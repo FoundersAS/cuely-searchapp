@@ -58,7 +58,8 @@ app.on('ready', () => {
   const appPath = app.getPath('userData');
   prefs = initPrefs(appPath);
   buildMenu();
-  setupAutoLauncher();
+  deleteLegacyAutoLauncher();
+  //setupAutoLauncher();
   loadCredentialsOrLogin();
 });
 
@@ -634,7 +635,7 @@ function toggleHideOrCreate() {
   }
 }
 
-function setupAutoLauncher() {
+function deleteLegacyAutoLauncher() {
   if(!isDevelopment()) {
 
     const cuelyLegacyLauncher = new AutoLaunch({
@@ -642,13 +643,28 @@ function setupAutoLauncher() {
       isHidden: true
     });
 
-    //cuelyLegacyLauncher.enable();
+    let appPath = app.getPath('exe').split('.app/Content')[0] + '.app';
+    const cuelyAutoLauncher = new AutoLaunch({
+      name: 'Cuely',
+      isHidden: true,
+      path: appPath
+    });
 
     cuelyLegacyLauncher.isEnabled().then(function(isEnabled){
       if(isEnabled){
-        cuelyLegacyLauncher.disable();
+        cuelyLegacyLauncher.disable().then(function(){
+          cuelyAutoLauncher.enable();
+        });
+      }
+      else {
+        cuelyAutoLauncher.enable();
       }
     });
+  }
+}
+
+function setupAutoLauncher() {
+  if(!isDevelopment()) {
 
     // Start Cuely on computer restart
     let appPath = app.getPath('exe').split('.app/Content')[0] + '.app';
@@ -658,7 +674,14 @@ function setupAutoLauncher() {
       path: appPath
     });
 
-    cuelyAutoLauncher.enable();
+    cuelyAutoLauncher.isEnabled().then(function(isEnabled){
+      if(isEnabled){
+        return;
+      }
+      else {
+        cuelyAutoLauncher.enable();
+      }
+    });
 
   }
 }
