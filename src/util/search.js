@@ -58,9 +58,9 @@ function pipedrive(hit) {
     currency: hit.pipedrive_deal_currency,
   }
   const cleaned_content = cleanJsonContent(highlightedValue('pipedrive_content', hit), ['url', 'icon_url']);
-  let users = [];
+  let contacts, users, activities = [];
   if (cleaned_content) {
-    let { contacts, users, activities } = cleanJsonContent(highlightedValue('pipedrive_content', hit), ['url', 'icon_url']);
+    ({ contacts, users, activities } = cleaned_content);
     content.contacts = contacts;
     content.activities = activities.map(a => ({
       subject: a.subject,
