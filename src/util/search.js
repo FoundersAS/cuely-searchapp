@@ -24,7 +24,7 @@ export function setAlgoliaCredentials(credentials) {
 
 export function search(query) {
   return index.search(query, settings).then(content => {
-    return content.hits.map(hit => {
+    let hits = content.hits.map(hit => {
       // detect item type
       const keywords = hit.primary_keywords.toLowerCase();
       if (keywords.indexOf('gdrive') > -1) {
@@ -37,6 +37,15 @@ export function search(query) {
         return null;
       }
     }).filter(x => x);
+    return {
+      hits: hits,
+      searchInfo: {
+        time: Date(),
+        query: query,
+        settings: settings,
+        result: content
+      }
+    };
   }).catch(err => {
     console.log(err);
   });

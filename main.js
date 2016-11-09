@@ -37,6 +37,7 @@ let newKeywords = [
 let searchWindow;
 let loginWindow;
 let settingsWindow;
+let debugWindow;
 let tray;
 
 let credentials;
@@ -45,6 +46,10 @@ let screenBounds;
 let syncPollerTimeouts = {};
 let prefs;
 let segment;
+
+// debugging stuff
+let settingsCache = [];
+let searchCache = [];
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
@@ -83,7 +88,9 @@ ipcMain.on('log', (event, arg) => {
 ipcMain.on('search', (event, arg) => {
   let q = (arg === '') ? prefs.settings.account.name : arg;
   searchAlgolia(q).then(result => {
-    let hits = [].concat.apply([], result);
+    let hits = [].concat.apply([], result.hits);
+    searchCache.unshift(result.searchInfo);
+    searchCache = searchCache.slice(0, 20);
 
     const newItemType = getNewKeywordType(arg);
     if (newItemType){
@@ -110,6 +117,10 @@ ipcMain.on('close-settings', () => {
   settingsWindow.close();
 });
 
+ipcMain.on('close-debug', () => {
+  debugWindow.close();
+});
+
 ipcMain.on('send-notification', (event, arg) => {
   sendDesktopNotification(arg.title, arg.body);
 });
@@ -129,8 +140,17 @@ ipcMain.on('settings-load', (event, arg) => {
   event.sender.send('settings-result', prefs.getAll());
 });
 
+ipcMain.on('debug-load', (event, arg) => {
+  event.sender.send('debug-result', {
+    settings: JSON.stringify(settingsCache, null, 2),
+    search: JSON.stringify(searchCache, null, 2)
+  });
+});
+
 ipcMain.on('settings-save', (event, settings) => {
   prefs.saveAll(settings);
+  settingsCache.unshift({ time: Date(), settings: settings });
+  settingsCache = settingsCache.slice(0, 10);
   sendDesktopNotification('Settings saved ✓', 'Cuely has successfully saved new settings');
   updateGlobalShortcut();
   if (settings.showTrayIcon) {
@@ -204,6 +224,7 @@ function buildMenu() {
 function customMenuItems() {
   return [
     { label: "Preferences...", accelerator: "Command+,", click: () => { createSettingsWindow(); }},
+    { label: "Debug log", accelerator: "Shift+CmdOrCtrl+D", click: () => { createDebugWindow(); }},
   ];
 }
 
@@ -321,6 +342,31 @@ function createLoginWindow() {
   });
 }
 
+function createDebugWindow() {
+  appHide = false;
+  if (debugWindow) {
+    debugWindow.show();
+    return;
+  }
+
+  // Create the browser window.
+  debugWindow = new BrowserWindow({
+    width: 500,
+    height: 500,
+    center: true
+  });
+
+  debugWindow.loadURL(`file://${__dirname}/index.html?route=debug`);
+
+  // Emitted when the window is closed.
+  debugWindow.on('closed', () => {
+    // Dereference the window object, usually you would store windows
+    // in an array if your app supports multi windows, this is the time
+    // when you should delete the corresponding element.
+    debugWindow = null;
+  });
+}
+
 function createSettingsWindow() {
   appHide = false;
   if (settingsWindow) {
@@ -362,7 +408,10 @@ function loadCredentialsOrLogin() {
               userid: response.userid,
               segmentIdentified: response.segmentIdentified
             }
+            
             prefs.saveAll(settings);
+            settingsCache.unshift({ time: Date(), settings: settings });
+            settingsCache = settingsCache.slice(0, 10);
             if (settings.showTrayIcon) {
               loadTray();
             }
