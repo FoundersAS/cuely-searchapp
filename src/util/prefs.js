@@ -1,4 +1,5 @@
 import { readFileSync, writeFileSync, existsSync } from 'fs';
+import { isDevelopment } from './const.js';
 
 const settingsDefaults = {
   account: {},
@@ -10,6 +11,9 @@ const settingsDefaults = {
 class Preferences {
   constructor(path) {
     this.file = `${path}/.cuely_prefs.json`;
+    if (isDevelopment()) {
+      this.file = this.file.replace('.cuely_prefs', '.cuely_dev_prefs');
+    }
     this._init();
   }
 
