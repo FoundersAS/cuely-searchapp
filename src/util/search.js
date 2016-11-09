@@ -57,22 +57,26 @@ function pipedrive(hit) {
     value: hit.pipedrive_deal_value,
     currency: hit.pipedrive_deal_currency,
   }
-  let { contacts, users, activities } = cleanJsonContent(highlightedValue('pipedrive_content', hit), ['url', 'icon_url']);
-  content.contacts = contacts;
-  content.activities = activities.map(a => ({
-    subject: a.subject,
-    username: a.user_name,
-    doneTime: moment(a.done_time).fromNow(),
-    contact: a.contact,
-    type: a.type
-  }));
+  const cleaned_content = cleanJsonContent(highlightedValue('pipedrive_content', hit), ['url', 'icon_url']);
+  let contacts, users, activities = [];
+  if (cleaned_content) {
+    ({ contacts, users, activities } = cleaned_content);
+    content.contacts = contacts;
+    content.activities = activities.map(a => ({
+      subject: a.subject,
+      username: a.user_name,
+      doneTime: moment(a.done_time).fromNow(),
+      contact: a.contact,
+      type: a.type
+    }));
 
-  users = users.map(user => ({
-    avatar: user.icon_url,
-    name: user.name.replace(/<em class="algolia_highlight">/g, '').replace(/<\/em>/g, ''),
-    nameHighlight: user.name.indexOf('<em class="algolia_highlight">') > -1 ? user.name : null,
-    email: user.email
-  }));
+    users = users.map(user => ({
+      avatar: user.icon_url,
+      name: user.name.replace(/<em class="algolia_highlight">/g, '').replace(/<\/em>/g, ''),
+      nameHighlight: user.name.indexOf('<em class="algolia_highlight">') > -1 ? user.name : null,
+      email: user.email
+    }));
+  }
 
   return {
     type: 'pipedrive',
@@ -100,30 +104,34 @@ function intercom(hit) {
     monthlySpend: hit.intercom_monthly_spend || 0,
     plan: hit.intercom_plan || '',
     segments: hit.intercom_segments || '',
-    sessions: hit.intercom_session_count || 0
+    sessions: hit.intercom_session_count || 0,
+    conversationsCount: 0
   }
-  let { events, conversations } = cleanJsonContent(highlightedValue('intercom_content', hit), ['open', 'timestamp']);
-  content.events = events.map(e => ({ name: e.name, time: moment(e.timestamp * 1000).fromNow() }));
-  content.conversations = conversations.map(c => {
-    return {
-      subject: c.subject,
-      open: c.open,
-      items: c.items.filter(item => item.body).map(item => ({
-        body: item.body,
-        time: moment(item.timestamp * 1000).fromNow(),
-        timestamp: item.timestamp,
-        author: item.author,
-        authorId: item.author_id
-      }))
-    };
-  });
-  content.conversations.sort((a, b) => {
-    if (a.open === b.open) {
-      return b.items.slice(-1)[0].timestamp - a.items.slice(-1)[0].timestamp;
-    }
-    return a.open ? -1 : 1;
-  });
-  content.conversationsCount = conversations.length;
+  const cleaned_content = cleanJsonContent(highlightedValue('intercom_content', hit), ['open', 'timestamp']);
+  if (cleaned_content) {
+    let { events, conversations } = cleanJsonContent(highlightedValue('intercom_content', hit), ['open', 'timestamp']);
+    content.events = events.map(e => ({ name: e.name, time: moment(e.timestamp * 1000).fromNow() }));
+    content.conversations = conversations.map(c => {
+      return {
+        subject: c.subject,
+        open: c.open,
+        items: c.items.filter(item => item.body).map(item => ({
+          body: item.body,
+          time: moment(item.timestamp * 1000).fromNow(),
+          timestamp: item.timestamp,
+          author: item.author,
+          authorId: item.author_id
+        }))
+      };
+    });
+    content.conversations.sort((a, b) => {
+      if (a.open === b.open) {
+        return b.items.slice(-1)[0].timestamp - a.items.slice(-1)[0].timestamp;
+      }
+      return a.open ? -1 : 1;
+    });
+    content.conversationsCount = conversations.length;
+  }
 
   return {
     type: 'intercom',
@@ -134,7 +142,7 @@ function intercom(hit) {
     content: content,
     metaInfo: {
       time: moment(hit.last_updated).fromNow(),
-      open: content.conversations.filter(x => x.open).length > 0,
+      open: content.conversationsCount > 0,
     },
     displayIcon: hit.icon_link,
     webLink: hit.webview_link,
@@ -237,6 +245,9 @@ function removeAlgoliaHighlight(json_text, json_keys) {
 }
 
 function cleanJsonContent(content_text, json_keys) {
+  if (!content_text) {
+    return null;
+  }
   // in case of json formatted content, the parsed json object may contain highlighted (<em>...</em>) snippets
   // as atribute names, so we must remove those before using the json later on
   const content = removeAlgoliaHighlight(content_text, json_keys);

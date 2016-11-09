@@ -58,7 +58,6 @@ export default class PipedriveContent extends Component {
       <div>
         <div className="content_section_title">{title}</div>
         <div className="avatars">
-            {console.log(item.metaInfo.users)}
             {item.metaInfo.users.map((user, i) => (
                     user.avatar ? <div key={`avatar_${i}_${user.name}`} style={{ backgroundImage: 'url(' + user.avatar + ')' }} className={user.nameHighlight ? "avatar active" : "avatar"} />
                                 : <div key={`avatar_${i}_${user.name}`} className={user.nameHighlight ? "avatar no_avatar active" : "avatar no_avatar"}>{this.initials(user.name)}</div>))}
