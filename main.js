@@ -143,6 +143,7 @@ ipcMain.on('settings-load', (event, arg) => {
 ipcMain.on('debug-load', (event, arg) => {
   event.sender.send('debug-result', {
     settings: JSON.stringify(settingsCache, null, 2),
+    settingsLocation: prefs.file,
     search: JSON.stringify(searchCache, null, 2)
   });
 });

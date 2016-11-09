@@ -7,6 +7,7 @@ export default class DebugLog extends Component {
     super();
     this.state = {
       settings: '',
+      settingsLocation: '',
       search: ''
     }
   }
@@ -28,7 +29,9 @@ export default class DebugLog extends Component {
     return (
       <div>
         <div className="debug_body">
-          <div>Settings:</div>
+          <div>Settings location:</div>
+          <pre>{this.state.settingsLocation}</pre>
+          <div>Settings content:</div>
           <pre>{this.state.settings}</pre>
           <div>Searches:</div>
           <pre>{this.state.search}</pre>
