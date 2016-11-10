@@ -195,8 +195,7 @@ function gdrive(hit) {
     if (highlightedIndex < 0) {
       highlightedIndex = path.length - 1;
     }
-    let folder = cutStringWithTags(path[highlightedIndex], 27, 'em', '…');
-    path = (highlightedIndex > 0 ? '…/' : '') + folder + ((highlightedIndex < path.length - 1) ? '/…' : '');
+    path = cutStringWithTags(path[highlightedIndex], 27, 'em', '…');
   } else {
     path = '';
   }
