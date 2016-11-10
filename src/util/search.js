@@ -182,7 +182,7 @@ function gdrive(hit) {
   }
 
   let title = highlightedValue('title', hit);
-  const isFolder = hit.secondary_keywords.indexOf('folders') > -1;
+  const isFolder = hit.secondary_keywords != null ? hit.secondary_keywords.indexOf('folders') > -1 : false;
   if (isFolder) {
       let highlightedIndex = title.indexOf('<em>');
       if (highlightedIndex > 20 && title.length > 30) {
