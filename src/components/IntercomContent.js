@@ -68,7 +68,7 @@ export default class IntercomContent extends Component {
         <div className="content_section_text">
           <div className="content_row">
             <div className="content_attribute_name">Company</div>
-            <div className="content_attribute_value" dangerouslySetInnerHTML={{ __html: item.content.company }} />
+            <div className="content_attribute_value" dangerouslySetInnerHTML={{ __html: item.content.company || '/' }} />
           </div>
           <div className="content_row">
             <div className="content_attribute_name">Revenue</div>
@@ -88,7 +88,7 @@ export default class IntercomContent extends Component {
           </div>
           <div className="content_row">
             <div className="content_attribute_name">Segments</div>
-            <div className="content_attribute_value">{this.renderAttribute(item.content.segments)}</div>
+            <div className="content_attribute_value"  dangerouslySetInnerHTML={{ __html: item.content.segments || '/' }} />
           </div>          
         </div>
 

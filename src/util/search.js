@@ -103,7 +103,7 @@ function intercom(hit) {
     company: highlightedValue('intercom_company', hit),
     monthlySpend: hit.intercom_monthly_spend || 0,
     plan: hit.intercom_plan || '',
-    segments: hit.intercom_segments || '',
+    segments: highlightedValue('intercom_segments', hit),
     sessions: hit.intercom_session_count || 0,
     conversationsCount: 0
   }
