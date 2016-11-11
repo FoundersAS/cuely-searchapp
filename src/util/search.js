@@ -23,7 +23,18 @@ export function setAlgoliaCredentials(credentials) {
 }
 
 export function search(query) {
-  return index.search(query, settings).then(content => {
+  return searchInternal(query, settings);
+}
+
+export function searchAfter(query, timestamp) {
+  // limit searching to those algolia records that have been created/updated after 'timestamp' parameter
+  let timeSettings = Object.assign({}, settings);
+  timeSettings.filters = timeSettings.filters + ` AND last_updated_ts > ${timestamp}`;
+  return searchInternal(query, timeSettings);
+}
+
+export function searchInternal(query, search_settings) {
+  return index.search(query, search_settings).then(content => {
     let hits = content.hits.map(hit => {
       // detect item type
       const keywords = hit.primary_keywords.toLowerCase();

@@ -1,5 +1,5 @@
 import electron, { ipcMain, session } from 'electron';
-import { search as searchAlgolia, setAlgoliaCredentials } from './src/util/search';
+import { search, searchAfter, setAlgoliaCredentials } from './src/util/search';
 import { getAlgoliaCredentials, getSyncStatus, startSync, setSegmentStatus } from './src/util/util.js';
 import { API_ROOT, isDevelopment } from './src/util/const.js';
 import { initPrefs } from './src/util/prefs.js';
@@ -87,8 +87,16 @@ ipcMain.on('log', (event, arg) => {
 });
 
 ipcMain.on('search', (event, arg) => {
-  let q = (arg === '') ? prefs.settings.account.name : arg;
-  searchAlgolia(q).then(result => {
+  let searchPromise;
+  if (arg === '') {
+    // search for user's docs in the last 30 days
+    const ts = parseInt((Date.now() - 1000 * 3600 * 24 * 30) / 1000);
+    searchPromise = searchAfter(prefs.settings.account.name, ts);
+  } else {
+    searchPromise = search(arg);
+  }
+
+  searchPromise.then(result => {
     let hits = [].concat.apply([], result.hits);
     searchCache.unshift(result.searchInfo);
     searchCache = searchCache.slice(0, 20);
