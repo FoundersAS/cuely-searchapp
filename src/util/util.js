@@ -33,12 +33,12 @@ function callApi(endpoint, csrfToken, sessionId, params = {}, method = 'GET', ac
     .set('X-CSRFToken', csrfToken)
     .set('Cookie', `csrftoken=${csrfToken}; sessionid=${sessionId}`)
     .query(params)
-    .timeout(10000)
+    .timeout(20000)
     .then(response => {
       return [response.body, null];
     }).catch(err => {
       console.log(err);
-      return [null, err.response.error];
+      return [null, err.response ? err.response.error : err];
     });
 }
 

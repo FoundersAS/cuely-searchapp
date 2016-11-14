@@ -3,6 +3,7 @@ import { search, searchAfter, setAlgoliaCredentials } from './src/util/search';
 import { getAlgoliaCredentials, getSyncStatus, startSync, setSegmentStatus } from './src/util/util.js';
 import { API_ROOT, isDevelopment } from './src/util/const.js';
 import { initPrefs } from './src/util/prefs.js';
+import { initLocal } from './src/util/local.js';
 import { initSegment } from './src/util/segment.js';
 import AutoLaunch from 'auto-launch';
 
@@ -63,6 +64,7 @@ let screenBounds;
 let syncPollerTimeouts = {};
 let prefs;
 let segment;
+let local;
 
 // debugging stuff
 let settingsCache = [];
@@ -78,6 +80,7 @@ app.on('ready', () => {
   deleteLegacyAutoLauncher();
   //setupAutoLauncher();
   loadCredentialsOrLogin();
+  initLocal(appPath);
 });
 
 app.on('window-all-closed', () => {
@@ -85,6 +88,9 @@ app.on('window-all-closed', () => {
 });
 
 app.on('will-quit', () => {
+  if (local) {
+    local.stop();
+  }
   globalShortcut.unregisterAll();
 });
 
