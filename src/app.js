@@ -65,6 +65,14 @@ const icons = [
     type: 'pipedrive',
     spriteOffset: 13
   },
+  {
+    type: 'gmail',
+    spriteOffset: 15
+  },
+  {
+    type: 'gcal',
+    spriteOffset: 16
+  }
 ]
 
 export default class App extends Component {
@@ -409,10 +417,10 @@ export default class App extends Component {
     let content = () => null;
     let itemStatus = () => null;
 
-    if (item && item.metaInfo) {
+    if (item) {
       if (item.type === 'gdrive') {
         content = () => (<GdriveContent openExternalLink={this.openExternalLink} item={item} />);
-        if (item.metaInfo.path && item.metaInfo.path.length > 0) {
+        if (item.metaInfo && item.metaInfo.path && item.metaInfo.path.length > 0) {
           itemStatus = () => (
             <span>
               <span className="meta_icon glyphicons glyphicons-folder-open"></span>
@@ -422,7 +430,7 @@ export default class App extends Component {
         }
       } else if (item.type === 'intercom') {
         content = () => (<IntercomContent item={item} />);
-        if (item.content.conversationsCount > 0) {
+        if (item.metaInfo && item.content.conversationsCount > 0) {
           itemStatus = () => (
             <span>
               <span className="meta_icon glyphicons glyphicons-conversation"></span>
@@ -432,12 +440,14 @@ export default class App extends Component {
         }
       } else if (item.type === 'pipedrive') {
         content = () => (<PipedriveContent openExternalLink={this.openExternalLink} item={item} />);
-        itemStatus = () => (
+        if (item.metaInfo){
+          itemStatus = () => (
           <span>
             <span className="meta_icon glyphicons glyphicons-flag"></span>
             <span className="meta_data">{item.metaInfo.status}&nbsp;/&nbsp;{item.metaInfo.stage}</span>
           </span>
-        );
+          );
+        }
       }
     }
 

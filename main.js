@@ -32,6 +32,23 @@ let newKeywords = [
   }
 ];
 
+let specialKeywords = [
+  {
+    mime: 'gmail',
+    type: 'gdrive',
+    keywords: ['gmail'],
+    title: '<em>Open your work Gmail</em>',
+    link: 'https://mail.google.com/a/your.domain.com/'
+  },
+  {
+    mime: 'gcal',
+    type: 'gdrive',
+    keywords: ['gcal','calendar','google calendar'],
+    title: '<em>Open your work Google Calendar</em>',
+    link: 'https://calendar.google.com/a/your.domain.com/'
+  }
+]
+
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let searchWindow;
@@ -101,9 +118,9 @@ ipcMain.on('search', (event, arg) => {
     searchCache.unshift(result.searchInfo);
     searchCache = searchCache.slice(0, 20);
 
-    const newItemType = getNewKeywordType(arg);
-    if (newItemType){
-      hits.unshift(getNewItem(newItemType));
+    const actionItemType = getActionItem(arg)
+    if (actionItemType){
+      hits.unshift(getNewItem(actionItemType));
     }
     event.sender.send('search-result', hits);
   });
@@ -576,7 +593,33 @@ function updateGlobalShortcut() {
   }
 }
 
-function getNewKeywordType(arg){
+function getActionItem(arg){
+  let item = null;
+
+  if(arg.length > 2){  
+    item = checkNewKeywordType(arg);
+
+    if (item == null){
+      item = checkSpecialKeywords(arg);
+    }
+  }
+
+  return item;
+}
+
+function checkSpecialKeywords(arg){
+  for (let item of specialKeywords){
+    for (let keyword of item.keywords){
+      if (keyword.indexOf(arg) === 0){
+        return replaceGenericDomain(item);
+      }
+    }
+  }
+
+  return null;
+}
+
+function checkNewKeywordType(arg){
   const words = arg.split('new ');
   if (words.length < 2){
     return null;
@@ -585,15 +628,19 @@ function getNewKeywordType(arg){
     for (let item of newKeywords){
       for (let keyword of item.keywords){
         if (keyword.indexOf(words[1].trim()) != -1){
-          const domain = prefs.settings.account.email.split('@')[1];
-          item.link = item.link.replace('your.domain.com', domain);
-
-          return item;
+          return replaceGenericDomain(item);
         }
       }
     }
     return null;
   }
+}
+
+function replaceGenericDomain(item){
+  const domain = prefs.settings.account.email.split('@')[1];
+  item.link = item.link.replace('your.domain.com', domain);
+
+  return item;
 }
 
 function getNewItem(item){
