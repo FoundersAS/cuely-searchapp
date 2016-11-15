@@ -129,7 +129,7 @@ ipcMain.on('search', (event, arg) => {
       hits.unshift(getNewItem(actionItemType));
     }
     // check if query matches any of the installed/local apps
-    if (arg && local.currentApps) {
+    if (arg && arg.length > 2 && local.currentApps) {
       let argLower = arg.toLowerCase();
       let localHits = Object.keys(local.currentApps).filter(x => {
         for(let word of x.split(' ')) {
