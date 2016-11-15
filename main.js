@@ -82,7 +82,7 @@ app.on('ready', () => {
   prefs = initPrefs(appPath);
   buildMenu();
   deleteLegacyAutoLauncher();
-  updateInterval = setInterval(checkForUpdates, 10000);
+  updateInterval = setInterval(checkForUpdates, 3600000);
   //setupAutoLauncher();
   loadCredentialsOrLogin();
   if (isOsx()) {
@@ -806,13 +806,12 @@ function setupAutoLauncher() {
 
 autoUpdater.on('update-downloaded', () => {
   dialog.showMessageBox({
-      type: 'info',
-      title: 'Cuely Update',
-      message: `New Cuely Update is now available.`,
-      detail: "New version has been successfully downloaded. The app will now close, install the new version and reopen.",
-      buttons: ['Ok']
-    }, () => {});
-
+    type: 'info',
+    title: 'Cuely Update',
+    message: `New Cuely Update is now available.`,
+    detail: "New version has been successfully downloaded. The app will now close, install the new version and reopen.",
+    buttons: ['Ok']
+  });
   autoUpdater.quitAndInstall();
 });
 
@@ -820,6 +819,7 @@ function checkForUpdates() {
   if (!isDevelopment()) {
     var updateFeed = 'http://localhost:80/updates/latest';
 
+    //TO-DO put in the production update server URL
     updateFeed = os === 'darwin' ?
       'https://mysite.com/updates/latest' :
       'http://download.mysite.com/releases/win32';
