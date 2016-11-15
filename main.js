@@ -36,14 +36,14 @@ let newKeywords = [
 let specialKeywords = [
   {
     mime: 'gmail',
-    type: 'gdrive',
+    type: 'gmail',
     keywords: ['gmail'],
     title: '<em>Open your work Gmail</em>',
     link: 'https://mail.google.com/a/your.domain.com/'
   },
   {
     mime: 'gcal',
-    type: 'gdrive',
+    type: 'gcal',
     keywords: ['gcal','calendar','google calendar'],
     title: '<em>Open your work Google Calendar</em>',
     link: 'https://calendar.google.com/a/your.domain.com/'

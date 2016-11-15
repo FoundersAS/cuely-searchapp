@@ -245,14 +245,13 @@ export default class App extends Component {
   }
 
   openExternalLink(link, triggerType, itemType=null) {
-    console.log(link, itemType);
     if(itemType && itemType === 'local-app') {
       shell.openItem(link);
     } else {
       shell.openExternal(link);
     }
     ipcRenderer.send('hide-search');
-    ipcRenderer.send('track', { name: 'Open link', props: { type: triggerType } });
+    ipcRenderer.send('track', { name: 'Open link', props: { type: triggerType, integration: itemType } });
   }
 
   handleActionIconLinkClick(e) {

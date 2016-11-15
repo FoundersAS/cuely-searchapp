@@ -14,7 +14,11 @@ class SegmentConnector {
 
   identify() {
     if (!this.user.segmentIdentified) {
-      const userid = this._userId();
+      let userid = this._userId();
+
+      if (Number.isInteger(userid)){
+        userid += 10000;
+      }
 
       this.analytics.identify({
         userId: userid,
