@@ -67,6 +67,10 @@ export default class IntercomContent extends Component {
         <div className="content_section_title">User info</div>
         <div className="content_section_text">
           <div className="content_row">
+            <div className="content_attribute_name">Email</div>
+            <div className="content_attribute_value" dangerouslySetInnerHTML={{ __html: item.content.email || '/' }} />
+          </div>
+          <div className="content_row">
             <div className="content_attribute_name">Company</div>
             <div className="content_attribute_value" dangerouslySetInnerHTML={{ __html: item.content.company || '/' }} />
           </div>
