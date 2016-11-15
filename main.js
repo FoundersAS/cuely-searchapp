@@ -1,4 +1,4 @@
-import electron, { ipcMain, session } from 'electron';
+import electron, { ipcMain, session, autoUpdater } from 'electron';
 import { search, searchAfter, setAlgoliaCredentials } from './src/util/search';
 import { getAlgoliaCredentials, getSyncStatus, startSync, setSegmentStatus } from './src/util/util.js';
 import { API_ROOT, isDevelopment } from './src/util/const.js';
@@ -6,6 +6,9 @@ import { initPrefs } from './src/util/prefs.js';
 import { initLocal } from './src/util/local.js';
 import { initSegment } from './src/util/segment.js';
 import AutoLaunch from 'auto-launch';
+const appVersion = require('./package.json').version;
+const os = require('os').platform();
+
 
 const { app, dialog, BrowserWindow, Menu, MenuItem, Tray, globalShortcut } = electron;
 
@@ -65,6 +68,7 @@ let syncPollerTimeouts = {};
 let prefs;
 let segment;
 let local;
+let updateInterval;
 
 // debugging stuff
 let settingsCache = [];
@@ -78,6 +82,7 @@ app.on('ready', () => {
   prefs = initPrefs(appPath);
   buildMenu();
   deleteLegacyAutoLauncher();
+  updateInterval = setInterval(checkForUpdates, 10000);
   //setupAutoLauncher();
   loadCredentialsOrLogin();
   if (isOsx()) {
@@ -93,6 +98,9 @@ app.on('will-quit', () => {
   if (local) {
     local.stop();
   }
+  if (updateInterval) {
+    clearInterval(updateInterval);
+  }
   globalShortcut.unregisterAll();
 });
 
@@ -103,7 +111,7 @@ app.on('activate', () => {
 });
 
 // ipc communication
-ipcMain.on('hide-search', () => {
+ipcMain.on('hide-search', () => {  
   app.hide();
 });
 
@@ -789,5 +797,30 @@ function setupAutoLauncher() {
       }
     });
 
+  }
+}
+
+autoUpdater.on('update-downloaded', () => {
+  dialog.showMessageBox({
+      type: 'info',
+      title: 'Cuely Update',
+      message: `New Cuely Update is now available.`,
+      detail: "New version has been successfully downloaded. The app will now close, install the new version and reopen.",
+      buttons: ['Ok']
+    }, () => {});
+
+  autoUpdater.quitAndInstall();
+});
+
+function checkForUpdates() {
+  if (!isDevelopment()) {
+    var updateFeed = 'http://localhost:80/updates/latest';
+
+    updateFeed = os === 'darwin' ?
+      'https://mysite.com/updates/latest' :
+      'http://download.mysite.com/releases/win32';
+
+    autoUpdater.setFeedURL(updateFeed + '?v=' + appVersion);
+    autoUpdater.checkForUpdates();
   }
 }

@@ -27,7 +27,8 @@
     "cuely",
     "search"
   ],
-  "author": "Jan Gnezda",
+  "author": "Pipetop Aps",
+  "productName": "Cuely",
   "license": "CC0-1.0",
   "bugs": {
     "url": "https://github.com/pipetop/cuely-searchapp/issues"
