@@ -189,7 +189,8 @@ export default class App extends Component {
       index = (index < 1) ? index : index - 1;
       this.setState({ selectedIndex: index, keyFocus: true });
     } else if (e.key === 'Enter') {
-      this.openExternalLink(this.state.searchResults[index].webLink, 'enter');
+      const item = this.state.searchResults[index];
+      this.openExternalLink(item.webLink, 'enter', item.type);
     }
 
     this.hideHover();
@@ -233,16 +234,23 @@ export default class App extends Component {
 
   handleDoubleClick(e) {
     e.preventDefault();
-    this.openExternalLink(this.state.searchResults[this.getIndex(e.target.id)].webLink, 'double click');
+    const item = this.state.searchResults[this.getIndex(e.target.id)];
+    this.openExternalLink(item.webLink, 'double click', item.type);
   }
 
   handleExternalLink(e) {
     e.preventDefault();
-    this.openExternalLink(this.state.searchResults[this.state.selectedIndex].webLink, 'view in app button');
+    const item = this.state.searchResults[this.state.selectedIndex];
+    this.openExternalLink(item.webLink, 'view in app button', item.type);
   }
 
-  openExternalLink(link, triggerType) {
-    shell.openExternal(link);
+  openExternalLink(link, triggerType, itemType=null) {
+    console.log(link, itemType);
+    if(itemType && itemType === 'local-app') {
+      shell.openItem(link);
+    } else {
+      shell.openExternal(link);
+    }
     ipcRenderer.send('hide-search');
     ipcRenderer.send('track', { name: 'Open link', props: { type: triggerType } });
   }
@@ -335,17 +343,22 @@ export default class App extends Component {
 
   getIcon(item){
     let displayIcon = {
-      'inlineStyle': {backgroundImage: 'url(' + item.displayIcon + ')'},
+      'inlineStyle': { 'backgroundImage': 'url("' + item.displayIcon + '")'},
       'style': 'search_suggestions_logo'
     };
     
-    for (let itemIcons of icons){
-      if (itemIcons.type == item.mime){
-        const verticalOffset = itemIcons.spriteOffset*(-25) + 'px';
+    if (item.type === 'local-app') {
+      displayIcon.inlineStyle.backgroundSize = '25px 25px';
+      displayIcon.inlineStyle.backgroundRepeat = 'no-repeat';
+    } else{
+      for (let itemIcons of icons){
+        if (itemIcons.type == item.mime){
+          const verticalOffset = itemIcons.spriteOffset*(-25) + 'px';
 
-        displayIcon.inlineStyle = { 'backgroundPosition': '0 ' + verticalOffset };
-        displayIcon.style = displayIcon.style + ' ' + 'search_suggestions_logo_sprite';
-        return (displayIcon);
+          displayIcon.inlineStyle = { 'backgroundPosition': '0 ' + verticalOffset };
+          displayIcon.style = displayIcon.style + ' ' + 'search_suggestions_logo_sprite';
+          return (displayIcon);
+        }
       }
     }
 

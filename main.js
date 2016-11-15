@@ -80,7 +80,7 @@ app.on('ready', () => {
   deleteLegacyAutoLauncher();
   //setupAutoLauncher();
   loadCredentialsOrLogin();
-  initLocal(appPath);
+  local = initLocal(appPath);
 });
 
 app.on('window-all-closed', () => {
@@ -125,8 +125,28 @@ ipcMain.on('search', (event, arg) => {
     searchCache = searchCache.slice(0, 20);
 
     const actionItemType = getActionItem(arg)
-    if (actionItemType){
+    if (actionItemType) {
       hits.unshift(getNewItem(actionItemType));
+    }
+    // check if query matches any of the installed/local apps
+    if (arg && local.currentApps) {
+      let argLower = arg.toLowerCase();
+      let localHits = Object.keys(local.currentApps).filter(x => {
+        for(let word of x.split(' ')) {
+          if (word.startsWith(argLower)) {
+            return true;
+          }
+        }
+        return false;
+      });
+      if (localHits.length > 0) {
+        localHits.sort((a, b) => {
+          return b.indexOf(argLower) - a.indexOf(argLower);
+        });
+        for (let lh of localHits.slice(0, 3)) {
+          hits.unshift(getLocalItem(local.currentApps[lh]));
+        }
+      }
     }
     event.sender.send('search-result', hits);
   });
@@ -599,7 +619,7 @@ function updateGlobalShortcut() {
   }
 }
 
-function getActionItem(arg){
+function getActionItem(arg) {
   let item = null;
 
   if(arg.length > 2){  
@@ -649,8 +669,8 @@ function replaceGenericDomain(item){
   return item;
 }
 
-function getNewItem(item){
-  const newItem = {
+function getNewItem(item) {
+  return {
     type: item.type,
     mime: item.mime,
     title: item.title,
@@ -663,8 +683,22 @@ function getNewItem(item){
     modified: null,
     _algolia: null
   }
+}
 
-  return newItem;
+function getLocalItem(item) {
+  return {
+    type: 'local-app',
+    mime: 'local-app',
+    title: `<em>${item.name}</em>`,
+    titleRaw: item.name,
+    content: null,
+    metaInfo: null,
+    displayIcon: item.cachedIcon,
+    webLink: item.location,
+    thumbnailLink: null,
+    modified: null,
+    _algolia: null
+  }
 }
 
 function hide() {
