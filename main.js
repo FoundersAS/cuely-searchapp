@@ -134,6 +134,10 @@ ipcMain.on('search', (event, arg) => {
     if (arg && arg.length > 2 && local && local.currentApps) {
       let argLower = arg.toLowerCase();
       let localHits = Object.keys(local.currentApps).filter(x => {
+        if (argLower.split(' ').length > 1) {
+          return x.indexOf(argLower) > -1;
+        }
+
         for(let word of x.split(' ')) {
           if (word.startsWith(argLower)) {
             return true;
