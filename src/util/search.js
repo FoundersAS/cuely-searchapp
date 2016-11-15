@@ -111,6 +111,7 @@ function pipedrive(hit) {
 
 function intercom(hit) {
   let content = {
+    email: highlightedValue('intercom_email', hit),
     company: highlightedValue('intercom_company', hit),
     monthlySpend: hit.intercom_monthly_spend || 0,
     plan: hit.intercom_plan || '',
