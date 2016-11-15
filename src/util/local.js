@@ -59,8 +59,17 @@ class LocalApps {
     }
   }
 
-  getApps(path) {
-    return readdirSync(path).filter(x => x.indexOf('.app') > 0).map(x => path + '/' + x);
+  getApps(path, level = 0) {
+    let apps = readdirSync(path).filter(x => !(x.startsWith('.') || x.endsWith('.localized')));
+    let result = apps.filter(x => x.endsWith('.app')).map(x => path + '/' + x);
+    // add possible apps in subdir
+    if (level < 1) {
+      for (let subdir of apps.filter(x => !x.endsWith('.app'))) {
+        result = result.concat(this.getApps(path + '/' + subdir, 1));
+      }
+    }
+
+    return result;
   }
 
   saveIconInternal(apps, appKey) {
