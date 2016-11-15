@@ -80,7 +80,9 @@ app.on('ready', () => {
   deleteLegacyAutoLauncher();
   //setupAutoLauncher();
   loadCredentialsOrLogin();
-  local = initLocal(appPath);
+  if (isOsx()) {
+    local = initLocal(appPath);
+  }
 });
 
 app.on('window-all-closed', () => {
@@ -129,7 +131,7 @@ ipcMain.on('search', (event, arg) => {
       hits.unshift(getNewItem(actionItemType));
     }
     // check if query matches any of the installed/local apps
-    if (arg && arg.length > 2 && local.currentApps) {
+    if (arg && arg.length > 2 && local && local.currentApps) {
       let argLower = arg.toLowerCase();
       let localHits = Object.keys(local.currentApps).filter(x => {
         for(let word of x.split(' ')) {
@@ -576,10 +578,9 @@ function loadTray() {
   const imageDir = __dirname + '/assets/images';
 
   let trayImage;
-  if (p === 'darwin') {
+  if (isOsx()) {
     trayImage = imageDir + '/osx/cuelyTemplate.png';
-    // app.dock.hide(); // hides the app from the dock and cmd+tab list
-  } else if (p === 'win32') {
+  } else if (isWin()) {
     trayImage = imageDir + '/win/cuely.ico';
   }
 
@@ -591,9 +592,19 @@ function loadTray() {
       toggleHide();
     }
   });
-  if (p === 'darwin') {
+  if (isOsx()) {
     tray.setPressedImage(imageDir + '/osx/cuelyHighlight.png');
   }
+}
+
+function isOsx() {
+  const p = process.platform;
+  return (process.platform === 'darwin');
+}
+
+function isWin() {
+  const p = process.platform;
+  return (process.platform === 'win32');
 }
 
 function endLogin() {
@@ -702,7 +713,7 @@ function getLocalItem(item) {
 }
 
 function hide() {
-  if (appHide && process.platform === 'darwin') {
+  if (appHide && isOsx()) {
     app.hide();
   } else {
     searchWindow.hide();
