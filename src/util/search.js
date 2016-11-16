@@ -216,7 +216,6 @@ function gdrive(hit) {
         }
         return skip;
       });
-      console.log(content);
     } catch (e) {
       console.log(`Could not parse: ${hit.title}`);
       console.log(e);
