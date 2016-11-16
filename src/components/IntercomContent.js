@@ -79,7 +79,10 @@ export default class IntercomContent extends Component {
     return (
       <div className="content_attribute_value">
         {content.newSegments.map((s, i) => (
-            <a key={`segment_link_${i}`} className="content_link" href={s.link} onClick={this.handleClick}><div dangerouslySetInnerHTML={{ __html: s.name }} /></a>
+          <span>
+            <a key={`segment_link_${i}`} className="content_link" href={s.link} onClick={this.handleClick}><span dangerouslySetInnerHTML={{ __html: s.name }} /></a>
+            {i < content.newSegments.length - 1 ? ', ': null}
+          </span>
         ))}
       </div>
     );
