@@ -121,7 +121,7 @@ function intercom(hit) {
     conversationsCount: 0
   }
   // new segments
-  if (hit.intercom_segments && hit.intercom_segments.indexOf('::')) {
+  if (hit.intercom_segments && hit.intercom_segments.indexOf('::') > -1) {
     // convert 'Segment1::id1, Segment2::id2, ...' to [{name: 'Segment1', link: 'https://app.intercom.io/a/apps/jmoqapg5/users/segments/id1'}, ...]
     content.newSegments = highlightedValue('intercom_segments', hit).split(', ').map(x => {
       let [sname, sid] = x.split('::');
