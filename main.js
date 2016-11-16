@@ -8,7 +8,7 @@ import { initSegment } from './src/util/segment.js';
 import AutoLaunch from 'auto-launch';
 const appVersion = require('./package.json').version;
 
-const { app, dialog, BrowserWindow, Menu, MenuItem, Tray, globalShortcut } = electron;
+const { app, dialog, shell, BrowserWindow, Menu, MenuItem, Tray, globalShortcut } = electron;
 
 let newKeywords = [
   {
@@ -289,6 +289,8 @@ function customMenuItems() {
     { type: "separator" },
     { label: "Preferences...", accelerator: "Command+,", click: () => { createSettingsWindow(); }},
     { label: "Debug log", accelerator: "Shift+CmdOrCtrl+D", click: () => { createDebugWindow(); }},
+    { type: "separator" },
+    { label: "Help", click: () => { shell.openExternal('https://slack-files.com/T03V5J4DG-F33TWJJHL-542c183730'); }},
   ];
 }
 
