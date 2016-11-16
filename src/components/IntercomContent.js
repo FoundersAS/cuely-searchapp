@@ -4,6 +4,21 @@ import ReactDOM from 'react-dom';
 export default class IntercomContent extends Component {
   constructor(props) {
     super();
+    this.handleClick = ::this.handleClick
+  }
+
+  handleClick(e) {
+    e.preventDefault();
+    // get actual <a> tag
+    let el = e.target;
+    while(el.nodeName !== 'A') {
+      el = el.parentElement;
+      if (el.className === 'content_section_text' || el.nodeName === 'BODY') {
+        // oops, no anchor tag found
+        return;
+      }
+    }
+    this.props.openExternalLink(el.href, 'clicked Intercom segment link');
   }
 
   renderEvents(events) {
@@ -57,6 +72,19 @@ export default class IntercomContent extends Component {
     return (attr ? '$'+ attr + '/month' : '/');
   }
 
+  renderSegments(content) {
+    if (!content.newSegments || content.newSegments.length < 1) {
+      return (<div className="content_attribute_value"  dangerouslySetInnerHTML={{ __html: content.segments || '/' }} />);
+    }
+    return (
+      <div className="content_attribute_value">
+        {content.newSegments.map((s, i) => (
+            <a key={`segment_link_${i}`} className="content_link" href={s.link} onClick={this.handleClick}><div dangerouslySetInnerHTML={{ __html: s.name }} /></a>
+        ))}
+      </div>
+    );
+  }
+
   render() {
     const item = this.props.item;
     if (!item) {
@@ -92,7 +120,7 @@ export default class IntercomContent extends Component {
           </div>
           <div className="content_row">
             <div className="content_attribute_name">Segments</div>
-            <div className="content_attribute_value"  dangerouslySetInnerHTML={{ __html: item.content.segments || '/' }} />
+            {this.renderSegments(item.content)}
           </div>          
         </div>
 

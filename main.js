@@ -85,9 +85,6 @@ app.on('ready', () => {
   updateInterval = setInterval(checkForUpdates, 3600000);
   //setupAutoLauncher();
   loadCredentialsOrLogin();
-  if (isOsx()) {
-    local = initLocal(appPath);
-  }
 });
 
 app.on('window-all-closed', () => {
@@ -545,7 +542,7 @@ function startSyncPoller(type, integrationName) {
           if (error) {
             return;
           }
-          if (syncing && !response.in_progress) {
+          if (syncing && response.has_started && !response.in_progress) {
             clearInterval(syncPollerTimeouts[type]);
             syncPollerTimeouts[type] = null;
             // send desktop notification
@@ -558,7 +555,7 @@ function startSyncPoller(type, integrationName) {
         syncPollerTimeouts[type] = null;
       }
     });
-  }, 5000);
+  }, 10000);
 
   useAuthCookies((csrf, sessionId) => {
     if (csrf && sessionId) {
@@ -627,6 +624,9 @@ function endLogin() {
   }
   if (loginWindow) {
     loginWindow.close();
+  }
+  if (isOsx() && !local) {
+    local = initLocal(app.getPath('userData'));
   }
 }
 

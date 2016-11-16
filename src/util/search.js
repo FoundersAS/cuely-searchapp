@@ -116,9 +116,23 @@ function intercom(hit) {
     monthlySpend: hit.intercom_monthly_spend || 0,
     plan: hit.intercom_plan || '',
     segments: highlightedValue('intercom_segments', hit),
+    newSegments: [],
     sessions: hit.intercom_session_count || 0,
     conversationsCount: 0
   }
+  // new segments
+  if (hit.intercom_segments && hit.intercom_segments.indexOf('::')) {
+    // convert 'Segment1::id1, Segment2::id2, ...' to [{name: 'Segment1', link: 'https://app.intercom.io/a/apps/jmoqapg5/users/segments/id1'}, ...]
+    content.newSegments = highlightedValue('intercom_segments', hit).split(', ').map(x => {
+      let [sname, sid] = x.split('::');
+      let [appId, segId] = sid.replace(/<em>/g, '').replace(/<\/em>/g, '').split('/');
+      return {
+        name: sname.replace(/<em>/g, '<em class="algolia_highlight">'),
+        link: `https://app.intercom.io/a/apps/${appId}/users/segments/${segId}`
+      }
+    });
+  }
+
   const cleaned_content = cleanJsonContent(highlightedValue('intercom_content', hit), ['open', 'timestamp']);
   if (cleaned_content) {
     let { events, conversations } = cleanJsonContent(highlightedValue('intercom_content', hit), ['open', 'timestamp']);

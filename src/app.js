@@ -441,7 +441,7 @@ export default class App extends Component {
           );
         }
       } else if (item.type === 'intercom') {
-        content = () => (<IntercomContent item={item} />);
+        content = () => (<IntercomContent openExternalLink={this.openExternalLink} item={item} />);
         if (item.metaInfo && item.content.conversationsCount > 0) {
           itemStatus = () => (
             <span>
