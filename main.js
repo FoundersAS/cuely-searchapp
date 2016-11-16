@@ -1,14 +1,12 @@
 import electron, { ipcMain, session, autoUpdater } from 'electron';
 import { search, searchAfter, setAlgoliaCredentials } from './src/util/search';
 import { getAlgoliaCredentials, getSyncStatus, startSync, setSegmentStatus } from './src/util/util.js';
-import { API_ROOT, isDevelopment } from './src/util/const.js';
+import { API_ROOT, isDevelopment, UPDATE_FEED_URL } from './src/util/const.js';
 import { initPrefs } from './src/util/prefs.js';
 import { initLocal } from './src/util/local.js';
 import { initSegment } from './src/util/segment.js';
 import AutoLaunch from 'auto-launch';
 const appVersion = require('./package.json').version;
-const os = require('os').platform();
-
 
 const { app, dialog, BrowserWindow, Menu, MenuItem, Tray, globalShortcut } = electron;
 
@@ -287,9 +285,21 @@ function buildMenu() {
 
 function customMenuItems() {
   return [
+    { label: "About Cuely", click: () => { aboutDialog(); }},
+    { type: "separator" },
     { label: "Preferences...", accelerator: "Command+,", click: () => { createSettingsWindow(); }},
     { label: "Debug log", accelerator: "Shift+CmdOrCtrl+D", click: () => { createDebugWindow(); }},
   ];
+}
+
+function aboutDialog() {
+  dialog.showMessageBox({
+    type: 'info',
+    title: 'Cuely app',
+    message: 'Cuely search app for macOS',
+    detail: `Version ${appVersion}`,
+    buttons: ['Ok']
+  });
 }
 
 function getScreenProps() {
@@ -817,14 +827,7 @@ autoUpdater.on('update-downloaded', () => {
 
 function checkForUpdates() {
   if (!isDevelopment()) {
-    var updateFeed = 'http://localhost:80/updates/latest';
-
-    //TO-DO put in the production update server URL
-    updateFeed = os === 'darwin' ?
-      'https://mysite.com/updates/latest' :
-      'http://download.mysite.com/releases/win32';
-
-    autoUpdater.setFeedURL(updateFeed + '?v=' + appVersion);
+    autoUpdater.setFeedURL(UPDATE_FEED_URL + '/?v=' + appVersion);
     autoUpdater.checkForUpdates();
   }
 }
