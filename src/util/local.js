@@ -21,8 +21,8 @@ class LocalApps {
     let counter = 0;
     for (let app of apps) {
       // parse the app name from its location, i.e. /Users/xyz/Applications/pgAdmin3.app -> pgAdmin3
-      const appName = app.split('/').slice(-1)[0].split('.')[0];
-      const appKey = appName.toLowerCase();
+      let appName = app.split('/').slice(-1)[0].split('.')[0];
+      let appKey = appName.toLowerCase();
       if (appsWithIcons[appKey] === undefined || appsWithIcons[appKey].location !== app) {
         const filename = `${app}/Contents/Info.plist`;
         if (existsSync(filename)) {
@@ -39,6 +39,13 @@ class LocalApps {
             }
 
             if (existsSync(iconsFile)) {
+              // some vendors, such as Google for their 'web' apps, install apps with
+              // auto-generated names (e.g. coobgpohoikkiipiblmjeljniedjpjpf) and the human-readable name is in the plist file
+              if (data.CrAppModeShortcutName && data.CrAppModeShortcutName.length > '') {
+                appName = data.CrAppModeShortcutName;
+                appKey = appName.toLowerCase();
+              }
+
               appsWithIcons[appKey] = {
                 iconset: iconsFile,
                 cachedIcon: null,
@@ -60,7 +67,7 @@ class LocalApps {
   }
 
   getApps(path, level = 0) {
-    let apps = readdirSync(path).filter(x => !(x.startsWith('.') || x.endsWith('.localized')));
+    let apps = readdirSync(path).filter(x => !(x.startsWith('.') || x.indexOf('Cuely') > -1));
     let result = apps.filter(x => x.endsWith('.app')).map(x => path + '/' + x);
     // add possible apps in subdir
     if (level < 1) {
