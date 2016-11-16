@@ -201,6 +201,22 @@ function gdrive(hit) {
   if (['csv', 'tsv', 'comma', 'tab', 'google-apps.spreadsheet'].filter(x => hit.mime_type.indexOf(x) > -1).length > 0) {
     try {
       content = parseCsv(content);
+      // remove all empty rows (leave just first two)
+      let first = false;
+      let second = false;
+      content = content.filter(x => {
+        let skip = !(first && second);
+        let row = x.filter(x => x);
+        if (row.length > 0) {
+          first = false;
+          second = false;
+        } else {
+          second = first ? true : false;
+          first = true;
+        }
+        return skip;
+      });
+      console.log(content);
     } catch (e) {
       console.log(`Could not parse: ${hit.title}`);
       console.log(e);
