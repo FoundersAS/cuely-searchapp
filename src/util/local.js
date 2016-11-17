@@ -153,7 +153,7 @@ class LocalApps {
 
   saveAll(apps) {
     writeFileSync(this.file, JSON.stringify(apps, null, 2), 'utf8');
-    this.currenApps = apps;
+    this.currentApps = apps;
   }
 
   loadAll() {
