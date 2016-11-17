@@ -67,8 +67,8 @@ class LocalApps {
   }
 
   getApps(path, level = 0) {
-    result = [];
-    if (existsSync(path) {
+    let result = [];
+    if (existsSync(path)) {
       let apps = readdirSync(path).filter(x => !(x.startsWith('.') || x.indexOf('Cuely') > -1));
       let result = apps.filter(x => x.endsWith('.app')).map(x => path + '/' + x);
       // add possible apps in subdir
