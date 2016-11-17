@@ -67,12 +67,15 @@ class LocalApps {
   }
 
   getApps(path, level = 0) {
-    let apps = readdirSync(path).filter(x => !(x.startsWith('.') || x.indexOf('Cuely') > -1));
-    let result = apps.filter(x => x.endsWith('.app')).map(x => path + '/' + x);
-    // add possible apps in subdir
-    if (level < 1) {
-      for (let subdir of apps.filter(x => !x.endsWith('.app'))) {
-        result = result.concat(this.getApps(path + '/' + subdir, 1));
+    result = [];
+    if (existsSync(path) {
+      let apps = readdirSync(path).filter(x => !(x.startsWith('.') || x.indexOf('Cuely') > -1));
+      let result = apps.filter(x => x.endsWith('.app')).map(x => path + '/' + x);
+      // add possible apps in subdir
+      if (level < 1) {
+        for (let subdir of apps.filter(x => !x.endsWith('.app'))) {
+          result = result.concat(this.getApps(path + '/' + subdir, 1));
+        }
       }
     }
 
