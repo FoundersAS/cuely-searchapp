@@ -294,7 +294,11 @@ em {
 
 			.content_attribute_name {
 			  color: #AAA;
-			  width: 35%;
+			  flex-basis: 35%;
+			}
+
+			.content_attribute_value {
+				flex-basis: 65%;
 			}
 		}
 
