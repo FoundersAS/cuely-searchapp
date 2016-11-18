@@ -1,5 +1,5 @@
 /* This works ONLY on OSX! */
-import { readFile, readFileSync, writeFile, writeFileSync, existsSync, readdirSync, rmdir, unlinkSync } from 'fs';
+import { readFile, readFileSync, writeFile, writeFileSync, existsSync, readdirSync, rmdir, unlinkSync, statSync } from 'fs';
 import { homedir } from 'os';
 import { readFile as readPlist } from 'simple-plist';
 import { execSync, exec } from 'child_process';
@@ -68,9 +68,9 @@ class LocalApps {
 
   getApps(path, level = 0) {
     let result = [];
-    if (existsSync(path)) {
+    if (existsSync(path) && statSync(path).isDirectory()) {
       let apps = readdirSync(path).filter(x => !(x.startsWith('.') || x.indexOf('Cuely') > -1));
-      let result = apps.filter(x => x.endsWith('.app')).map(x => path + '/' + x);
+      result = apps.filter(x => x.endsWith('.app')).map(x => path + '/' + x);
       // add possible apps in subdir
       if (level < 1) {
         for (let subdir of apps.filter(x => !x.endsWith('.app'))) {
