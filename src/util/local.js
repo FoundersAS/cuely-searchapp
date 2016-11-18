@@ -40,8 +40,8 @@ class LocalApps {
 
             if (existsSync(iconsFile)) {
               // some vendors, such as Google for their 'web' apps, install apps with
-              // auto-generated names (e.g. coobgpohoikkiipiblmjeljniedjpjpf) and the human-readable name is in the plist file
-              if (data.CrAppModeShortcutName && data.CrAppModeShortcutName.length > '') {
+              // auto-generated names (e.g. 'coobgpohoikkiipiblmjeljniedjpjpf') and the human-readable name is in the plist file
+              if (data.CrAppModeShortcutName && data.CrAppModeShortcutName.length > 0) {
                 appName = data.CrAppModeShortcutName;
                 appKey = appName.toLowerCase();
               }
