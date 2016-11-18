@@ -9,16 +9,17 @@ class SegmentConnector {
   }
 
   _userId() {
+    if (isDevelopment()) {
+      return 'developer_' + this.user.email.split('@')[0];
+    } else {
+      return this.user.userid < 25 ? this.user.userid : this.user.userid + 10000;
+    }
     return isDevelopment() ? 'developer_' + this.user.email.split('@')[0] : this.user.userid;
   }
 
   identify() {
     if (!this.user.segmentIdentified) {
       let userid = this._userId();
-
-      if (Number.isInteger(userid)){
-        userid += 10000;
-      }
 
       this.analytics.identify({
         userId: userid,
