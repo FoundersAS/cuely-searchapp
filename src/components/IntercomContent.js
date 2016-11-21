@@ -47,10 +47,10 @@ export default class IntercomContent extends Component {
         <div className="content_section_title">Conversations</div>
         <div className="content_section_text content_section_conversation">
           {conversations.map((c, i) => (
-            <div className={i === 0 ? "conversation_first" : "conversation"} key={`conversation_${i}`}>
+            <div className={i === 0 ? "conversation_first" : "conversation"} key={`conversation_${userId}_${i}`}>
               <div className="status">{c.open ? "Conversation status: Open" : "Conversation status: Closed" }</div>
               {c.items.map((item, k) => (
-                <div className="conversation_item" key={`conversationItem_${k}`}>
+                <div className="conversation_item" key={`conversationItem_${userId}_${k}`}>
                   <div className={userId === item.authorId ? "message message_owner" : "message"} dangerouslySetInnerHTML={{ __html: item.body }} />
                   <div className="conversation_meta style_space_between">
                     <div className="author" dangerouslySetInnerHTML={{ __html: item.author }} /><div className="time">&nbsp;{item.time}</div>
@@ -72,15 +72,15 @@ export default class IntercomContent extends Component {
     return (attr ? '$'+ attr + '/month' : '/');
   }
 
-  renderSegments(content) {
+  renderSegments(userId, content) {
     if (!content.newSegments || content.newSegments.length < 1) {
       return (<div className="content_attribute_value"  dangerouslySetInnerHTML={{ __html: content.segments || '/' }} />);
     }
     return (
       <div className="content_attribute_value">
         {content.newSegments.map((s, i) => (
-          <span>
-            <a key={`segment_link_${i}`} className="content_link" href={s.link} onClick={this.handleClick}><span dangerouslySetInnerHTML={{ __html: s.name }} /></a>
+          <span key={`segment_link_${userId}_${i}`}>
+            <a className="content_link" href={s.link} onClick={this.handleClick}><span dangerouslySetInnerHTML={{ __html: s.name }} /></a>
             {i < content.newSegments.length - 1 ? ', ' : null}
           </span>
         ))}
@@ -123,7 +123,7 @@ export default class IntercomContent extends Component {
           </div>
           <div className="content_row">
             <div className="content_attribute_name">Segments</div>
-            {this.renderSegments(item.content)}
+            {this.renderSegments(item.userId, item.content)}
           </div>          
         </div>
 
@@ -131,7 +131,6 @@ export default class IntercomContent extends Component {
         {this.renderEvents(item.content.events)}
         
         {this.renderConversations(item.userId, item.content.conversations)}
-
       </div>
     )
   }

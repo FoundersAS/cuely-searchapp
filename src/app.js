@@ -6,6 +6,7 @@ import SearchBar from './components/SearchBar';
 import GdriveContent from './components/GdriveContent';
 import IntercomContent from './components/IntercomContent';
 import PipedriveContent from './components/PipedriveContent';
+import HelpscoutContent from './components/HelpscoutContent';
 require('../css/style.scss');
 
 const icons = [
@@ -64,6 +65,10 @@ const icons = [
   {
     type: 'pipedrive',
     spriteOffset: 13
+  },
+  {
+    type: 'helpscout',
+    spriteOffset: 14
   },
   {
     type: 'gmail',
@@ -132,6 +137,7 @@ export default class App extends Component {
         }
         content.scrollTop = elm.offsetTop - 150;
         content.scrollLeft = elm.offsetLeft - 50;
+        console.log("Scroll element:", elm.parentElement.parentElement);
       } else {
         content.scrollTop = 0;
         content.scrollLeft = 0;
@@ -452,14 +458,24 @@ export default class App extends Component {
         }
       } else if (item.type === 'pipedrive') {
         content = () => (<PipedriveContent openExternalLink={this.openExternalLink} item={item} />);
-        if (item.metaInfo){
+        if (item.metaInfo) {
           itemStatus = () => (
-          <span>
-            <span className="meta_icon glyphicons glyphicons-flag"></span>
-            <span className="meta_data">{item.metaInfo.status}&nbsp;/&nbsp;{item.metaInfo.stage}</span>
-          </span>
+            <span>
+              <span className="meta_icon glyphicons glyphicons-flag"></span>
+              <span className="meta_data">{item.metaInfo.status}&nbsp;/&nbsp;{item.metaInfo.stage}</span>
+            </span>
           );
         }
+      } else if (item.type === 'helpscout') {
+        content = () => (<HelpscoutContent openExternalLink={this.openExternalLink} item={item} />);
+        if (item.metaInfo) {
+          itemStatus = () => (
+            <span>
+              <span className="meta_icon glyphicons glyphicons-flag"></span>
+              <span className="meta_data" dangerouslySetInnerHTML={{ __html: `${item.metaInfo.mailbox}/${item.metaInfo.assigned}/${item.metaInfo.status}` }} />
+            </span>
+          );
+        }        
       }
     }
 
