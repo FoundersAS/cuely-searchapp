@@ -51,6 +51,13 @@ let specialKeywords = [
     link: 'https://calendar.google.com/a/your.domain.com/'
   }
 ]
+const integrationsAuth = [
+  { name: 'Google Drive', id: 'google-oauth2'},
+  { name: 'Intercom', id: 'intercom-oauth'},
+  { name: 'Intercom', id: 'intercom-apikeys'},
+  { name: 'Pipedrive', id: 'pipedrive-apikeys'},
+  { name: 'Helpscout', id: 'helpscout-apikeys'},
+];
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -396,18 +403,11 @@ function createLoginWindow() {
         delete details.responseHeaders[header];
       }
     }
+
     const urlNoParams = details.url.split('?')[0];
-    if (urlNoParams.indexOf('complete/google-oauth2/') > -1) {
-      startSyncPoller('google-oauth2', 'Google Drive');
-    }
-    if (urlNoParams.indexOf('complete/intercom-oauth/') > -1) {
-      startSyncPoller('intercom-oauth', 'Intercom account');
-    }
-    if (urlNoParams.indexOf('complete/intercom-apikeys/') > -1) {
-      startSyncPoller('intercom-apikeys', 'Intercom account');
-    }
-    if (urlNoParams.indexOf('complete/pipedrive-apikeys/') > -1) {
-      startSyncPoller('pipedrive-apikeys', 'Pipedrive account');
+    let integration = integrationsAuth.filter(x => urlNoParams.indexOf(`complete/${x.id}/`) > -1)[0];
+    if (integration) {
+      startSyncPoller(integration.id, `${integration.name} account`);
     }
     callback({ cancel: false, responseHeaders: details.responseHeaders });
   });

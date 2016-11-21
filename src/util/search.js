@@ -44,6 +44,8 @@ export function searchInternal(query, search_settings) {
         return intercom(hit);
       } else if (keywords.indexOf('pipedrive') > -1) {
         return pipedrive(hit);
+      } else if (keywords.indexOf('helpscout') > -1) {
+        return helpscout(hit);
       } else {
         return null;
       }
@@ -62,9 +64,70 @@ export function searchInternal(query, search_settings) {
   });
 }
 
+function helpscout(hit) {
+  let content = {
+    company: highlightedValueWithClass('helpscout_company', hit),
+    status: hit.helpscout_status || '',
+    assigned: hit.helpscout_assigned,
+    mailbox: highlightedValueWithClass('helpscout_mailbox', hit),
+    mailboxId: hit.helpscout_mailbox_id,
+    emails: highlightedValueWithClass('helpscout_emails', hit),
+    name: highlightedValueWithClass('helpscout_name', hit)
+  }
+  const cleaned_content = cleanJsonContent(highlightedValue('helpscout_content', hit), ['url', 'avatar']);
+  let users, conversations = [];
+  if (cleaned_content) {
+    ({ users, conversations } = cleaned_content);
+
+    content.conversations = conversations.map(c => {
+      return {
+        id: c.id,
+        mailbox: c.mailbox,
+        subject: c.subject,
+        status: c.status,
+        items: c.threads.filter(item => item.body).map(item => ({
+          body: item.body,
+          time: moment(item.created * 1000).fromNow(),
+          timestamp: item.created,
+          author: item.author,
+          authorId: item.author_id
+        }))
+      };
+    });
+
+    users = users.map(user => ({
+      avatar: user.avatar,
+      name: user.name.replace(/<em class="algolia_highlight">/g, '').replace(/<\/em>/g, ''),
+      nameHighlight: user.name.indexOf('<em class="algolia_highlight">') > -1 ? user.name : null,
+      email: user.email
+    }));
+  }
+
+  return {
+    type: 'helpscout',
+    mime: 'helpscout',
+    title: highlightedValue('helpscout_title', hit),
+    titleRaw: hit.helpscout_title,
+    userId: hit.helpscout_customer_id,
+    content: content,
+    metaInfo: {
+      time: moment(hit.last_updated).fromNow(),
+      users: users,
+      status: content.status,
+      assigned: content.assigned ? 'Assigned' : 'Unassigned',
+      mailbox: content.mailbox
+    },
+    displayIcon: hit.icon_link,
+    webLink: hit.webview_link,
+    thumbnailLink: null,
+    modified: hit.last_updated,
+    _algolia: hit._rankingInfo
+  }  
+}
+
 function pipedrive(hit) {
   let content = {
-    company: highlightedValue('pipedrive_deal_company', hit),
+    company: highlightedValueWithClass('pipedrive_deal_company', hit),
     value: hit.pipedrive_deal_value,
     currency: hit.pipedrive_deal_currency,
   }
@@ -111,11 +174,11 @@ function pipedrive(hit) {
 
 function intercom(hit) {
   let content = {
-    email: highlightedValue('intercom_email', hit),
-    company: highlightedValue('intercom_company', hit),
+    email: highlightedValueWithClass('intercom_email', hit),
+    company: highlightedValueWithClass('intercom_company', hit),
     monthlySpend: hit.intercom_monthly_spend || 0,
     plan: hit.intercom_plan || '',
-    segments: highlightedValue('intercom_segments', hit),
+    segments: highlightedValueWithClass('intercom_segments', hit),
     newSegments: [],
     sessions: hit.intercom_session_count || 0,
     conversationsCount: 0
@@ -265,6 +328,11 @@ function highlightedValue(attribute, hit, emptyIfNotHighlighted) {
     return hit._highlightResult[attribute].value;
   }
   return emptyIfNotHighlighted ? "" : hit[attribute];
+}
+
+function highlightedValueWithClass(attribute, hit, emptyIfNotHighlighted) {
+  const highlighted = highlightedValue(attribute, hit, emptyIfNotHighlighted);
+  return highlighted ? highlighted.replace(/<em>/g, '<em class="algolia_highlight">') : highlighted;
 }
 
 function removeAlgoliaHighlight(json_text, json_keys) {
