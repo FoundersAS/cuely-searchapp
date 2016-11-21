@@ -6,6 +6,10 @@ html {
   -webkit-app-region: drag;
 }
 
+a {
+	color: #3A46C3;
+}
+
 body {
   padding: 0px;
   margin: 0px;
@@ -114,6 +118,7 @@ em {
 					.meta_data {
 						padding-right: .7rem;
 						display: inline-block;
+						text-transform: capitalize;
 					}
 
 					.meta_data:first-letter {
@@ -322,6 +327,7 @@ em {
 			font-weight: 500;
 			margin: 0.5rem 0;
 			color: #888;
+			text-transform: capitalize;
 		}
 
 		.conversation_item {
@@ -347,8 +353,8 @@ em {
 			}
 
 			.message_owner {
-				border: #DEDEDE 1px solid;
-				background-color: #E8E8E8;
+				border: #E8E8E8 1px solid;
+				background-color: #F5F5F5;
 			}
 
 			.conversation_meta {
@@ -473,6 +479,10 @@ em {
 .padding-top-bottom-075 {
 	padding-top: .75rem;
 	padding-bottom: .75rem
+}
+
+.no_capitalize:first-letter {
+	text-transform: lowercase !important;
 }
 
 .search_bar_open {

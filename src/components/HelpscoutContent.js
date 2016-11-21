@@ -52,7 +52,7 @@ export default class HelpscoutContent extends Component {
                   <span dangerouslySetInnerHTML={{ __html: c.subject }} />
                 </a>
                 &nbsp;:&nbsp;
-                <span dangerouslySetInnerHTML={{ __html: c.mailbox }} />/{c.status}
+                <span dangerouslySetInnerHTML={{ __html: c.mailbox }} />&nbsp;/&nbsp;{c.status}
               </div>
               {c.items.map((item, k) => (
                 <div className="conversation_item" key={`conversationItem_${userId}_${k}`}>
@@ -85,7 +85,7 @@ export default class HelpscoutContent extends Component {
           </div>
           <div className="content_row">
             <div className="content_attribute_name">Email</div>
-            <div className="content_attribute_value" dangerouslySetInnerHTML={{ __html: item.content.emails || '/' }} />
+            <div className="content_attribute_value no_capitalize" dangerouslySetInnerHTML={{ __html: item.content.emails || '/' }} />
           </div>
           <div className="content_row">
             <div className="content_attribute_name">Organization</div>

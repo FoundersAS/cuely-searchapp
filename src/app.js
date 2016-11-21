@@ -491,7 +491,7 @@ export default class App extends Component {
           itemStatus = () => (
             <span>
               <span className="meta_icon glyphicons glyphicons-flag"></span>
-              <span className="meta_data" dangerouslySetInnerHTML={{ __html: `${item.metaInfo.mailbox}/${item.metaInfo.assigned}/${item.metaInfo.status}` }} />
+              <span className="meta_data" dangerouslySetInnerHTML={{ __html: `${item.metaInfo.mailbox}&nbsp;/&nbsp;${item.metaInfo.assigned}&nbsp;/&nbsp;${item.metaInfo.status}` }} />
             </span>
           );
         }        
