@@ -7,6 +7,21 @@ export default class HelpscoutContent extends Component {
     this.handleClick = ::this.handleClick;
   }
 
+  componentDidUpdate() {
+    let cItems = document.getElementsByClassName("conversation_item");
+    if (cItems) {
+      for (let cItem of cItems) {
+        let links = cItem.getElementsByTagName('a');
+        if (links) {
+          for (let link of links) {
+            link.addEventListener("click", this.handleClick, false);
+            link.className = 'content_link';
+          }
+        }
+      }
+    }
+  }
+
   handleClick(e) {
     e.preventDefault();
     // get actual <a> tag
