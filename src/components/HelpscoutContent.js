@@ -18,7 +18,7 @@ export default class HelpscoutContent extends Component {
         return;
       }
     }
-    this.props.openExternalLink(el.href, 'clicked Intercom segment link');
+    this.props.openExternalLink(el.href, 'clicked Helpscout link');
   }
 
   renderUsers(item, title, groupIndex) {
