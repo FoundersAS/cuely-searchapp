@@ -115,6 +115,12 @@ export default class App extends Component {
       //set focus on searchbar after window comes into foreground
       this.refs.searchBar.setFocus();
     });
+    ipcRenderer.on('end-session', (event, selector) => {
+      //empty search result box
+      this.setState({clearInput: true});
+      ipcRenderer.send('search', '');
+      ipcRenderer.send('track', { name: 'Session', props: {} });
+    });
     // start empty search (should return 10 most recent items by signed in user name)
     ipcRenderer.send('search', '');
 
@@ -163,6 +169,16 @@ export default class App extends Component {
   handleKeyDown(e) {
     if (this.isDown(e) || this.isUp(e)) {
       e.preventDefault();
+      let index = this.state.selectedIndex;
+
+      if (this.isDown(e)) {
+        index = (index >= this.state.searchResults.length - 1) ? index : index + 1;
+        this.setState({ selectedIndex: index, keyFocus: true });
+      } 
+      else if (this.isUp(e)) {
+        index = (index < 1) ? index : index - 1;
+        this.setState({ selectedIndex: index, keyFocus: true });
+      }
     }
   }
 
@@ -179,7 +195,7 @@ export default class App extends Component {
     let index = this.state.selectedIndex;
     if (e.key === 'Escape') {
       ipcRenderer.send('hide-search');
-    } else if (this.isDown(e)) {
+    } /*else if (this.isDown(e)) {
       e.preventDefault();
       let index = this.state.selectedIndex;
       index = (index >= this.state.searchResults.length - 1) ? index : index + 1;
@@ -188,7 +204,8 @@ export default class App extends Component {
       e.preventDefault();
       index = (index < 1) ? index : index - 1;
       this.setState({ selectedIndex: index, keyFocus: true });
-    } else if (e.key === 'Enter') {
+    }*/ 
+    else if (e.key === 'Enter') {
       const item = this.state.searchResults[index];
       this.openExternalLink(item.webLink, 'enter', item.type);
     }
@@ -257,18 +274,20 @@ export default class App extends Component {
   handleActionIconLinkClick(e) {
     e.preventDefault();
 
-    let index = this.getIndex(e.target.id);
+    let index = this.state.selectedIndex;
+
     if (index > -1) {
       clipboard.writeText(this.state.searchResults[index].webLink);
       const docName = this.state.searchResults[index].titleRaw;
-      ipcRenderer.send('send-notification', { title: 'Copied link to clipboard ✓', body: `Cuely has copied link for document '${docName}' to clipboard` });
+      ipcRenderer.send('send-notification', { title: 'Copied link to clipboard ✓', body: `Cuely has copied link for ${docName} to clipboard` });
       ipcRenderer.send('track', { name: 'Copy link', props: {} });
     }
+    /*
     index = this.state.selectedIndex;
     const link = document.getElementById("searchItemLink_" + index);
     if (link) {
       link.focus();
-    }
+    }*/
   }
 
   handleMouseMove(e) {
@@ -335,7 +354,6 @@ export default class App extends Component {
             {item.metaInfo ? this.renderBody(item) : null}
           </div>
         </a>
-        {item.metaInfo ? this.renderActionItems(item,i) : null}
       </li>
     )
   }
@@ -405,7 +423,8 @@ export default class App extends Component {
         </div>
         <div className="search_suggestions_content" id="searchSuggestionsContent" onKeyDown={this.handleContentKeyDown} onScroll={this.handleContentScroll} tabIndex="0">
           {this.getIntegrationComponent(selectedItem).content()}
-          <div className="content_bottom_view_link" onClick={this.handleExternalLink}>View in App<span className="glyphicons glyphicons-new-window"></span></div>
+          <div className="content_bottom_view_link action_link_first" onClick={this.handleExternalLink}><span className="glyphicons glyphicons-new-window"></span>Open</div>
+          <div className="content_bottom_view_link action_link_second" onClick={this.handleActionIconLinkClick}><span className="glyphicons glyphicons-more-items"></span>Share</div>
         </div>
       </div>
     );

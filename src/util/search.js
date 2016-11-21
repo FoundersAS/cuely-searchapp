@@ -10,7 +10,7 @@ const algoliaConf = {
 let index;
 let algoliaClient;
 let settings = {
-  hitsPerPage: 10,
+  hitsPerPage: 15,
   getRankingInfo: true
 };
 moment.locale('en-gb');

@@ -7,6 +7,7 @@ import { initLocal } from './src/util/local.js';
 import { initSegment } from './src/util/segment.js';
 import AutoLaunch from 'auto-launch';
 const appVersion = require('./package.json').version;
+const sessionLength = 900000; //900000 15 minutes = 1000 * 60 * 15
 
 const { app, dialog, shell, BrowserWindow, Menu, MenuItem, Tray, globalShortcut } = electron;
 
@@ -67,6 +68,7 @@ let prefs;
 let segment;
 let local;
 let updateInterval;
+let sessionInterval;
 
 // debugging stuff
 let settingsCache = [];
@@ -83,6 +85,7 @@ app.on('ready', () => {
   updateInterval = setInterval(checkForUpdates, 3600000);
   //setupAutoLauncher();
   loadCredentialsOrLogin();
+  resetSession();
 });
 
 app.on('window-all-closed', () => {
@@ -233,6 +236,7 @@ ipcMain.on('settings-save', (event, settings) => {
 });
 
 ipcMain.on('track', (event, arg) => {
+  resetSession();
   segment.track(arg.name, arg.props);
 });
 
@@ -356,6 +360,7 @@ function createSearchWindow() {
     searchWindow = null;
   });
   searchWindow.on('show', () => {
+    resetSession();
     searchWindow.webContents.send('focus-element', '#searchBar');
     const bounds = calculatePositionAndSize();
     if (bounds.screenWidth != screenBounds.screenWidth || bounds.screenHeight != screenBounds.screenHeight) {
@@ -831,5 +836,22 @@ function checkForUpdates() {
   if (!isDevelopment()) {
     autoUpdater.setFeedURL(UPDATE_FEED_URL + '/?v=' + appVersion);
     autoUpdater.checkForUpdates();
+  }
+}
+
+function resetSession() {
+  if (sessionInterval){
+    clearInterval(sessionInterval);
+  }
+
+  sessionInterval = setInterval(endSession, sessionLength);
+}
+
+function endSession() {
+  const target = searchWindow || loginWindow;
+  
+  if (target) {
+    target.webContents.send('end-session');
+    clearInterval(sessionInterval);
   }
 }
