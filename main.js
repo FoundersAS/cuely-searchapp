@@ -139,10 +139,6 @@ ipcMain.on('search', (event, arg) => {
     searchCache.unshift(result.searchInfo);
     searchCache = searchCache.slice(0, 20);
 
-    const actionItemType = getActionItem(arg)
-    if (actionItemType) {
-      hits.unshift(getNewItem(actionItemType));
-    }
     // check if query matches any of the installed/local apps
     if (arg && arg.length > 2 && local && local.currentApps) {
       let argLower = arg.toLowerCase();
@@ -167,6 +163,12 @@ ipcMain.on('search', (event, arg) => {
         }
       }
     }
+    //check if query matches any of the special actions
+    const actionItemType = getActionItem(arg)
+    if (actionItemType) {
+      hits.unshift(getNewItem(actionItemType));
+    }
+
     event.sender.send('search-result', hits);
   });
 });
