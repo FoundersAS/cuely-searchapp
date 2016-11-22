@@ -74,7 +74,7 @@ function helpscout(hit) {
     emails: highlightedValueWithClass('helpscout_emails', hit),
     name: highlightedValueWithClass('helpscout_name', hit)
   }
-  const cleaned_content = cleanJsonContent(highlightedValue('helpscout_content', hit), ['url', 'avatar']);
+  const cleaned_content = cleanJsonContent(highlightedValue('helpscout_content', hit), ['url', 'avatar', 'is_customer', 'author_id', 'created']);
   let users, conversations = [];
   if (cleaned_content) {
     ({ users, conversations } = cleaned_content);
