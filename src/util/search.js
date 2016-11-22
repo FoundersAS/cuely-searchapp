@@ -83,6 +83,7 @@ function helpscout(hit) {
       return {
         id: c.id,
         mailbox: c.mailbox,
+        assigned: c.owner ? 'Assigned' : 'Unassigned',
         subject: c.subject,
         status: c.status,
         items: c.threads.filter(item => item.body).map(item => ({

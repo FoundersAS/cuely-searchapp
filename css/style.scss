@@ -325,9 +325,14 @@ em {
 			text-align: center;
 			font-size: 12px;
 			font-weight: 500;
-			margin: 0.5rem 0;
+			line-height: 1.1rem;
+			margin: 0.5rem 0 1rem 0;
 			color: #888;
 			text-transform: capitalize;
+
+			.sub_status {
+				font-weight: 300;
+			}
 		}
 
 		.conversation_item {

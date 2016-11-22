@@ -491,7 +491,7 @@ export default class App extends Component {
           itemStatus = () => (
             <span>
               <span className="meta_icon glyphicons glyphicons-flag"></span>
-              <span className="meta_data" dangerouslySetInnerHTML={{ __html: `${item.metaInfo.mailbox}&nbsp;/&nbsp;${item.metaInfo.assigned}&nbsp;/&nbsp;${item.metaInfo.status}` }} />
+              <span className="meta_data" dangerouslySetInnerHTML={{ __html: `${item.metaInfo.mailbox}:&nbsp;${this.helpscoutRenderAssigned(item.metaInfo.assigned, item.metaInfo.status)}${item.metaInfo.status}` }} />
             </span>
           );
         }        
@@ -499,6 +499,15 @@ export default class App extends Component {
     }
 
     return { content, itemStatus };
+  }
+
+  helpscoutRenderAssigned(assigned, status) {
+    status = status.toLowerCase();
+    if (status == 'active' || status == 'pending'){
+      return assigned + '&nbsp;/&nbsp;';
+    }
+    else 
+      return '';
   }
 
   render() {

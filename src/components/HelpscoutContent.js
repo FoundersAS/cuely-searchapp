@@ -66,8 +66,8 @@ export default class HelpscoutContent extends Component {
                 <a className="content_link" href={`https://secure.helpscout.net/conversation/${c.id}`} onClick={this.handleClick}>
                   <span dangerouslySetInnerHTML={{ __html: c.subject }} />
                 </a>
-                &nbsp;:&nbsp;
-                <span dangerouslySetInnerHTML={{ __html: c.mailbox }} />&nbsp;/&nbsp;{c.status}
+                <br />
+                <span className="sub_status" dangerouslySetInnerHTML={{ __html: `${c.mailbox}:&nbsp;${this.renderAssigned(c.assigned, c.status)}${c.status}` }} />
               </div>
               {c.items.map((item, k) => (
                 <div className="conversation_item" key={`conversationItem_${userId}_${k}`}>
@@ -128,5 +128,14 @@ export default class HelpscoutContent extends Component {
   // ---- UTILITIES
   initials(username) {
     return username.split(' ').map(x => x[0]).slice(0, 2).join('');
+  }
+
+  renderAssigned(assigned, status) {
+    status = status.toLowerCase();
+    if (status == 'active' || status == 'pending'){
+      return assigned + '&nbsp;/&nbsp;';
+    }
+    else 
+      return '';
   }
 }
