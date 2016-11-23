@@ -81,6 +81,10 @@ let sessionInterval;
 let settingsCache = [];
 let searchCache = [];
 
+process.on('uncaughtException', (err) => {
+  console.log(err);
+});
+
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
@@ -515,11 +519,12 @@ function loadCredentialsOrLogin() {
           }
           return;
         }
+        console.log(error);
         dialog.showMessageBox({
           type: 'error',
           title: 'Cuely app',
-          message: 'Could not connect to Cuely backend. Please check your network connection and then try running the app again.',
-          detail: error.text + '\n' + error.stack,
+          message: 'Could not connect to Cuely backend.',
+          detail: 'Please check your network connection and then try running the app again.',
           buttons: ['Ok']
         }, () => {
           if (!isDevelopment()) {
