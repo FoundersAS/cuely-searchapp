@@ -33,7 +33,7 @@ export default class HelpscoutContent extends Component {
         return;
       }
     }
-    this.props.openExternalLink(el.href, 'clicked Helpscout link');
+    this.props.openExternalLink(el.href, 'Helpscout content link');
   }
 
   renderUsers(item, title, groupIndex) {

@@ -7,7 +7,22 @@ export default class IntercomContent extends Component {
     this.handleClick = ::this.handleClick
   }
 
-  handleClick(e) {
+  componentDidUpdate() {
+    let cItems = document.getElementsByClassName("message");
+    if (cItems) {
+      for (let cItem of cItems) {
+        let links = cItem.getElementsByTagName('a');
+        if (links) {
+          for (let link of links) {
+            link.addEventListener("click", this.handleClick, false);
+            link.className = 'content_link';
+          }
+        }
+      }
+    }
+  }
+
+  handleClick(e, type='Intercom content link') {
     e.preventDefault();
     // get actual <a> tag
     let el = e.target;
@@ -18,7 +33,7 @@ export default class IntercomContent extends Component {
         return;
       }
     }
-    this.props.openExternalLink(el.href, 'clicked Intercom segment link');
+    this.props.openExternalLink(el.href, type);
   }
 
   renderEvents(events) {
