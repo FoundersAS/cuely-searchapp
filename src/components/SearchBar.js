@@ -39,7 +39,7 @@ export default class SearchBar extends Component {
 
   render() {
     return (
-      <div className={this.props.className} id={this.props.id}>
+      <div className={this.props.className} id={this.props.id} onMouseUp={this.props.onDragEnd}>
         <span className="search_bar_icon glyphicons glyphicons-search"/>
           <input
             type="text"

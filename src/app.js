@@ -90,6 +90,7 @@ export default class App extends Component {
     this.handleClick = ::this.handleClick;
     this.handleDoubleClick = ::this.handleDoubleClick;
     this.handleContentKeyDown = ::this.handleContentKeyDown;
+    this.handleDragEnd = ::this.handleDragEnd;
     this.hideHover = ::this.hideHover;
     this.showHover = ::this.showHover;
     this.handleMouseMove = ::this.handleMouseMove;
@@ -143,7 +144,6 @@ export default class App extends Component {
         }
         content.scrollTop = elm.offsetTop - 150;
         content.scrollLeft = elm.offsetLeft - 50;
-        console.log("Scroll element:", elm.parentElement.parentElement);
       } else {
         content.scrollTop = 0;
         content.scrollLeft = 0;
@@ -314,6 +314,11 @@ export default class App extends Component {
       const link = document.getElementById("searchItemLink_" + index);
       link.className = "search_suggestions_card_link_action_hover";
     }
+  }
+
+  handleDragEnd(e) {
+    e.preventDefault();
+    this.refs.searchBar.setFocus();
   }
 
   hideHover() {
@@ -518,6 +523,7 @@ export default class App extends Component {
           onKeyUp={this.handleKeyUp}
           onKeyDown={this.handleKeyDown}
           onInput={this.handleInput}
+          onDragEnd={this.handleDragEnd}
           className={"search_bar_open"}
           id="searchBar"
           ref="searchBar"
