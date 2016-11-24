@@ -77,6 +77,7 @@ let segment;
 let local;
 let updateInterval;
 let sessionInterval;
+let updateManual = false;
 
 // debugging stuff
 let settingsCache = [];
@@ -300,7 +301,7 @@ function buildMenu() {
 function customMenuItems() {
   return [
     { label: "About Cuely", click: () => { aboutDialog(); }},
-    { label: "Check for Updates", accelerator: "Command+U", click: () => { checkForUpdates(); }},
+    { label: "Check for Updates", accelerator: "Command+U", click: () => { manualCheckForUpdates(); }},
     { type: "separator" },
     { label: "Preferences...", accelerator: "Command+,", click: () => { createSettingsWindow(); }},
     { label: "Debug log", accelerator: "Shift+CmdOrCtrl+D", click: () => { createDebugWindow(); }},
@@ -831,12 +832,32 @@ autoUpdater.on('update-downloaded', () => {
   dialog.showMessageBox({
     type: 'info',
     title: 'Cuely Update',
-    message: `New Cuely Update is now available.`,
-    detail: "New version has been successfully downloaded. The app will now close, install the new version and reopen.",
+    message: 'New Cuely Update is now available.',
+    detail: 'New version has been successfully downloaded. The app will now close, install the new version and reopen.',
     buttons: ['Ok']
   });
   autoUpdater.quitAndInstall();
 });
+
+autoUpdater.on('update-not-available', () => {
+  if (updateManual) {
+    updateManual = false;
+    dialog.showMessageBox({
+      type: 'info',
+      title: 'Cuely Update',
+      message: 'There are no new updates',
+      detail: 'You have the latest Cuely app installed.',
+      buttons: ['Ok']
+    });
+  } else {
+    console.log('There are no new updates.');
+  }
+});
+
+function manualCheckForUpdates() {
+  updateManual = true;
+  checkForUpdates();
+}
 
 function checkForUpdates() {
   if (!isDevelopment()) {
