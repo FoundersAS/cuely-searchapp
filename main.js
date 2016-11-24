@@ -854,6 +854,10 @@ autoUpdater.on('update-not-available', () => {
   }
 });
 
+autoUpdater.on('update-available', () => {
+  sendDesktopNotification('New Cuely update available ✓', 'A new version of Cuely app is being downloaded');
+});
+
 function manualCheckForUpdates() {
   updateManual = true;
   checkForUpdates();
