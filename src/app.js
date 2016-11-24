@@ -273,6 +273,7 @@ export default class App extends Component {
     } else {
       shell.openExternal(link);
     }
+    
     ipcRenderer.send('hide-search');
     ipcRenderer.send('track', { name: 'Open link', props: { type: triggerType, integration: itemType } });
   }

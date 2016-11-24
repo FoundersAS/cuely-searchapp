@@ -7,6 +7,11 @@ export default class IntercomContent extends Component {
     this.handleClick = ::this.handleClick
   }
 
+  componentDidMount() {
+    // force didUpdate on initial rendering
+    this.componentDidUpdate();
+  }
+
   componentDidUpdate() {
     let cItems = document.getElementsByClassName("message");
     if (cItems) {
@@ -22,7 +27,7 @@ export default class IntercomContent extends Component {
     }
   }
 
-  handleClick(e, type='Intercom content link') {
+  handleClick(e) {
     e.preventDefault();
     // get actual <a> tag
     let el = e.target;
@@ -33,7 +38,7 @@ export default class IntercomContent extends Component {
         return;
       }
     }
-    this.props.openExternalLink(el.href, type);
+    this.props.openExternalLink(el.href, 'Intercom content link', 'intercom');
   }
 
   renderEvents(events) {

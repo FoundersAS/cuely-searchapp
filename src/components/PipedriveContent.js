@@ -39,7 +39,7 @@ export default class PipedriveContent extends Component {
         return;
       }
     }
-    this.props.openExternalLink(el.href, 'clicked Pipedrive contact/user link');
+    this.props.openExternalLink(el.href, 'Pipedrive contact/user link', 'pipedrive');
   }
 
   renderAttribute(attr) {

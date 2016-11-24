@@ -143,6 +143,6 @@ export default class GdriveContent extends Component {
 
   openLink(e) {
     e.preventDefault();
-    this.props.openExternalLink(e.target.href, 'clicked link in content text');
+    this.props.openExternalLink(e.target.href, 'clicked link in content text', 'gdrive');
   }
 }

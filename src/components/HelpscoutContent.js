@@ -7,6 +7,11 @@ export default class HelpscoutContent extends Component {
     this.handleClick = ::this.handleClick;
   }
 
+  componentDidMount() {
+    // force didUpdate on initial rendering
+    this.componentDidUpdate();
+  }
+
   componentDidUpdate() {
     let cItems = document.getElementsByClassName("conversation_item");
     if (cItems) {
@@ -33,7 +38,7 @@ export default class HelpscoutContent extends Component {
         return;
       }
     }
-    this.props.openExternalLink(el.href, 'Helpscout content link');
+    this.props.openExternalLink(el.href, 'Helpscout content link', 'helpscout');
   }
 
   renderUsers(item, title, groupIndex) {
