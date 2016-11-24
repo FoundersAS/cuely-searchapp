@@ -61,7 +61,12 @@ export function searchInternal(query, search_settings) {
       }
     };
   }).catch(err => {
-    opbeat.captureError(err);
+    opbeat.captureError(err, {
+      extra: {
+        searchQuery: query,
+        searchSettings: search_settings
+      }
+    });
   });
 }
 
@@ -75,7 +80,7 @@ function helpscout(hit) {
     emails: highlightedValueWithClass('helpscout_emails', hit),
     name: highlightedValueWithClass('helpscout_name', hit)
   }
-  const cleaned_content = cleanJsonContent(highlightedValue('helpscout_content', hit), ['url', 'avatar', 'is_customer', 'author_id', 'created']);
+  const cleaned_content = cleanJsonContent(highlightedValue('helpscout_content', hit), ['url', 'avatar', 'is_customer', 'author_id', 'created', 'last_updated_ts', 'id']);
   let users, conversations = [];
   if (cleaned_content) {
     ({ users, conversations } = cleaned_content);
