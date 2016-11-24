@@ -303,6 +303,7 @@ function buildMenu() {
 function customMenuItems() {
   return [
     { label: "About Cuely", click: () => { aboutDialog(); }},
+    { label: "Check for Updates", accelerator: "Command+U", click: () => { checkForUpdates(); }},
     { type: "separator" },
     { label: "Preferences...", accelerator: "Command+,", click: () => { createSettingsWindow(); }},
     { label: "Debug log", accelerator: "Shift+CmdOrCtrl+D", click: () => { createDebugWindow(); }},
