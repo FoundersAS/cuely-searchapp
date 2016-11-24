@@ -1,4 +1,5 @@
 import electron, { ipcMain, session, autoUpdater } from 'electron';
+import opbeat from 'opbeat';
 import { search, searchAfter, setAlgoliaCredentials } from './src/util/search';
 import { getAlgoliaCredentials, getSyncStatus, startSync, setSegmentStatus } from './src/util/util.js';
 import { API_ROOT, isDevelopment, UPDATE_FEED_URL } from './src/util/const.js';
@@ -80,10 +81,6 @@ let sessionInterval;
 // debugging stuff
 let settingsCache = [];
 let searchCache = [];
-
-process.on('uncaughtException', (err) => {
-  console.log(err);
-});
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
@@ -520,7 +517,8 @@ function loadCredentialsOrLogin() {
           }
           return;
         }
-        console.log(error);
+        // console.log(error);
+        opbeat.captureError(error);
         dialog.showMessageBox({
           type: 'error',
           title: 'Cuely app',

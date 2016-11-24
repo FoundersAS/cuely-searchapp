@@ -1,3 +1,4 @@
+import opbeat from 'opbeat';
 import AlgoliaSearch from 'algoliasearch';
 import { cutStringWithTags, parseCsv } from '../util/util.js';
 import { ALGOLIA_INDEX } from '../util/const.js';
@@ -60,7 +61,7 @@ export function searchInternal(query, search_settings) {
       }
     };
   }).catch(err => {
-    console.log(err);
+    opbeat.captureError(err);
   });
 }
 
