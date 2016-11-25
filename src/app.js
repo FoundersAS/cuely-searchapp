@@ -125,7 +125,6 @@ export default class App extends Component {
       //empty search result box
       this.setState({clearInput: true});
       ipcRenderer.send('search', '');
-      ipcRenderer.send('track', { name: 'Session', props: {} });
     });
     // start empty search (should return 10 most recent items by signed in user name)
     ipcRenderer.send('search', '');

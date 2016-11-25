@@ -88,6 +88,7 @@ function helpscout(hit) {
     content.conversations = conversations.map(c => {
       return {
         id: c.id,
+        number: c.number,
         mailbox: c.mailbox,
         assigned: c.owner ? 'Assigned' : 'Unassigned',
         subject: c.subject,
@@ -205,7 +206,7 @@ function intercom(hit) {
 
   const cleaned_content = cleanJsonContent(highlightedValue('intercom_content', hit), ['open', 'timestamp']);
   if (cleaned_content) {
-    let { events, conversations } = cleanJsonContent(highlightedValue('intercom_content', hit), ['open', 'timestamp']);
+    let { events, conversations } = cleaned_content;
     content.events = events.map(e => ({ name: e.name, time: moment(e.timestamp * 1000).fromNow() }));
     content.conversations = conversations.map(c => {
       return {
@@ -346,8 +347,8 @@ function highlightedValueWithClass(attribute, hit, emptyIfNotHighlighted) {
 function removeAlgoliaHighlight(json_text, json_keys) {
   let result = json_text;
   for (let json_key of json_keys) {
-    const re = new RegExp(`"${json_key}":\\s*.*?,`, "g");
-    const matches = (json_text.match(re) || []).filter(m => m.indexOf('<em>') > 0);
+    const re = new RegExp(`"${json_key}":\\s*.*?[},]`, "g");
+    const matches = (json_text.match(re) || []).filter(m => m.indexOf('<em>') > -1);
     for (let m of matches) {
       result = result.replace(m, m.replace(/<em>/g, '').replace(/<\/em>/g, ''));
     }

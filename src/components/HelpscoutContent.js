@@ -69,7 +69,7 @@ export default class HelpscoutContent extends Component {
             <div className={i === 0 ? "conversation_first" : "conversation"} key={`conversation_${userId}_${i}`}>
               <div className="status">
                 <a className="content_link" href={`https://secure.helpscout.net/conversation/${c.id}`} onClick={this.handleClick}>
-                  <span dangerouslySetInnerHTML={{ __html: c.subject }} />
+                  <span dangerouslySetInnerHTML={{ __html: `${c.number}: ${c.subject}` }} />
                 </a>
                 <br />
                 <span className="sub_status" dangerouslySetInnerHTML={{ __html: `${c.mailbox}:&nbsp;${this.renderAssigned(c.assigned, c.status)}${c.status}` }} />

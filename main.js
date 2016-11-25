@@ -94,7 +94,6 @@ app.on('ready', () => {
   updateInterval = setInterval(checkForUpdates, 3600000);
   //setupAutoLauncher();
   loadCredentialsOrLogin();
-  resetSession();
 });
 
 app.on('window-all-closed', () => {
@@ -507,6 +506,7 @@ function loadCredentialsOrLogin() {
 
             // init segment
             segment = initSegment(response.segmentKey);
+            resetSession();
             const identified = segment.identify();
             if (identified) {
               setSegmentStatus(csrf, sessionId, identified);
@@ -871,8 +871,10 @@ function checkForUpdates() {
 }
 
 function resetSession() {
-  if (sessionInterval){
+  if (sessionInterval) {
     clearInterval(sessionInterval);
+  } else {
+    segment.track('Session', {});
   }
 
   sessionInterval = setInterval(endSession, sessionLength);
