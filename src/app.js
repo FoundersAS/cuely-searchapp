@@ -361,7 +361,7 @@ export default class App extends Component {
           <div className="search_suggestions_data">
             <div className="heading">
               <div className="title" dangerouslySetInnerHTML={{ __html: item.title }} />
-              {item.metaInfo && item.metaInfo.users ? this.renderAvatar(item) : null}
+              {item.metaInfo && item.metaInfo.users.length > 0 ? this.renderAvatar(item) : null}
             </div>
             {item.metaInfo ? this.renderBody(item) : null}
           </div>
@@ -395,13 +395,13 @@ export default class App extends Component {
   }
 
   renderAvatar(item) {
-      return (
-        <div className="avatars">
-          {item.metaInfo.users[0].avatar
-              ? <div style={{ backgroundImage: 'url(' + item.metaInfo.users[0].avatar + ')' }} className={item.metaInfo.users[0].nameHighlight ? "avatar active" : "avatar"} />
-              : <div className={item.metaInfo.users[0].nameHighlight ? "avatar no_avatar active" : "avatar no_avatar"}>{this.initials(item.metaInfo.users[0].name)}</div>}
-        </div>
-      );
+    return (
+      <div className="avatars">
+        {item.metaInfo.users[0].avatar
+            ? <div style={{ backgroundImage: 'url(' + item.metaInfo.users[0].avatar + ')' }} className={item.metaInfo.users[0].nameHighlight ? "avatar active" : "avatar"} />
+            : <div className={item.metaInfo.users[0].nameHighlight ? "avatar no_avatar active" : "avatar no_avatar"}>{this.initials(item.metaInfo.users[0].name)}</div>}
+      </div>
+    );
   }
 
   renderBody(item) {

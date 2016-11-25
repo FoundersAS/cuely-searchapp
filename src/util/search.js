@@ -239,6 +239,7 @@ function intercom(hit) {
     metaInfo: {
       time: moment(hit.last_updated).fromNow(),
       open: content.conversationsCount > 0,
+      users: []
     },
     displayIcon: hit.icon_link,
     webLink: hit.webview_link,
@@ -300,7 +301,7 @@ function gdrive(hit) {
         title = '…' + title.substring(highlightedIndex - 20);
       }
   }
-  let path = JSON.parse(highlightedValue('path', hit));
+  let path = JSON.parse(removeEscapedAlgoliaHighlight(highlightedValue('path', hit)));
   if (path.length > 0) {
     let highlightedIndex = path.findIndex(x => x.indexOf('<em>') > -1);
     if (highlightedIndex < 0) {
@@ -351,12 +352,17 @@ function removeAlgoliaHighlight(json_text, json_keys) {
       result = result.replace(m, m.replace(/<em>/g, '').replace(/<\/em>/g, ''));
     }
   }
+  result = removeEscapedAlgoliaHighlight(result);
+  return result;
+}
+
+function removeEscapedAlgoliaHighlight(text) {
   // also remove escaped '<em>' tags which can happen when Algolia highlights a letter in an escape sequence such as unicode character: \ud83d -> \<em>u</em>d83d
   // this is needed, because otherwise json parser will choke on it
-  if (result.indexOf('\\<em>') > -1) {
-    result = result.split('\\<em>').map(token => token.replace('</em>', '')).join('\\');
+  if (text.indexOf('\\<em>') > -1) {
+    text = text.split('\\<em>').map(token => token.replace('</em>', '')).join('\\');
   }
-  return result;
+  return text;
 }
 
 function cleanJsonContent(content_text, json_keys) {
