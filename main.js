@@ -289,7 +289,8 @@ function buildMenu() {
         { label: "Cut", accelerator: "CmdOrCtrl+X", selector: "cut:" },
         { label: "Copy", accelerator: "CmdOrCtrl+C", selector: "copy:" },
         { label: "Paste", accelerator: "CmdOrCtrl+V", selector: "paste:" },
-        { label: "Select All", accelerator: "CmdOrCtrl+A", selector: "selectAll:" }
+        { label: "Select All", accelerator: "CmdOrCtrl+A", selector: "selectAll:" },
+        { label: "Hide", accelerator: "Cmd+H", click: () => { toggleHide(); }}
       ]}
     ];
     menu = Menu.buildFromTemplate(template);
@@ -871,7 +872,8 @@ function checkForUpdates() {
 }
 
 function resetSession() {
-  if (sessionInterval) {
+  //check if sessionInterval is set and is currently active otherwise start a new session
+  if (sessionInterval && !sessionInterval._called) {
     clearInterval(sessionInterval);
   } else {
     segment.track('Session', {});
