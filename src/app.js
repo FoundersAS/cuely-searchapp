@@ -77,6 +77,14 @@ const icons = [
   {
     type: 'gcal',
     spriteOffset: 16
+  },
+  {
+    type: 'math',
+    spriteOffset: 17
+  },
+  {
+    type: 'google',
+    spriteOffset: 18
   }
 ]
 
@@ -434,8 +442,7 @@ export default class App extends Component {
         </div>
         <div className="search_suggestions_content" id="searchSuggestionsContent" onKeyDown={this.handleContentKeyDown} onScroll={this.handleContentScroll} tabIndex="0">
           {this.getIntegrationComponent(selectedItem).content()}
-          <div className="content_bottom_view_link action_link_first" onClick={this.handleExternalLink}><span className="glyphicons glyphicons-new-window"></span>Open</div>
-          <div className="content_bottom_view_link action_link_second" onClick={this.handleActionIconLinkClick}><span className="glyphicons glyphicons-more-items"></span>Share</div>
+          {this.getActionButtons(selectedItem)}
         </div>
       </div>
     );
@@ -504,6 +511,17 @@ export default class App extends Component {
     }
 
     return { content, itemStatus };
+  }
+
+  getActionButtons(item) {
+    if (item.webLink) {
+      return (
+        <div>
+          <div className="content_bottom_view_link action_link_first" onClick={this.handleExternalLink}><span className="glyphicons glyphicons-new-window"></span>Open</div>
+          <div className="content_bottom_view_link action_link_second" onClick={this.handleActionIconLinkClick}><span className="glyphicons glyphicons-more-items"></span>Share</div>
+        </div>
+      );
+    }
   }
 
   helpscoutRenderAssigned(assigned, status) {

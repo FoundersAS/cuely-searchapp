@@ -7,6 +7,7 @@ import { initPrefs } from './src/util/prefs.js';
 import { initLocal } from './src/util/local.js';
 import { initSegment } from './src/util/segment.js';
 import AutoLaunch from 'auto-launch';
+const math = require('mathjs');
 const appVersion = require('./package.json').version;
 const sessionLength = 900000; //900000 15 minutes = 1000 * 60 * 15
 
@@ -51,7 +52,16 @@ let specialKeywords = [
     title: '<em>Open your work Google Calendar</em>',
     link: 'https://calendar.google.com/a/your.domain.com/'
   }
-]
+];
+
+let googleKeyword = {
+  mime: 'google',
+  type: 'google',
+  keywords: ['google'],
+  title: '<em>Search Google for: </em>',
+  link: 'https://www.google.com/search?q='
+}
+
 const integrationsAuth = [
   { name: 'Google Drive', id: 'google-oauth2'},
   { name: 'Intercom', id: 'intercom-oauth'},
@@ -140,6 +150,25 @@ ipcMain.on('search', (event, arg) => {
     searchCache.unshift(result.searchInfo);
     searchCache = searchCache.slice(0, 20);
 
+    //check if query matches any of the special actions
+    const actionItemType = getActionItem(arg);
+    if (actionItemType) {
+      hits.unshift(getNewItem(actionItemType));
+    }
+    else if (!actionItemType && hits.length < 3 && arg.length > 2) {
+      hits.unshift(getNewItem(generateGoogleKeyword(arg)));
+    }  
+    //check if query matches math expression 
+    if (arg.length > 1) {
+      try {
+        const mathResult = math.eval(arg);  
+
+        if (mathResult && typeof(mathResult) == 'number') {
+          hits.unshift(getMathExpression(mathResult));
+        }
+      }
+      catch(err) {}
+    }
     // check if query matches any of the installed/local apps
     if (arg && arg.length > 2 && local && local.currentApps) {
       let argLower = arg.toLowerCase();
@@ -163,11 +192,6 @@ ipcMain.on('search', (event, arg) => {
           hits.unshift(getLocalItem(local.currentApps[lh]));
         }
       }
-    }
-    //check if query matches any of the special actions
-    const actionItemType = getActionItem(arg)
-    if (actionItemType) {
-      hits.unshift(getNewItem(actionItemType));
     }
 
     event.sender.send('search-result', hits);
@@ -676,8 +700,10 @@ function getActionItem(arg) {
     if (item == null){
       item = checkSpecialKeywords(arg);
     }
+    if (item == null){
+      item = checkGoogleKeyword(arg);
+    }
   }
-
   return item;
 }
 
@@ -689,7 +715,6 @@ function checkSpecialKeywords(arg){
       }
     }
   }
-
   return null;
 }
 
@@ -708,6 +733,28 @@ function checkNewKeywordType(arg){
     }
     return null;
   }
+}
+
+function checkGoogleKeyword(arg){
+  const words = arg.split('google');
+  if (words.length < 2) {
+    return null;
+  }
+  else {
+    let item = Object.assign({}, googleKeyword);
+    item.link = item.link + words[1];
+    item.title = '<em>Search Google:</em> ' + words[1];
+
+    return item;
+  }
+}
+
+function generateGoogleKeyword(arg){
+  let item = Object.assign({}, googleKeyword);
+  item.link = item.link + arg;
+  item.title = '<em>Search Google:</em> ' + arg;
+
+  return item;
 }
 
 function replaceGenericDomain(item){
@@ -743,6 +790,22 @@ function getLocalItem(item) {
     metaInfo: null,
     displayIcon: item.cachedIcon,
     webLink: item.location,
+    thumbnailLink: null,
+    modified: null,
+    _algolia: null
+  }
+}
+
+function getMathExpression(expression) {
+  return {
+    type: 'math',
+    mime: 'math',
+    title: `<em>= ${expression}</em>`,
+    titleRaw: null,
+    content: null,
+    metaInfo: null,
+    displayIcon: null,
+    webLink: null,
     thumbnailLink: null,
     modified: null,
     _algolia: null
@@ -825,7 +888,6 @@ function setupAutoLauncher() {
         cuelyAutoLauncher.enable();
       }
     });
-
   }
 }
 
