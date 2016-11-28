@@ -119,7 +119,7 @@ function helpscout(hit) {
     userId: hit.helpscout_customer_id,
     content: content,
     metaInfo: {
-      time: moment(hit.last_updated).fromNow(),
+      time: moment(hit.last_updated_ts * 1000).fromNow(),
       users: users,
       status: content.status,
       assigned: content.assigned ? 'Assigned' : 'Unassigned',
@@ -167,7 +167,7 @@ function pipedrive(hit) {
     titleRaw: hit.pipedrive_title,
     content: content,
     metaInfo: {
-      time: moment(hit.last_updated).fromNow(),
+      time: moment(hit.last_updated_ts * 1000).fromNow(),
       status: hit.pipedrive_deal_status,
       stage: hit.pipedrive_deal_stage,
       users: users
@@ -238,7 +238,7 @@ function intercom(hit) {
     userId: hit.intercom_user_id,
     content: content,
     metaInfo: {
-      time: moment(hit.last_updated).fromNow(),
+      time: moment(hit.last_updated_ts * 1000).fromNow(),
       open: content.conversationsCount > 0,
       users: []
     },
@@ -320,7 +320,7 @@ function gdrive(hit) {
     titleRaw: hit.title,
     content: content,
     metaInfo: {
-      time: moment(hit.last_updated).fromNow(),
+      time: moment(hit.last_updated_ts * 1000).fromNow(),
       users: users,
       path: path
     },
