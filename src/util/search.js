@@ -18,8 +18,7 @@ moment.locale('en-gb');
 
 export function setAlgoliaCredentials(credentials) {
   algoliaClient = AlgoliaSearch(credentials.appId, credentials.searchKey);
-  // settings.filters = `user_id=${credentials.userid}`;
-  settings.filters = `user_id=32`;
+  settings.filters = `user_id=${credentials.userid}`;
   index = algoliaClient.initIndex(algoliaConf.indexName);
   console.log("Updated Algolia credentials");
 }

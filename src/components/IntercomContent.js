@@ -42,24 +42,27 @@ export default class IntercomContent extends Component {
   }
 
   renderEvents(events) {
-    if (!events) {
+    if (!events || events.length < 1) {
       return null;
     }
 
     return (
-      <div className="content_section_text">
-        {events.map((e, i) => (
-          <div className="content_row style_space_between" key={`eventRow_${i}`}>
-            <div className="content_list_value" dangerouslySetInnerHTML={{ __html: e.name }} />
-            <div className="content_list_right_side">{e.time}</div>
-          </div>
-        ))}
+      <div>
+        <div className="content_section_title">Latest events</div>
+        <div className="content_section_text">
+          {events.map((e, i) => (
+            <div className="content_row style_space_between" key={`eventRow_${i}`}>
+              <div className="content_list_value" dangerouslySetInnerHTML={{ __html: e.name }} />
+              <div className="content_list_right_side">{e.time}</div>
+            </div>
+          ))}
+        </div>
       </div>
     );
   }
 
   renderConversations(userId, conversations) {
-    if (!conversations || conversations.length == 0) {
+    if (!conversations || conversations.length < 1) {
       return null;
     }
     return (
@@ -147,7 +150,6 @@ export default class IntercomContent extends Component {
           </div>          
         </div>
 
-        <div className="content_section_title">Latest events</div>
         {this.renderEvents(item.content.events)}
         
         {this.renderConversations(item.userId, item.content.conversations)}
