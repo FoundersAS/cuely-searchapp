@@ -18,7 +18,8 @@ moment.locale('en-gb');
 
 export function setAlgoliaCredentials(credentials) {
   algoliaClient = AlgoliaSearch(credentials.appId, credentials.searchKey);
-  settings.filters = `user_id=${credentials.userid}`;
+  // settings.filters = `user_id=${credentials.userid}`;
+  settings.filters = `user_id=32`;
   index = algoliaClient.initIndex(algoliaConf.indexName);
   console.log("Updated Algolia credentials");
 }
@@ -80,7 +81,7 @@ function helpscout(hit) {
     emails: highlightedValueWithClass('helpscout_emails', hit),
     name: highlightedValueWithClass('helpscout_name', hit)
   }
-  const cleaned_content = cleanJsonContent(highlightedValue('helpscout_content', hit), ['url', 'avatar', 'is_customer', 'author_id', 'created', 'last_updated_ts', 'id']);
+  const cleaned_content = cleanJsonContent(highlightedValue('helpscout_content', hit), ['url', 'avatar', 'is_customer', 'author_id', 'created', 'last_updated_ts', 'id'], hit.user_id);
   let users, conversations = [];
   if (cleaned_content) {
     ({ users, conversations } = cleaned_content);
@@ -139,7 +140,7 @@ function pipedrive(hit) {
     value: hit.pipedrive_deal_value,
     currency: hit.pipedrive_deal_currency,
   }
-  const cleaned_content = cleanJsonContent(highlightedValue('pipedrive_content', hit), ['url', 'icon_url']);
+  const cleaned_content = cleanJsonContent(highlightedValue('pipedrive_content', hit), ['url', 'icon_url'], hit.user_id);
   let contacts, users, activities = [];
   if (cleaned_content) {
     ({ contacts, users, activities } = cleaned_content);
@@ -194,8 +195,16 @@ function intercom(hit) {
   // new segments
   if (hit.intercom_segments && hit.intercom_segments.indexOf('::') > -1) {
     // convert 'Segment1::id1, Segment2::id2, ...' to [{name: 'Segment1', link: 'https://app.intercom.io/a/apps/jmoqapg5/users/segments/id1'}, ...]
-    content.newSegments = highlightedValue('intercom_segments', hit).split(', ').map(x => {
-      let [sname, sid] = x.split('::');
+    // a bit convoluted, because we need to take into account the random names people use for segments, including commas, semicolons, etc.
+    let segments = []
+    let tokens =  highlightedValue('intercom_segments', hit).split('::');
+    let first = tokens.shift();
+    for (let token of tokens) {
+      let st = token.split(', ');
+      segments.push([st[0], first]);
+      first = st.splice(1).join(', ');
+    }
+    content.newSegments = segments.map(([sid, sname]) => {
       let [appId, segId] = sid.replace(/<em>/g, '').replace(/<\/em>/g, '').split('/');
       return {
         name: sname.replace(/<em>/g, '<em class="algolia_highlight">'),
@@ -204,7 +213,7 @@ function intercom(hit) {
     });
   }
 
-  const cleaned_content = cleanJsonContent(highlightedValue('intercom_content', hit), ['open', 'timestamp']);
+  const cleaned_content = cleanJsonContent(highlightedValue('intercom_content', hit), ['open', 'timestamp'], hit.user_id);
   if (cleaned_content) {
     let { events, conversations } = cleaned_content;
     content.events = events.map(e => ({ name: e.name, time: moment(e.timestamp * 1000).fromNow() }));
@@ -366,7 +375,7 @@ function removeEscapedAlgoliaHighlight(text) {
   return text;
 }
 
-function cleanJsonContent(content_text, json_keys) {
+function cleanJsonContent(content_text, json_keys, user_id) {
   if (!content_text) {
     return null;
   }
@@ -374,12 +383,20 @@ function cleanJsonContent(content_text, json_keys) {
   // as atribute names, so we must remove those before using the json later on
   const content = removeAlgoliaHighlight(content_text, json_keys);
   // NOTE: do not change old style function to arrow function in next line, because it won't work ('this' has different scope in arrow functions)
-  return JSON.parse(content, function(key, value) {
-    const new_value = (typeof value  === 'string' || value instanceof String) ? value.replace(/<em>/g, '<em class="algolia_highlight">') : value;
-    if (key.indexOf('<em>') > -1) {
-      this[key.replace(/<em>/g, '').replace(/<\/em>/g, '')] = new_value;
-      return;
-    }
-    return new_value;
-  });
+  try {
+    return JSON.parse(content, function(key, value) {
+      const new_value = (typeof value  === 'string' || value instanceof String) ? value.replace(/<em>/g, '<em class="algolia_highlight">') : value;
+      if (key.indexOf('<em>') > -1) {
+        this[key.replace(/<em>/g, '').replace(/<\/em>/g, '')] = new_value;
+        return;
+      }
+      return new_value;
+    });
+  } catch(err) {
+    opbeat.captureError(err, {
+      extra: {
+        user: user_id
+      }
+    });
+  }
 }
