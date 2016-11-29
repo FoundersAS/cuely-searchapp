@@ -62,6 +62,12 @@ let googleKeyword = {
   link: 'https://www.google.com/search?q='
 }
 
+let websiteKeyword = {
+  mime: 'google',
+  type: 'google',
+  title: '<em>Visit: </em>'
+}
+
 const integrationsAuth = [
   { name: 'Google Drive', id: 'google-oauth2'},
   { name: 'Intercom', id: 'intercom-oauth'},
@@ -703,8 +709,31 @@ function getActionItem(arg) {
     if (item == null){
       item = checkGoogleKeyword(arg);
     }
+    if (item == null){
+      item = checkWebsiteKeyword(arg);
+    }
   }
   return item;
+}
+
+function checkWebsiteKeyword(arg){
+  if (arg.indexOf('.') > -1){
+    const urlRegex = /[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/;
+
+    if (urlRegex.test(arg)) {
+      let item = Object.assign({}, websiteKeyword);
+
+      if (arg.indexOf("http://") == 0 || arg.indexOf("https://") == 0){
+        item.link = arg;
+      }
+      else {
+        item.link = 'http://'+arg;
+      }      
+      item.title = 'Visit: <em>' + arg + '</em>';
+
+      return item;
+    }
+  }
 }
 
 function checkSpecialKeywords(arg){
@@ -736,14 +765,14 @@ function checkNewKeywordType(arg){
 }
 
 function checkGoogleKeyword(arg){
-  const words = arg.split('google');
+  const words = arg.split('google ');
   if (words.length < 2) {
     return null;
   }
   else {
     let item = Object.assign({}, googleKeyword);
     item.link = item.link + words[1];
-    item.title = '<em>Search Google:</em> ' + words[1];
+    item.title = 'Search Google: <em>' + words[1] + '</em>';
 
     return item;
   }
@@ -752,7 +781,7 @@ function checkGoogleKeyword(arg){
 function generateGoogleKeyword(arg){
   let item = Object.assign({}, googleKeyword);
   item.link = item.link + arg;
-  item.title = '<em>Search Google:</em> ' + arg;
+  item.title = 'Search Google: <em>' + arg + '</em>';
 
   return item;
 }
