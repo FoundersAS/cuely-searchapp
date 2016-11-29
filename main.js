@@ -168,8 +168,7 @@ ipcMain.on('search', (event, arg) => {
     if (arg.length > 1) {
       try {
         const mathResult = math.eval(arg);  
-
-        if (mathResult && typeof(mathResult) == 'number') {
+        if (mathResult && typeof(mathResult) !== 'function') {
           hits.unshift(getMathExpression(mathResult));
         }
       }
