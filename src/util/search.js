@@ -39,6 +39,7 @@ export function searchInternal(query, search_settings) {
     let hits = content.hits.map(hit => {
       // detect item type
       const keywords = hit.primary_keywords.toLowerCase();
+      const secondayKeywords = hit.secondary_keywords.toLowerCase();
       if (keywords.indexOf('gdrive') > -1) {
         return gdrive(hit);
       } else if (keywords.indexOf('intercom') > -1) {
@@ -46,7 +47,11 @@ export function searchInternal(query, search_settings) {
       } else if (keywords.indexOf('pipedrive') > -1) {
         return pipedrive(hit);
       } else if (keywords.indexOf('helpscout') > -1) {
-        return helpscout(hit);
+        if (hit.secondary_keywords.toLowerCase().indexOf('customer') > -1) {
+          return helpscout(hit);
+        } else {
+          return helpscoutDocs(hit);
+        }
       } else {
         return null;
       }
@@ -68,6 +73,34 @@ export function searchInternal(query, search_settings) {
       }
     });
   });
+}
+
+function helpscoutDocs(hit) {
+  let content = highlightWithClass(highlightedValue('helpscout_document_content', hit));
+  let users = hit.helpscout_document_users.map(user => ({
+    avatar: user.avatar,
+    name: user.name,
+    nameHighlight: highlightedValueInArray('helpscout_document_users', 'name', user.name, hit, true)
+  }));
+
+  return {
+    type: 'helpscout-docs',
+    mime: 'helpscout',
+    title: highlightedValue('helpscout_document_title', hit),
+    titleRaw: hit.helpscout_document_title,
+    content: content,
+    metaInfo: {
+      time: moment(hit.last_updated_ts * 1000).fromNow(),
+      users: users,
+      collection: highlightedValue('helpscout_document_collection', hit),
+      categories: highlightedArray('helpscout_document_categories', hit)
+    },
+    displayIcon: hit.icon_link,
+    webLink: hit.helpscout_document_public_link,
+    thumbnailLink: null,
+    modified: hit.last_updated,
+    _algolia: hit._rankingInfo
+  }  
 }
 
 function helpscout(hit) {
@@ -206,7 +239,7 @@ function intercom(hit) {
     content.newSegments = segments.map(([sid, sname]) => {
       let [appId, segId] = sid.replace(/<em>/g, '').replace(/<\/em>/g, '').split('/');
       return {
-        name: sname.replace(/<em>/g, '<em class="algolia_highlight">'),
+        name: highlightWithClass(sname),
         link: `https://app.intercom.io/a/apps/${appId}/users/segments/${segId}`
       }
     });
@@ -276,7 +309,7 @@ function gdrive(hit) {
 
   let content = null;
   if (hit.content && hit.content.length > 0) {
-    content = highlightedValue('content', hit).replace(/\n\s*\n/g, '\n\n').replace(/<em>/g, '<em class="algolia_highlight">');
+    content = highlightWithClass(highlightedValue('content', hit).replace(/\n\s*\n/g, '\n\n'));
   }
   if (['csv', 'tsv', 'comma', 'tab', 'google-apps.spreadsheet'].filter(x => hit.mime_type.indexOf(x) > -1).length > 0) {
     try {
@@ -340,16 +373,48 @@ function gdrive(hit) {
   }
 }
 
-function highlightedValue(attribute, hit, emptyIfNotHighlighted) {
+function highlightedValue(attribute, hit, emptyIfNotHighlighted=false) {
   if(attribute in hit._highlightResult && hit._highlightResult[attribute].matchedWords.length > 0) {
     return hit._highlightResult[attribute].value;
   }
   return emptyIfNotHighlighted ? "" : hit[attribute];
 }
 
+// use for json arrays of strings
+function highlightedArray(attribute, hit, emptyIfNotHighlighted=false) {
+  if(attribute in hit._highlightResult) {
+    const hits = hit._highlightResult[attribute].filter(x => x.matchedWords.length > 0);
+    if (hits.length > 0) {
+      return hit._highlightResult[attribute].map(x => x.value);
+    }
+  }
+  return emptyIfNotHighlighted ? [] : hit[attribute];
+}
+
+// use for json arrays of objects, e.g. [{ "avatar": "http://...", "name": "Otto" }, { "avatar": "http://...", "name": "Jack" }],
+// because Algolia highlights exact json key -> value, e.g. [{ "name": "<em>Ott</em>o", ... }]
+function highlightedValueInArray(attribute, key, value, hit, emptyIfNotHighlighted=false) {
+  if(attribute in hit._highlightResult) {
+    let hits = hit._highlightResult[attribute].filter(x => (key in x) && x[key].matchedWords.length > 0);
+    hits = hits.reduce((acc, obj) => {
+      let objValue = obj[key].value;
+      let objKey = objValue.replace(/<em>/g, '').replace(/<\/em>/g, '');
+      acc[objKey] = objValue;
+      return acc;
+    }, {});
+    if (value in hits) {
+      return hits[value];
+    }
+  }
+  return emptyIfNotHighlighted ? "" : hit[attribute];
+}
+
 function highlightedValueWithClass(attribute, hit, emptyIfNotHighlighted) {
-  const highlighted = highlightedValue(attribute, hit, emptyIfNotHighlighted);
-  return highlighted ? highlighted.replace(/<em>/g, '<em class="algolia_highlight">') : highlighted;
+  return highlightWithClass(highlightedValue(attribute, hit, emptyIfNotHighlighted));
+}
+
+function highlightWithClass(value) {
+  return value ? value.replace(/<em>/g, '<em class="algolia_highlight">') : value;
 }
 
 function removeAlgoliaHighlight(json_text, json_keys) {
@@ -384,7 +449,7 @@ function cleanJsonContent(content_text, json_keys, user_id) {
   // NOTE: do not change old style function to arrow function in next line, because it won't work ('this' has different scope in arrow functions)
   try {
     return JSON.parse(content, function(key, value) {
-      const new_value = (typeof value  === 'string' || value instanceof String) ? value.replace(/<em>/g, '<em class="algolia_highlight">') : value;
+      const new_value = (typeof value  === 'string' || value instanceof String) ? highlightWithClass(value) : value;
       if (key.indexOf('<em>') > -1) {
         this[key.replace(/<em>/g, '').replace(/<\/em>/g, '')] = new_value;
         return;

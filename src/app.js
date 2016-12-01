@@ -7,6 +7,7 @@ import GdriveContent from './components/GdriveContent';
 import IntercomContent from './components/IntercomContent';
 import PipedriveContent from './components/PipedriveContent';
 import HelpscoutContent from './components/HelpscoutContent';
+import HelpscoutDocsContent from './components/HelpscoutDocsContent';
 require('../css/style.scss');
 
 const icons = [
@@ -516,6 +517,20 @@ export default class App extends Component {
             <span>
               <span className="meta_icon glyphicons glyphicons-flag"></span>
               <span className="meta_data" dangerouslySetInnerHTML={{ __html: `${item.metaInfo.mailbox}:&nbsp;${this.helpscoutRenderAssigned(item.metaInfo.assigned, item.metaInfo.status)}${item.metaInfo.status}` }} />
+            </span>
+          );
+        }
+      } else if (item.type === 'helpscout-docs') {
+        content = () => (<HelpscoutDocsContent openExternalLink={this.openExternalLink} item={item} />);
+        if (item.metaInfo) {
+          let statusLine = item.metaInfo.collection;
+          if (item.metaInfo.categories && item.metaInfo.categories.length > 0) {
+            statusLine = statusLine + ': ' + item.metaInfo.categories.join(', ');
+          }
+          itemStatus = () => (
+            <span>
+              <span className="meta_icon glyphicons glyphicons-folder-open"></span>
+              <span className="meta_data" dangerouslySetInnerHTML={{ __html: statusLine }} />
             </span>
           );
         }        
