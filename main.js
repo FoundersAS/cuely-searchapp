@@ -156,24 +156,6 @@ ipcMain.on('search', (event, arg) => {
     searchCache.unshift(result.searchInfo);
     searchCache = searchCache.slice(0, 20);
 
-    //check if query matches any of the special actions
-    const actionItemType = getActionItem(arg);
-    if (actionItemType) {
-      hits.unshift(getNewItem(actionItemType));
-    }
-    else if (!actionItemType && hits.length < 3 && arg.length > 2) {
-      hits.unshift(getNewItem(generateGoogleKeyword(arg)));
-    }  
-    //check if query matches math expression 
-    if (arg.length > 1) {
-      try {
-        const mathResult = math.eval(arg);  
-        if (mathResult && typeof(mathResult) !== 'function') {
-          hits.unshift(getMathExpression(mathResult));
-        }
-      }
-      catch(err) {}
-    }
     // check if query matches any of the installed/local apps
     if (arg && arg.length > 2 && local && local.currentApps) {
       let argLower = arg.toLowerCase();
@@ -197,6 +179,14 @@ ipcMain.on('search', (event, arg) => {
           hits.unshift(getLocalItem(local.currentApps[lh]));
         }
       }
+    }
+    //check if query matches any of the special actions
+    const actionItemType = getActionItem(arg);
+    if (actionItemType) {
+      hits.unshift(getNewItem(actionItemType));
+    }
+    else if (!actionItemType && hits.length < 3 && arg.length > 2) {
+      hits.push(getNewItem(generateGoogleKeyword(arg)));
     }
 
     event.sender.send('search-result', hits);
@@ -698,8 +688,19 @@ function updateGlobalShortcut() {
 
 function getActionItem(arg) {
   let item = null;
+  let mathResult = null;
 
-  if(arg.length > 2){  
+  //check if query matches math expression 
+  if (arg.length > 1) {
+    try {
+      mathResult = math.eval(arg);  
+      if (mathResult && typeof(mathResult) !== 'function') {
+        item = getMathExpression(mathResult);
+      }
+    }
+    catch(err) {}
+  }
+  if (!mathResult && arg.length > 2){
     item = checkNewKeywordType(arg);
 
     if (item == null){
@@ -712,6 +713,7 @@ function getActionItem(arg) {
       item = checkWebsiteKeyword(arg);
     }
   }
+
   return item;
 }
 
@@ -739,7 +741,25 @@ function checkSpecialKeywords(arg){
   for (let item of specialKeywords){
     for (let keyword of item.keywords){
       if (keyword.indexOf(arg) === 0){
-        return replaceGenericDomain(item);
+        let item_copy = Object.assign({}, item);
+        item_copy = replaceGenericDomain(item_copy);
+
+        return item_copy;
+      }
+      else if (keyword == 'gmail' && arg.indexOf(keyword) === 0){
+        const words = arg.split('gmail ');
+        let item_copy = Object.assign({}, item);
+        item_copy = replaceGenericDomain(item_copy);
+
+        if (words[1] == 0){
+          item_copy.title = 'Search work Gmail: <em>' + words[1] + '</em>';
+        }
+        if (words.length > 1 && words[1].length > 0){
+          item_copy.link = item_copy.link + '/#search/' + words[1];
+          item_copy.title = 'Search work Gmail: <em>' + words[1] + '</em>';
+        }
+
+        return item_copy;
       }
     }
   }
@@ -797,7 +817,7 @@ function getNewItem(item) {
     type: item.type,
     mime: item.mime,
     title: item.title,
-    titleRaw: null,
+    titleRaw: item.titleRaw,
     content: null,
     metaInfo: null,
     displayIcon: null,
@@ -829,7 +849,7 @@ function getMathExpression(expression) {
     type: 'math',
     mime: 'math',
     title: `<em>= ${expression}</em>`,
-    titleRaw: null,
+    titleRaw: `${expression}`,
     content: null,
     metaInfo: null,
     displayIcon: null,

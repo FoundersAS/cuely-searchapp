@@ -107,6 +107,7 @@ export default class App extends Component {
     this.handleMouseEnter = ::this.handleMouseEnter;
     this.openExternalLink = ::this.openExternalLink;
     this.getIntegrationComponent = ::this.getIntegrationComponent;
+    this.copyValueToClipboard = ::this.copyValueToClipboard;
     this.state = {
       searchResults: [],
       selectedIndex: -1,
@@ -208,19 +209,17 @@ export default class App extends Component {
     let index = this.state.selectedIndex;
     if (e.key === 'Escape') {
       ipcRenderer.send('hide-search');
-    } /*else if (this.isDown(e)) {
-      e.preventDefault();
-      let index = this.state.selectedIndex;
-      index = (index >= this.state.searchResults.length - 1) ? index : index + 1;
-      this.setState({ selectedIndex: index, keyFocus: true });
-    } else if (this.isUp(e)) {
-      e.preventDefault();
-      index = (index < 1) ? index : index - 1;
-      this.setState({ selectedIndex: index, keyFocus: true });
-    }*/ 
+    }
     else if (e.key === 'Enter') {
       const item = this.state.searchResults[index];
-      this.openExternalLink(item.webLink, 'enter', item.type);
+
+      //if item has link we open the link otherwise we enable copying to clipboard on enter
+      if (item.webLink){
+        this.openExternalLink(item.webLink, 'enter', item.type);  
+      }
+      else {
+        this.copyValueToClipboard(item);
+      }
     }
 
     this.hideHover();
@@ -232,6 +231,12 @@ export default class App extends Component {
 
   isDown(e) {
     return (e.key === 'ArrowDown' || (e.ctrlKey && e.key === 'n'));
+  }
+
+  copyValueToClipboard(item){
+    clipboard.writeText(item.titleRaw);
+    ipcRenderer.send('send-notification', { title: 'Value Copied ✓', body: `${item.titleRaw} has been copied to your clipboard.` });
+    ipcRenderer.send('track', { name: 'Copy value', props: {} });
   }
 
   handleInput(e) {
@@ -265,7 +270,14 @@ export default class App extends Component {
   handleDoubleClick(e) {
     e.preventDefault();
     const item = this.state.searchResults[this.getIndex(e.target.id)];
-    this.openExternalLink(item.webLink, 'double click', item.type);
+
+    if (item.webLink){
+      this.openExternalLink(item.webLink, 'double click', item.type);  
+    }
+    else {
+      this.copyValueToClipboard(item);
+    }
+    
   }
 
   handleExternalLink(e) {
