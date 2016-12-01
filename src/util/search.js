@@ -83,6 +83,12 @@ function helpscoutDocs(hit) {
     nameHighlight: highlightedValueInArray('helpscout_document_users', 'name', user.name, hit, true)
   }));
 
+  let statusLine = highlightedValue('helpscout_document_collection', hit);
+  if (hit.helpscout_document_categories && hit.helpscout_document_categories.length > 0) {
+    statusLine = statusLine + ': ' + highlightedArray('helpscout_document_categories', hit).join(', ');
+    statusLine = cutStringWithTags(statusLine, 30, 'em', '…');
+  }
+
   return {
     type: 'helpscout-docs',
     mime: 'helpscout',
@@ -92,8 +98,7 @@ function helpscoutDocs(hit) {
     metaInfo: {
       time: moment(hit.last_updated_ts * 1000).fromNow(),
       users: users,
-      collection: highlightedValue('helpscout_document_collection', hit),
-      categories: highlightedArray('helpscout_document_categories', hit)
+      status: statusLine
     },
     displayIcon: hit.icon_link,
     webLink: hit.helpscout_document_public_link,

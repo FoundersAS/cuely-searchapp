@@ -511,14 +511,10 @@ export default class App extends Component {
       } else if (item.type === 'helpscout-docs') {
         content = () => (<HelpscoutDocsContent openExternalLink={this.openExternalLink} item={item} />);
         if (item.metaInfo) {
-          let statusLine = item.metaInfo.collection;
-          if (item.metaInfo.categories && item.metaInfo.categories.length > 0) {
-            statusLine = statusLine + ': ' + item.metaInfo.categories.join(', ');
-          }
           itemStatus = () => (
             <span>
               <span className="meta_icon glyphicons glyphicons-folder-open"></span>
-              <span className="meta_data" dangerouslySetInnerHTML={{ __html: statusLine }} />
+              <span className="meta_data" dangerouslySetInnerHTML={{ __html: item.metaInfo.status }} />
             </span>
           );
         }        
