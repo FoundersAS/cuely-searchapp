@@ -396,7 +396,6 @@ em {
 
 	table {
 		color: #333;
-		white-space: pre-wrap;
 		font-size: 12px;
 		font-weight: 300;
 		font-family: "BlinkMacSystemFont";
@@ -423,18 +422,18 @@ em {
 		tr:first-child th {
 		  border-top: 0;
 		}
+	}
 
-		tr {
-			td:first-child,
-			th:first-child {
-				border-left: 0;
-				padding-left: .5rem;
-			}
+	.table#searchSuggestionsContentTable .tr {
+		td:first-child,
+		th:first-child {
+			border-left: 0;
+			padding-left: .5rem;
+		}
 
-			td:last-child,
-			th:last-child {
-				border-right: 0;
-			}
+		td:last-child,
+		th:last-child {
+			border-right: 0;
 		}
 	}
 
