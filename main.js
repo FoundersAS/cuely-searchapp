@@ -74,6 +74,7 @@ const integrationsAuth = [
   { name: 'Intercom', id: 'intercom-apikeys'},
   { name: 'Pipedrive', id: 'pipedrive-apikeys'},
   { name: 'Helpscout', id: 'helpscout-apikeys'},
+  { name: 'Helpscout Docs', id: 'helpscout-docs-apikeys'},
 ];
 
 // Keep a global reference of the window object, if you don't, the window will
