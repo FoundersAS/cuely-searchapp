@@ -207,12 +207,12 @@ ipcMain.on('close-login', () => {
   loadCredentialsOrLogin();
 });
 
-ipcMain.on('close-settings', () => {
-  settingsWindow.close();
-});
-
 ipcMain.on('close-debug', () => {
   debugWindow.close();
+});
+
+ipcMain.on('close-settings', () => {
+  settingsWindow.close();
 });
 
 ipcMain.on('send-notification', (event, arg) => {
@@ -243,6 +243,14 @@ ipcMain.on('debug-load', (event, arg) => {
 });
 
 ipcMain.on('settings-save', (event, settings) => {
+  if(!checkGlobalShortcut(settings.globalShortcut)) {
+    event.sender.send(
+      'settings-save-failed',
+      'Could not set the global shortcut. Please try again without using national characters.'
+    );
+    return;
+  }
+
   prefs.saveAll(settings);
   settingsCache.unshift({ time: Date(), settings: settings });
   settingsCache = settingsCache.slice(0, 10);
@@ -263,6 +271,7 @@ ipcMain.on('settings-save', (event, settings) => {
   } else {
     app.dock.hide();
   }
+  settingsWindow.close();
 });
 
 ipcMain.on('track', (event, arg) => {
@@ -675,9 +684,22 @@ function endLogin() {
   }
 }
 
+function checkGlobalShortcut(shortcut) {
+  // check if shortcut is possible to register
+  try {
+    globalShortcut.isRegistered(shortcut);
+    return true;
+  } catch(err) {
+    console.log('PINKO');
+    console.log(err);
+    // probably used a national character or some similar key that is rejected by native OS
+    return false;
+  }
+}
+
 function updateGlobalShortcut() {
   const shortcut = prefs.getAll().globalShortcut;
-  if (!globalShortcut.isRegistered(shortcut)) {
+  if (checkGlobalShortcut(shortcut)) {
     globalShortcut.unregisterAll();
     const ret = globalShortcut.register(shortcut, () => {
       toggleHideOrCreate();
