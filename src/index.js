@@ -1,7 +1,12 @@
 import 'babel-polyfill'; // generators
 import React from 'react';
 import ReactDOM from 'react-dom';
-const { webFrame } = require('electron')
+const { webFrame, ipcRenderer } = require('electron')
+
+window.onerror = (error, url, line) => {
+  console.log(url, line, error);
+  ipcRenderer.send('renderer-error', { line, url, error });
+};
 
 webFrame.setZoomLevelLimits(1, 1);
 const render = () => {

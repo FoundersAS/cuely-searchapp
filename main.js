@@ -279,6 +279,19 @@ ipcMain.on('track', (event, arg) => {
   segment.track(arg.name, arg.props);
 });
 
+ipcMain.on('renderer-error', (event, arg) => {
+  let { line, url, error } = arg;
+  const account = prefs.getAccount();
+  opbeat.captureError(error, {
+    extra: {
+      cuelyVersion: appVersion,
+      user: `${account.userid} ${account.name}`,
+      errorLine: line,
+      errorUrl: url
+    }
+  });
+});
+
 //----------- UTILITY FUNCTIONS
 function sendSyncDone(integrationName) {
   sendDesktopNotification('Synchronization complete ✓', 'Cuely has finished indexing your ' + integrationName);
