@@ -251,10 +251,14 @@ function intercom(hit) {
   }
 
   const cleaned_content = cleanJsonContent(highlightedValue('intercom_content', hit), ['open', 'timestamp'], hit.user_id);
+  let open = false;
   if (cleaned_content) {
     let { events, conversations } = cleaned_content;
     content.events = events.map(e => ({ name: e.name, time: moment(e.timestamp * 1000).fromNow() }));
     content.conversations = conversations.map(c => {
+      if (!open && c.open) {
+        open = true;
+      }
       return {
         subject: c.subject,
         open: c.open,
@@ -285,7 +289,7 @@ function intercom(hit) {
     content: content,
     metaInfo: {
       time: moment(hit.last_updated_ts * 1000).fromNow(),
-      open: content.conversationsCount > 0,
+      open: open,
       users: []
     },
     displayIcon: hit.icon_link,
