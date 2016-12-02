@@ -690,7 +690,6 @@ function checkGlobalShortcut(shortcut) {
     globalShortcut.isRegistered(shortcut);
     return true;
   } catch(err) {
-    console.log('PINKO');
     console.log(err);
     // probably used a national character or some similar key that is rejected by native OS
     return false;
