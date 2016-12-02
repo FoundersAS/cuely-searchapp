@@ -789,7 +789,7 @@ function checkSpecialKeywords(arg){
           item_copy.title = 'Search work Gmail: <em>' + words[1] + '</em>';
         }
         if (words.length > 1 && words[1].length > 0){
-          item_copy.link = item_copy.link + '/#search/' + words[1];
+          item_copy.link = item_copy.link + '#search/' + words[1];
           item_copy.title = 'Search work Gmail: <em>' + words[1] + '</em>';
         }
 
