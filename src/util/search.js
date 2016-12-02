@@ -39,7 +39,7 @@ export function searchInternal(query, search_settings) {
     let hits = content.hits.map(hit => {
       // detect item type
       const keywords = hit.primary_keywords.toLowerCase();
-      const secondayKeywords = hit.secondary_keywords.toLowerCase();
+      const secondayKeywords = (hit.secondary_keywords || '').toLowerCase();
       if (keywords.indexOf('gdrive') > -1) {
         return gdrive(hit);
       } else if (keywords.indexOf('intercom') > -1) {
