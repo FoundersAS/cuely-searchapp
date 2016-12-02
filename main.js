@@ -716,11 +716,10 @@ function getActionItem(arg) {
   if (arg.length > 1) {
     try {
       mathResult = math.eval(arg);  
-      if (mathResult && typeof(mathResult) !== 'function') {
+      if (mathResult && typeof(mathResult) !== 'function' && String(mathResult) !== arg) {
         item = getMathExpression(mathResult);
       }
-    }
-    catch(err) {}
+    } catch(err) {}
   }
   if (!mathResult && arg.length > 2){
     item = checkNewKeywordType(arg);
