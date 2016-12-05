@@ -158,7 +158,7 @@ ipcMain.on('search', (event, arg) => {
     searchCache = searchCache.slice(0, 20);
 
     // check if query matches any of the installed/local apps
-    if (arg && arg.length > 2 && local && local.currentApps) {
+    if (arg && arg.length >= 2 && local && local.currentApps) {
       let argLower = arg.toLowerCase();
       let localHits = Object.keys(local.currentApps).filter(x => {
         if (argLower.split(' ').length > 1) {
@@ -866,7 +866,7 @@ function getLocalItem(item) {
   return {
     type: 'local-app',
     mime: 'local-app',
-    title: `<em>${item.name}</em>`,
+    title: `Open App: <em>${item.name}</em>`,
     titleRaw: item.name,
     content: null,
     metaInfo: null,
