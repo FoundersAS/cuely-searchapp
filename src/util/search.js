@@ -206,8 +206,8 @@ function pipedrive(hit) {
     content: content,
     metaInfo: {
       time: moment(hit.last_updated_ts * 1000).fromNow(),
-      status: hit.pipedrive_deal_status,
-      stage: hit.pipedrive_deal_stage,
+      status: highlightedValue('pipedrive_deal_status', hit),
+      stage: highlightedValue('pipedrive_deal_stage', hit),
       users: users
     },
     displayIcon: hit.icon_link,
@@ -289,7 +289,7 @@ function intercom(hit) {
     content: content,
     metaInfo: {
       time: moment(hit.last_updated_ts * 1000).fromNow(),
-      open: open,
+      status: highlightedValue('intercom_status', hit),
       users: []
     },
     displayIcon: hit.icon_link,

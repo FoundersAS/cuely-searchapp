@@ -496,7 +496,7 @@ export default class App extends Component {
           itemStatus = () => (
             <span>
               <span className="meta_icon glyphicons glyphicons-conversation"></span>
-              <span className="meta_data">{item.metaInfo.open ? "Open" : "Closed"}</span>
+              <span className="meta_data" dangerouslySetInnerHTML={{ __html: item.metaInfo.status }} />
             </span>
           );
         }
@@ -506,7 +506,7 @@ export default class App extends Component {
           itemStatus = () => (
             <span>
               <span className="meta_icon glyphicons glyphicons-flag"></span>
-              <span className="meta_data">{item.metaInfo.status}&nbsp;/&nbsp;{item.metaInfo.stage}</span>
+              <span className="meta_data"  dangerouslySetInnerHTML={{ __html: `${item.metaInfo.status}&nbsp;/&nbsp;${item.metaInfo.stage}` }} />
             </span>
           );
         }
