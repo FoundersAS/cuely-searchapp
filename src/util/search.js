@@ -39,7 +39,7 @@ export function searchInternal(query, search_settings) {
     let hits = content.hits.map(hit => {
       // detect item type
       const keywords = hit.primary_keywords.toLowerCase();
-      const secondayKeywords = hit.secondary_keywords.toLowerCase();
+      const secondayKeywords = (hit.secondary_keywords || '').toLowerCase();
       if (keywords.indexOf('gdrive') > -1) {
         return gdrive(hit);
       } else if (keywords.indexOf('intercom') > -1) {
@@ -177,7 +177,7 @@ function pipedrive(hit) {
     value: hit.pipedrive_deal_value,
     currency: hit.pipedrive_deal_currency,
   }
-  const cleaned_content = cleanJsonContent(highlightedValue('pipedrive_content', hit), ['url', 'icon_url'], hit.user_id);
+  const cleaned_content = cleanJsonContent(highlightedValue('pipedrive_content', hit), ['url', 'icon_url', 'done_time'], hit.user_id);
   let contacts, users, activities = [];
   if (cleaned_content) {
     ({ contacts, users, activities } = cleaned_content);
@@ -206,8 +206,8 @@ function pipedrive(hit) {
     content: content,
     metaInfo: {
       time: moment(hit.last_updated_ts * 1000).fromNow(),
-      status: hit.pipedrive_deal_status,
-      stage: hit.pipedrive_deal_stage,
+      status: highlightedValue('pipedrive_deal_status', hit),
+      stage: highlightedValue('pipedrive_deal_stage', hit),
       users: users
     },
     displayIcon: hit.icon_link,
@@ -251,10 +251,14 @@ function intercom(hit) {
   }
 
   const cleaned_content = cleanJsonContent(highlightedValue('intercom_content', hit), ['open', 'timestamp'], hit.user_id);
+  let open = false;
   if (cleaned_content) {
     let { events, conversations } = cleaned_content;
     content.events = events.map(e => ({ name: e.name, time: moment(e.timestamp * 1000).fromNow() }));
     content.conversations = conversations.map(c => {
+      if (!open && c.open) {
+        open = true;
+      }
       return {
         subject: c.subject,
         open: c.open,
@@ -285,7 +289,7 @@ function intercom(hit) {
     content: content,
     metaInfo: {
       time: moment(hit.last_updated_ts * 1000).fromNow(),
-      open: content.conversationsCount > 0,
+      status: highlightedValue('intercom_status', hit),
       users: []
     },
     displayIcon: hit.icon_link,

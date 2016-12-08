@@ -18,7 +18,8 @@ export default class Settings extends Component {
       },
       newShortcut: '',
       newTrayIcon: false,
-      newDockIcon: false
+      newDockIcon: false,
+      errorMessage: ''
     }
     this.keyCombo = [];
   }
@@ -30,6 +31,9 @@ export default class Settings extends Component {
         newTrayIcon: arg.showTrayIcon,
         newDockIcon: arg.showDockIcon
       });
+    });
+    ipcRenderer.on('settings-save-failed', (event, msg) => {
+      this.setState({ errorMessage: msg });
     });
     ipcRenderer.send('settings-load');
   }
@@ -58,7 +62,6 @@ export default class Settings extends Component {
       settings.globalShortcut = this.state.newShortcut;
     }
     ipcRenderer.send('settings-save', settings);
-    ipcRenderer.send('close-settings');
   }
 
   handleKeyUp(e) {
@@ -152,6 +155,14 @@ export default class Settings extends Component {
                     value={this.state.newShortcut} />
                 </div>
               </div>
+              {this.state.errorMessage ? (
+                <div className="row">
+                  <div className="left" />
+                  <div className="error">
+                    {this.state.errorMessage}
+                  </div>
+                </div>
+                ) : null}
             </div>
           </div>
           <hr />

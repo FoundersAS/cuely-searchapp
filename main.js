@@ -158,7 +158,7 @@ ipcMain.on('search', (event, arg) => {
     searchCache = searchCache.slice(0, 20);
 
     // check if query matches any of the installed/local apps
-    if (arg && arg.length > 2 && local && local.currentApps) {
+    if (arg && arg.length >= 2 && local && local.currentApps) {
       let argLower = arg.toLowerCase();
       let localHits = Object.keys(local.currentApps).filter(x => {
         if (argLower.split(' ').length > 1) {
@@ -207,12 +207,12 @@ ipcMain.on('close-login', () => {
   loadCredentialsOrLogin();
 });
 
-ipcMain.on('close-settings', () => {
-  settingsWindow.close();
-});
-
 ipcMain.on('close-debug', () => {
   debugWindow.close();
+});
+
+ipcMain.on('close-settings', () => {
+  settingsWindow.close();
 });
 
 ipcMain.on('send-notification', (event, arg) => {
@@ -243,6 +243,14 @@ ipcMain.on('debug-load', (event, arg) => {
 });
 
 ipcMain.on('settings-save', (event, settings) => {
+  if(!checkGlobalShortcut(settings.globalShortcut)) {
+    event.sender.send(
+      'settings-save-failed',
+      'Could not set the global shortcut. Please try again without using national characters.'
+    );
+    return;
+  }
+
   prefs.saveAll(settings);
   settingsCache.unshift({ time: Date(), settings: settings });
   settingsCache = settingsCache.slice(0, 10);
@@ -263,6 +271,7 @@ ipcMain.on('settings-save', (event, settings) => {
   } else {
     app.dock.hide();
   }
+  settingsWindow.close();
 });
 
 ipcMain.on('track', (event, arg) => {
@@ -272,6 +281,19 @@ ipcMain.on('track', (event, arg) => {
 
 ipcMain.on('openSettings', (event, arg) => {
   createSettingsWindow();
+});
+
+ipcMain.on('renderer-error', (event, arg) => {
+  let { line, url, error } = arg;
+  const account = prefs.getAccount();
+  opbeat.captureError(error, {
+    extra: {
+      cuelyVersion: appVersion,
+      user: `${account.userid} ${account.name}`,
+      errorLine: line,
+      errorUrl: url
+    }
+  });
 });
 
 
@@ -681,9 +703,21 @@ function endLogin() {
   searchWindow.show();
 }
 
+function checkGlobalShortcut(shortcut) {
+  // check if shortcut is possible to register
+  try {
+    globalShortcut.isRegistered(shortcut);
+    return true;
+  } catch(err) {
+    console.log(err);
+    // probably used a national character or some similar key that is rejected by native OS
+    return false;
+  }
+}
+
 function updateGlobalShortcut() {
   const shortcut = prefs.getAll().globalShortcut;
-  if (!globalShortcut.isRegistered(shortcut)) {
+  if (checkGlobalShortcut(shortcut)) {
     globalShortcut.unregisterAll();
     const ret = globalShortcut.register(shortcut, () => {
       toggleHideOrCreate();
@@ -701,11 +735,10 @@ function getActionItem(arg) {
   if (arg.length > 1) {
     try {
       mathResult = math.eval(arg);  
-      if (mathResult && typeof(mathResult) !== 'function') {
+      if (mathResult && typeof(mathResult) !== 'function' && String(mathResult) !== arg) {
         item = getMathExpression(mathResult);
       }
-    }
-    catch(err) {}
+    } catch(err) {}
   }
   if (!mathResult && arg.length > 2){
     item = checkNewKeywordType(arg);
@@ -762,7 +795,7 @@ function checkSpecialKeywords(arg){
           item_copy.title = 'Search work Gmail: <em>' + words[1] + '</em>';
         }
         if (words.length > 1 && words[1].length > 0){
-          item_copy.link = item_copy.link + '/#search/' + words[1];
+          item_copy.link = item_copy.link + '#search/' + words[1];
           item_copy.title = 'Search work Gmail: <em>' + words[1] + '</em>';
         }
 
@@ -839,7 +872,7 @@ function getLocalItem(item) {
   return {
     type: 'local-app',
     mime: 'local-app',
-    title: `<em>${item.name}</em>`,
+    title: `Open App: <em>${item.name}</em>`,
     titleRaw: item.name,
     content: null,
     metaInfo: null,
