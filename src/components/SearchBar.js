@@ -49,6 +49,7 @@ export default class SearchBar extends Component {
             onKeyDown={this.props.onKeyDown}
             onInput={this.props.onInput}
             ref='input' />
+        <span className="cuely_prefs_icon glyphicons glyphicons-cogwheel" onClick={this.props.onSettingsClick}/>
       </div>
     );
   }

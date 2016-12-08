@@ -516,9 +516,23 @@ em {
 
 	.search_bar_icon {
 		font-size: 20px;
-		padding: .65rem 0 .5rem 0.9em;
+		padding: .65rem 0 .5rem 1rem;
 		color: #BBB;
 		line-height: 2em;
+	}
+
+	.cuely_prefs_icon {
+	  border-bottom-left-radius: 4px;
+	  position: absolute;
+	  top: 1rem;
+	  right: 1rem;
+	  font-size: 13px;
+	  color: #BBB;
+	}
+
+	.cuely_prefs_icon:hover {
+	  color: rgba(40, 69, 127, 0.97);
+	  cursor: pointer !important;
 	}
 }
 
@@ -556,7 +570,7 @@ em {
 	  opacity: 1;
 	}
 }
-
+ 
 /* Glyphicons reset */
 .glyphicons:before {
   padding: 0;

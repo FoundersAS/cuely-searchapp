@@ -86,7 +86,7 @@ let debugWindow;
 let tray;
 
 let credentials;
-let appHide = true;
+let appHide = false;
 let screenBounds;
 let syncPollerTimeouts = {};
 let prefs;
@@ -270,6 +270,11 @@ ipcMain.on('track', (event, arg) => {
   segment.track(arg.name, arg.props);
 });
 
+ipcMain.on('openSettings', (event, arg) => {
+  createSettingsWindow();
+});
+
+
 //----------- UTILITY FUNCTIONS
 function sendSyncDone(integrationName) {
   sendDesktopNotification('Synchronization complete ✓', 'Cuely has finished indexing your ' + integrationName);
@@ -402,7 +407,7 @@ function createSearchWindow() {
     }
   });
   searchWindow.on('blur', () => {
-    hide();
+    //hide();
   });
 };
 
@@ -673,6 +678,7 @@ function endLogin() {
   if (isOsx() && !local) {
     local = initLocal(app.getPath('userData'));
   }
+  searchWindow.show();
 }
 
 function updateGlobalShortcut() {

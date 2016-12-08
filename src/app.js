@@ -352,6 +352,10 @@ export default class App extends Component {
     this.applyClassToSuggestions('search_suggestions_card_link');
   }
 
+  handleSettingsClick() {
+    ipcRenderer.send('openSettings');
+  }
+
   applyClassToSuggestions(klas) {
     const itemList = document.getElementById("searchSuggestionsList");
     if (itemList) {
@@ -564,6 +568,7 @@ export default class App extends Component {
           onKeyUp={this.handleKeyUp}
           onKeyDown={this.handleKeyDown}
           onInput={this.handleInput}
+          onSettingsClick ={this.handleSettingsClick}
           onDragEnd={this.handleDragEnd}
           className={"search_bar_open"}
           id="searchBar"
