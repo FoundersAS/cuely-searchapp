@@ -75,6 +75,7 @@ const integrationsAuth = [
   { name: 'Pipedrive', id: 'pipedrive-apikeys'},
   { name: 'Helpscout', id: 'helpscout-apikeys'},
   { name: 'Helpscout Docs', id: 'helpscout-docs-apikeys'},
+  { name: 'Jira', id: 'jira-oauth'},
 ];
 
 // Keep a global reference of the window object, if you don't, the window will
@@ -453,7 +454,7 @@ function createLoginWindow() {
 
     const urlNoParams = details.url.split('?')[0];
     let integration = integrationsAuth.filter(x => urlNoParams.indexOf(`complete/${x.id}/`) > -1)[0];
-    if (integration) {
+    if (details.url.indexOf('in_auth_flow') < 0 && integration) {
       startSyncPoller(integration.id, `${integration.name} account`);
     }
     callback({ cancel: false, responseHeaders: details.responseHeaders });
