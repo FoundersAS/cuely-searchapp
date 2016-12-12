@@ -19,10 +19,12 @@ class LocalApps {
 
     let appsWithIcons = this.loadAll();
     let counter = 0;
+    let appKeys = [];
     for (let app of apps) {
       // parse the app name from its location, i.e. /Users/xyz/Applications/pgAdmin3.app -> pgAdmin3
       let appName = app.split('/').slice(-1)[0].split('.')[0];
       let appKey = appName.toLowerCase();
+      appKeys.push(appKey);
       if (appsWithIcons[appKey] === undefined || appsWithIcons[appKey].location !== app) {
         const filename = `${app}/Contents/Info.plist`;
         if (existsSync(filename)) {
@@ -59,6 +61,22 @@ class LocalApps {
           });
         }
       }
+    }
+
+    let removed = false;
+    // check if an app was deleted
+    for(let cachedAppKey in appsWithIcons) {
+      if (!appKeys.includes(cachedAppKey)) {
+        removed = true;
+        console.log(`Removing app ${cachedAppKey} from app cache`);
+        if (appsWithIcons[cachedAppKey].cachedIcon) {
+          unlinkSync(appsWithIcons[cachedAppKey].cachedIcon);
+        }
+        delete appsWithIcons[cachedAppKey];
+      }
+    }
+    if (removed) {
+      this.saveAll(appsWithIcons);
     }
     if (counter < 1) {
       // happens on re-runs, when apps have already been synced
