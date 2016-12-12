@@ -134,10 +134,10 @@ export default class App extends Component {
     ipcRenderer.on('end-session', (event, selector) => {
       //empty search result box
       this.setState({clearInput: true});
-      ipcRenderer.send('search', '');
+      ipcRenderer.send('search', '', Date.now());
     });
     // start empty search (should return 10 most recent items by signed in user name)
-    ipcRenderer.send('search', '');
+    ipcRenderer.send('search', '', Date.now());
 
   }
 
@@ -242,7 +242,7 @@ export default class App extends Component {
 
   handleInput(e) {
     const q = e.target.value;
-    ipcRenderer.send('search', q);
+    ipcRenderer.send('search', q, Date.now());
     if (this.segmentTimer) {
       clearTimeout(this.segmentTimer);
     }
@@ -385,7 +385,7 @@ export default class App extends Component {
           <div className="search_suggestions_data">
             <div className="heading">
               <div className="title" dangerouslySetInnerHTML={{ __html: item.title }} />
-              {item.metaInfo && item.metaInfo.users.length > 0 ? this.renderAvatar(item) : null}
+              {item.metaInfo && item.metaInfo.users && item.metaInfo.users.length > 0 ? this.renderAvatar(item) : null}
             </div>
             {item.metaInfo ? this.renderBody(item) : null}
           </div>
@@ -487,6 +487,15 @@ export default class App extends Component {
       if (item.type === 'gdrive') {
         content = () => (<GdriveContent openExternalLink={this.openExternalLink} item={item} />);
         if (item.metaInfo && item.metaInfo.path && item.metaInfo.path.length > 0) {
+          itemStatus = () => (
+            <span>
+              <span className="meta_icon glyphicons glyphicons-folder-open"></span>
+              <span className="meta_data" dangerouslySetInnerHTML={{ __html: item.metaInfo.path }} />
+            </span>
+          );
+        }
+      } else if (item.type === 'local-file') {
+        if (item.metaInfo && item.metaInfo.path) {
           itemStatus = () => (
             <span>
               <span className="meta_icon glyphicons glyphicons-folder-open"></span>

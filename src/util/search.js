@@ -3,6 +3,7 @@ import AlgoliaSearch from 'algoliasearch';
 import { cutStringWithTags, parseCsv } from '../util/util.js';
 import { ALGOLIA_INDEX } from '../util/const.js';
 import moment from 'moment';
+const mdfind = require('mdfind');
 
 const algoliaConf = {
   indexName: ALGOLIA_INDEX
@@ -73,6 +74,55 @@ export function searchInternal(query, search_settings) {
       }
     });
   });
+}
+
+export function searchLocalFiles(query, callback) {
+  let buf = [];
+  let res = mdfind({query: query, attributes: ['kMDItemDisplayName', 'kMDItemFSContentChangeDate', 'kMDItemKind'], limit: 20, interpret: true});
+  
+  res.output.on('data', function(result) {
+    let fullPath = result.kMDItemPath.split('/');
+
+    if (isLegitLocalPath(result.kMDItemPath)){
+      let itemPath = cutLocalPath(result.kMDItemPath, 27);
+      let itemTitle = fullPath[(fullPath.length - 1)];
+
+      buf.push({
+        type : 'local-file',
+        mime : result.kMDItemKind,
+        title : itemTitle,
+        metaInfo : {
+          time : moment(Date.parse(result.kMDItemFSContentChangeDate)).fromNow(),
+          path : itemPath
+        }
+      });
+    }
+
+  });
+
+  res.output.on('end', function () {
+    callback(buf);
+  });
+}
+
+function isLegitLocalPath(fullPath) {
+  let badPaths = /(Library\/Application Support)|(Library\/Application Scripts)|(Library\/Containers)|(\/Applications)/i;
+
+  return !badPaths.test(fullPath);
+}
+
+function cutLocalPath(fullPath, maxLen) {
+  let path = fullPath.substring(0, fullPath.lastIndexOf('/'));
+
+  if (path == '') {
+    return null;
+  }
+  if (maxLen > path.length) {
+    return path;
+  }
+  else {
+    return '...' + path.substr(((path.length - 1) - maxLen), (path.length - 1));
+  }
 }
 
 function helpscoutDocs(hit) {

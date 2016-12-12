@@ -1,6 +1,6 @@
 import electron, { ipcMain, session, autoUpdater } from 'electron';
 import opbeat from 'opbeat';
-import { search, searchAfter, setAlgoliaCredentials } from './src/util/search';
+import { search, searchAfter, setAlgoliaCredentials, searchLocalFiles } from './src/util/search';
 import { getAlgoliaCredentials, getSyncStatus, startSync, setSegmentStatus } from './src/util/util.js';
 import { API_ROOT, isDevelopment, UPDATE_FEED_URL } from './src/util/const.js';
 import { initPrefs } from './src/util/prefs.js';
@@ -95,6 +95,7 @@ let local;
 let updateInterval;
 let sessionInterval;
 let updateManual = false;
+let latestSearchTime;
 
 // debugging stuff
 let settingsCache = [];
@@ -142,56 +143,73 @@ ipcMain.on('log', (event, arg) => {
   
 });
 
-ipcMain.on('search', (event, arg) => {
+ipcMain.on('search', (event, arg, time) => {
   let searchPromise;
+  let localWords = arg.split('find ');
+  latestSearchTime = 0;
+  
   if (arg === '') {
     // search for user's docs in the last 30 days
     const ts = parseInt((Date.now() - 1000 * 3600 * 24 * 30) / 1000);
     searchPromise = searchAfter(prefs.settings.account.name, ts);
-  } else {
+  }
+  else if (localWords.length > 1 && localWords[1] != ''){
+    searchLocalFiles(localWords[1], function (localResult){
+      if (time > latestSearchTime){
+        latestSearchTime = time;
+        event.sender.send('search-result', localResult);
+      }
+    });
+  }
+  else {
     searchPromise = search(arg);
   }
 
-  searchPromise.then(result => {
-    let hits = [].concat.apply([], result.hits);
-    searchCache.unshift(result.searchInfo);
-    searchCache = searchCache.slice(0, 20);
+  if (searchPromise){
+    searchPromise.then(result => {
+      let hits = [].concat.apply([], result.hits);
+      searchCache.unshift(result.searchInfo);
+      searchCache = searchCache.slice(0, 20);
 
-    // check if query matches any of the installed/local apps
-    if (arg && arg.length >= 2 && local && local.currentApps) {
-      let argLower = arg.toLowerCase();
-      let localHits = Object.keys(local.currentApps).filter(x => {
-        if (argLower.split(' ').length > 1) {
-          return x.indexOf(argLower) > -1;
-        }
+      // check if query matches any of the installed/local apps
+      if (arg && arg.length >= 2 && local && local.currentApps) {
+        let argLower = arg.toLowerCase();
+        let localHits = Object.keys(local.currentApps).filter(x => {
+          if (argLower.split(' ').length > 1) {
+            return x.indexOf(argLower) > -1;
+          }
 
-        for(let word of x.split(' ')) {
-          if (word.startsWith(argLower)) {
-            return true;
+          for(let word of x.split(' ')) {
+            if (word.startsWith(argLower)) {
+              return true;
+            }
+          }
+          return false;
+        });
+        if (localHits.length > 0) {
+          localHits.sort((a, b) => {
+            return b.indexOf(argLower) - a.indexOf(argLower);
+          });
+          for (let lh of localHits.slice(0, 3)) {
+            hits.unshift(getLocalItem(local.currentApps[lh]));
           }
         }
-        return false;
-      });
-      if (localHits.length > 0) {
-        localHits.sort((a, b) => {
-          return b.indexOf(argLower) - a.indexOf(argLower);
-        });
-        for (let lh of localHits.slice(0, 3)) {
-          hits.unshift(getLocalItem(local.currentApps[lh]));
-        }
       }
-    }
-    //check if query matches any of the special actions
-    const actionItemType = getActionItem(arg);
-    if (actionItemType) {
-      hits.unshift(getNewItem(actionItemType));
-    }
-    else if (!actionItemType && hits.length < 3 && arg.length > 2) {
-      hits.push(getNewItem(generateGoogleKeyword(arg)));
-    }
-
-    event.sender.send('search-result', hits);
-  });
+      //check if query matches any of the special actions
+      const actionItemType = getActionItem(arg);
+      if (actionItemType) {
+        hits.unshift(getNewItem(actionItemType));
+      }
+      else if (!actionItemType && hits.length < 3 && arg.length > 2) {
+        hits.push(getNewItem(generateGoogleKeyword(arg)));
+      }
+      //check if we have alreay rendered newer result => if not we render this one
+      if (time > latestSearchTime){
+        latestSearchTime = time;
+        event.sender.send('search-result', hits);
+      }
+    });
+  }
 });
 
 ipcMain.on('search-rendered', (event, arg) => {
@@ -872,7 +890,7 @@ function getLocalItem(item) {
   return {
     type: 'local-app',
     mime: 'local-app',
-    title: `Open App: <em>${item.name}</em>`,
+    title: `App: <em>${item.name}</em>`,
     titleRaw: item.name,
     content: null,
     metaInfo: null,
