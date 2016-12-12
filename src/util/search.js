@@ -52,6 +52,8 @@ export function searchInternal(query, search_settings) {
         } else {
           return helpscoutDocs(hit);
         }
+      } else if (keywords.indexOf('jira') > -1) {
+        return jira(hit);
       } else {
         return null;
       }
@@ -73,6 +75,69 @@ export function searchInternal(query, search_settings) {
       }
     });
   });
+}
+
+function jira(hit) {
+  let statusLine = null;
+  if (hit.jira_project_name) {
+    statusLine = highlightedValue('jira_project_name', hit);
+    if (hit.jira_issue_status) {
+      statusLine = statusLine + ' / ' + highlightedValue('jira_issue_status', hit)
+    }
+    statusLine = cutStringWithTags(statusLine, 30, 'em', '…');
+  }
+
+  let users = ['jira_issue_assignee', 'jira_issue_reporter'].map(x => {
+    if ('name' in hit[x]) {
+      return {
+        avatar: null,
+        name: hit[x].name,
+        nameHighlight: highlightedValueInObject(x, hit, 'name', false)
+      }
+    } else {
+      return null;
+    }
+  });
+
+  let content = {
+    users: users.filter(x => x).reduce((acc, obj) => {
+        if(acc.findIndex(x => x.name === obj.name) < 0) {
+          acc.push(obj);
+        }
+        return acc;
+      },
+      []
+    ),
+    description: highlightWithClass(highlightedValue('jira_issue_description', hit)),
+    info: {
+      projectName: highlightedValue('jira_project_name', hit),
+      projectLink: hit.jira_project_link,
+      key: highlightedValue('jira_issue_key', hit),
+      type: highlightedValue('jira_issue_type', hit),
+      status: highlightedValue('jira_issue_status', hit),
+      priority: highlightedValue('jira_issue_priority', hit),
+      labels: highlightedArray('jira_issue_labels', hit),
+      dueDate: hit.jira_issue_duedate ? moment(hit.jira_issue_duedate).format('DD. MM. YYYY') : null
+    }
+  }
+
+  return {
+    type: 'jira',
+    mime: 'jira',
+    title: highlightedValue('jira_issue_key', hit) + ': ' + highlightedValue('jira_issue_title', hit).split(': ')[1],
+    titleRaw: hit.jira_issue_title,
+    content: content,
+    metaInfo: {
+      time: moment(hit.last_updated_ts * 1000).fromNow(),
+      users: users[0] ? [users[0]]: [],
+      status: statusLine,
+    },
+    displayIcon: hit.null,
+    webLink: hit.webview_link,
+    thumbnailLink: null,
+    modified: hit.last_updated,
+    _algolia: hit._rankingInfo
+  } 
 }
 
 function helpscoutDocs(hit) {
@@ -398,6 +463,13 @@ function highlightedArray(attribute, hit, emptyIfNotHighlighted=false) {
     }
   }
   return emptyIfNotHighlighted ? [] : hit[attribute];
+}
+
+function highlightedValueInObject(attribute, hit, key, emptyIfNotHighlighted=false) {
+  if(attribute in hit._highlightResult && hit._highlightResult[attribute][key].matchedWords.length > 0) {
+    return hit._highlightResult[attribute][key].value;
+  }
+  return emptyIfNotHighlighted ? "" : hit[attribute][key].value;
 }
 
 // use for json arrays of objects, e.g. [{ "avatar": "http://...", "name": "Otto" }, { "avatar": "http://...", "name": "Jack" }],
