@@ -8,6 +8,7 @@ import IntercomContent from './components/IntercomContent';
 import PipedriveContent from './components/PipedriveContent';
 import HelpscoutContent from './components/HelpscoutContent';
 import HelpscoutDocsContent from './components/HelpscoutDocsContent';
+import JiraContent from './components/JiraContent';
 require('../css/style.scss');
 
 const icons = [
@@ -86,6 +87,10 @@ const icons = [
   {
     type: 'google',
     spriteOffset: 18
+  },
+  {
+    type: 'jira',
+    spriteOffset: 10
   }
 ]
 
@@ -535,6 +540,16 @@ export default class App extends Component {
         }
       } else if (item.type === 'helpscout-docs') {
         content = () => (<HelpscoutDocsContent openExternalLink={this.openExternalLink} item={item} />);
+        if (item.metaInfo) {
+          itemStatus = () => (
+            <span>
+              <span className="meta_icon glyphicons glyphicons-folder-open"></span>
+              <span className="meta_data" dangerouslySetInnerHTML={{ __html: item.metaInfo.status }} />
+            </span>
+          );
+        }        
+      } else if (item.type === 'jira') {
+        content = () => (<JiraContent openExternalLink={this.openExternalLink} item={item} />);
         if (item.metaInfo) {
           itemStatus = () => (
             <span>
