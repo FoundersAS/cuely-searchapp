@@ -89,7 +89,7 @@ export default class JiraContent extends Component {
           </div>          
           <div className="content_row">
             <div className="content_attribute_name">Labels</div>
-            <div className="content_attribute_value" dangerouslySetInnerHTML={{ __html: content.info.labels ? content.info.labels.join(', ') : '/' }} />
+            <div className="content_attribute_value" dangerouslySetInnerHTML={{ __html: content.info.labels.length > 0 ? content.info.labels.join(', ') : '/' }} />
           </div>
         </div>
       </div>

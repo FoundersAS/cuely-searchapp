@@ -117,7 +117,7 @@ function jira(hit) {
       status: highlightedValue('jira_issue_status', hit),
       priority: highlightedValue('jira_issue_priority', hit),
       labels: highlightedArray('jira_issue_labels', hit),
-      dueDate: hit.jira_issue_duedate ? moment(hit.jira_issue_duedate).format('DD. MM. YYYY') : null
+      dueDate: hit.jira_issue_duedate ? moment(hit.jira_issue_duedate).format('DD. MMM YYYY') : null
     }
   }
 
