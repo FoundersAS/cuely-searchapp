@@ -78,7 +78,6 @@ export function searchInternal(query, search_settings) {
   });
 }
 
-<<<<<<< HEAD
 export function searchLocalFiles(query, callback) {
   let buf = [];
   let res = mdfind({query: query, attributes: ['kMDItemDisplayName', 'kMDItemFSContentChangeDate', 'kMDItemKind'], limit: 20, interpret: true});
@@ -126,7 +125,8 @@ function cutLocalPath(fullPath, maxLen) {
   else {
     return '...' + path.substr(((path.length - 1) - maxLen), (path.length - 1));
   }
-=======
+}
+
 function jira(hit) {
   let statusLine = null;
   if (hit.jira_project_name) {
@@ -188,7 +188,7 @@ function jira(hit) {
     modified: hit.last_updated,
     _algolia: hit._rankingInfo
   } 
->>>>>>> eb56d5e82bdfc5902b7f3ee1ee1b18b526862869
+
 }
 
 function helpscoutDocs(hit) {
