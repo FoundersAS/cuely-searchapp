@@ -160,12 +160,9 @@ ipcMain.on('search', (event, arg, time) => {
         latestSearchTime = time;
         // fix icon
         localResult = localResult.map(x => {
-          let icon = local.getIconForMime(x.metaInfo.extension);
+          let icon = local.getIconForMime(x.mime);
           if(!icon) {
             icon = local.getIconForMime(x.metaInfo.contentType);
-          }
-          if(!icon) {
-            icon = local.getIconForMime(x.mime);
           }
           x.displayIcon = icon;
           return x;
