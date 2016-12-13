@@ -222,14 +222,16 @@ class LocalApps {
     this.currentApps = JSON.parse(readFileSync(this.file, 'utf8'));
     this.currentAppsAssociations = {};
     for (let app in this.currentApps) {
-      for (let mime of this.currentApps[app].editorFor) {
-        if (this._shouldOverride(app, mime, true)) {
-          this.currentAppsAssociations[mime] = this.currentApps[app];
+      if ('editorFor' in this.currentApps[app]) {
+        for (let mime of this.currentApps[app].editorFor) {
+          if (this._shouldOverride(app, mime, true)) {
+            this.currentAppsAssociations[mime] = this.currentApps[app];
+          }
         }
-      }
-      for (let mime of this.currentApps[app].viewerFor) {
-        if (this._shouldOverride(app, mime, false)) {
-          this.currentAppsAssociations[mime] = this.currentApps[app];
+        for (let mime of this.currentApps[app].viewerFor) {
+          if (this._shouldOverride(app, mime, false)) {
+            this.currentAppsAssociations[mime] = this.currentApps[app];
+          }
         }
       }
     }
