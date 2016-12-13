@@ -234,7 +234,7 @@ class LocalApps {
       }
     }
     // Finder is special case, so we override any other mime association for 'public.folder'
-    if('finder' in this.currentApps) {
+    if ('finder' in this.currentApps) {
       this.currentAppsAssociations['public.folder'] = this.currentApps['finder']
     }
     return this.currentApps;

@@ -146,9 +146,13 @@ function getLocalFileSize(itemSize) {
 function getLocalFileExtension(fullPath, type) {
   if (type == 'Folder'){
     return type;
-  }
-  else {
-    return fullPath.substring(fullPath.lastIndexOf('.') + 1, fullPath.length).toUpperCase();
+  } else {
+    let pos = fullPath.lastIndexOf('.');
+    if (pos < 0) {
+      return null;
+    } else {
+      return fullPath.substring(pos + 1, fullPath.length).toUpperCase();
+    }
   }
 }
 

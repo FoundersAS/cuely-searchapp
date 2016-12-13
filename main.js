@@ -164,6 +164,9 @@ ipcMain.on('search', (event, arg, time) => {
           if(!icon) {
             icon = local.getIconForMime(x.metaInfo.contentType);
           }
+          if(!icon) {
+            icon = local.getIconForMime('public.folder');
+          }
           x.displayIcon = icon;
           return x;
         });
