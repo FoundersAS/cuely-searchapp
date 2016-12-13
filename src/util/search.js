@@ -3,7 +3,7 @@ import AlgoliaSearch from 'algoliasearch';
 import { cutStringWithTags, parseCsv } from '../util/util.js';
 import { ALGOLIA_INDEX } from '../util/const.js';
 import moment from 'moment';
-const mdfind = require('mdfind');
+import mdfind from 'mdfind';
 
 const algoliaConf = {
   indexName: ALGOLIA_INDEX
@@ -80,32 +80,33 @@ export function searchInternal(query, search_settings) {
 
 export function searchLocalFiles(query, callback) {
   let buf = [];
-  let res = mdfind({names:[query], directories : ['/Users/'], attributes: ['kMDItemDisplayName', 'kMDItemFSContentChangeDate', 'kMDItemKind', 'kMDItemFSSize'], limit: 40});
+  let res = mdfind({names:[query], directories : ['/Users/'], attributes: ['kMDItemDisplayName', 'kMDItemFSContentChangeDate', 'kMDItemKind', 'kMDItemFSSize', 'kMDItemContentType'], limit: 40});
   
   res.output.on('data', function(result) {
     let fullPath = result.kMDItemPath.split('/');
 
-    if (isLegitLocalPath(result.kMDItemPath)){
+    if (isLegitLocalPath(result.kMDItemPath)) {
       let itemPath = cutLocalPath(result.kMDItemPath, 27);
       let itemTitle = fullPath[(fullPath.length - 1)];
       let itemSize = getLocalFileSize(result.kMDItemFSSize);
       
 
+      let ts = Date.parse(result.kMDItemFSContentChangeDate);
       buf.push({
-        type : 'local-file',
-        mime : getLocalFileExtension(result.kMDItemPath,result.kMDItemKind),
-        title : itemTitle,
-        titleRaw : itemTitle,
-        webLink : result.kMDItemPath,
-        metaInfo : {
-          timestamp : Date.parse(result.kMDItemFSContentChangeDate),
-          time : moment(Date.parse(result.kMDItemFSContentChangeDate)).fromNow(),
-          path : itemPath,
-          size : itemSize
+        type: 'local-file',
+        mime: getLocalFileExtension(result.kMDItemPath,result.kMDItemKind),
+        title: itemTitle,
+        titleRaw: itemTitle,
+        webLink: result.kMDItemPath,
+        metaInfo: {
+          timestamp: ts,
+          time: moment(ts).fromNow(),
+          path: itemPath,
+          size: itemSize,
+          contentType: result.kMDItemContentType
         }
       });
     }
-
   });
 
   res.output.on('end', function () {
@@ -119,7 +120,6 @@ export function searchLocalFiles(query, callback) {
       }
 
     });
-
     callback(buf);
   });
 }

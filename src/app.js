@@ -418,18 +418,23 @@ export default class App extends Component {
     )
   }
 
-  getIcon(item){
+  getIcon(item) {
     let displayIcon = {
-      'inlineStyle': { 'backgroundImage': 'url("' + item.displayIcon + '")'},
       'style': 'search_suggestions_logo'
     };
     
-    if (item.type === 'local-app') {
-      displayIcon.inlineStyle.backgroundSize = '25px 25px';
-      displayIcon.inlineStyle.backgroundRepeat = 'no-repeat';
-    } else{
+    if (item.type === 'local-app' || item.type === 'local-file') {
+      if (item.displayIcon) {
+        console.log(item.displayIcon);
+        displayIcon.inlineStyle = {
+          'backgroundSize': '25px 25px',
+          'backgroundRepeat': 'no-repeat',
+          'backgroundImage': `url("${item.displayIcon}")`
+        }
+      }
+    } else {
       for (let itemIcons of icons){
-        if (itemIcons.type == item.mime){
+        if (itemIcons.type == item.mime) {
           const verticalOffset = itemIcons.spriteOffset*(-25) + 'px';
 
           displayIcon.inlineStyle = { 'backgroundPosition': '0 ' + verticalOffset };

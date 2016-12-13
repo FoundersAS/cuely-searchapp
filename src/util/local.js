@@ -2,7 +2,8 @@
 import { readFile, readFileSync, writeFile, writeFileSync, existsSync, readdirSync, rmdir, unlinkSync, statSync } from 'fs';
 import { homedir } from 'os';
 import { readFile as readPlist } from 'simple-plist';
-import { execSync, exec } from 'child_process';
+import { exec } from 'child_process';
+import { mdls } from './mdls.js';
 
 class LocalApps {
   constructor(path) {
@@ -16,6 +17,8 @@ class LocalApps {
     console.log("Running local apps sync");
     let apps = this.getApps('/Applications');
     apps = apps.concat(this.getApps(homedir() + '/Applications'));
+    // special case for Finder.app
+    apps = apps.concat(this.getApps('/System/Library/CoreServices').filter(x => x.endsWith('Finder.app')));
 
     let appsWithIcons = this.loadAll();
     let counter = 0;
@@ -25,36 +28,73 @@ class LocalApps {
       let appName = app.split('/').slice(-1)[0].split('.')[0];
       let appKey = appName.toLowerCase();
       appKeys.push(appKey);
-      if (appsWithIcons[appKey] === undefined || appsWithIcons[appKey].location !== app) {
+      if (appsWithIcons[appKey] === undefined
+          || appsWithIcons[appKey].location !== app
+          || appsWithIcons[appKey].editorFor === undefined) {
         const filename = `${app}/Contents/Info.plist`;
         if (existsSync(filename)) {
           counter = counter + 1;
-          readPlist(`${app}/Contents/Info.plist`, (err, data) => {
+          readPlist(filename, (err, data) => {
             counter = counter - 1;
             if (err) {
               console.log('Could not read/parse Info.plist for app ' + appName, err);
               return;
             }
-            let iconsFile = `${app}/Contents/Resources/${data.CFBundleIconFile}`;
-            if (!existsSync(iconsFile)) {
-              iconsFile = iconsFile + '.icns';
+
+            // some vendors, such as Google for their 'web' apps, install apps with
+            // auto-generated names (e.g. 'coobgpohoikkiipiblmjeljniedjpjpf') and the human-readable name is in the plist file
+            if (data.CrAppModeShortcutName && data.CrAppModeShortcutName.length > 0) {
+              appName = data.CrAppModeShortcutName;
+              appKey = appName.toLowerCase();
+              appKeys.push(appKey);
             }
-
-            if (existsSync(iconsFile)) {
-              // some vendors, such as Google for their 'web' apps, install apps with
-              // auto-generated names (e.g. 'coobgpohoikkiipiblmjeljniedjpjpf') and the human-readable name is in the plist file
-              if (data.CrAppModeShortcutName && data.CrAppModeShortcutName.length > 0) {
-                appName = data.CrAppModeShortcutName;
-                appKey = appName.toLowerCase();
-              }
-
+            if (!appsWithIcons[appKey]) {
               appsWithIcons[appKey] = {
-                iconset: iconsFile,
+                iconset: null,
                 cachedIcon: null,
                 location: app,
                 name: appName
               }
             }
+            if (!appsWithIcons[appKey].cachedIcon) {
+              let iconsFile = `${app}/Contents/Resources/${data.CFBundleIconFile}`;
+              if (!existsSync(iconsFile)) {
+                iconsFile = iconsFile + '.icns';
+              }
+              if (existsSync(iconsFile)) {
+                appsWithIcons[appKey].iconset = iconsFile;
+              }
+            }
+
+            if (appsWithIcons[appKey].editorFor === undefined) {
+              let editorFor = [];
+              let viewerFor = [];
+
+              if (data.CFBundleDocumentTypes) {
+                for (let docType of data.CFBundleDocumentTypes) {
+                  let exts = []
+                  if (docType.CFBundleTypeExtensions) {
+                    exts = exts.concat(docType.CFBundleTypeExtensions.map(x => x.toLowerCase()));
+                  }
+                  if (docType.LSItemContentTypes) {
+                    exts = exts.concat(docType.LSItemContentTypes.map(x => x.toLowerCase()));
+                  }
+
+                  if (docType.CFBundleTypeRole === 'Editor') {
+                    editorFor = editorFor.concat(exts);
+                  } else {
+                    viewerFor = viewerFor.concat(exts);
+                  }
+                }
+              }
+
+              appsWithIcons[appKey].editorFor = editorFor;
+              appsWithIcons[appKey].viewerFor = viewerFor;
+              let metadata = mdls(app);
+              appsWithIcons[appKey].created = metadata.kMDItemFSCreationDate ? metadata.kMDItemFSCreationDate.getTime() : 0;
+              appsWithIcons[appKey].opened = metadata.kMDItemLastUsedDate ? metadata.kMDItemLastUsedDate.getTime() : 0;
+            }
+
             if (counter < 1) {
               this.saveIcons(appsWithIcons);
             }
@@ -78,6 +118,7 @@ class LocalApps {
     if (removed) {
       this.saveAll(appsWithIcons);
     }
+
     if (counter < 1) {
       // happens on re-runs, when apps have already been synced
       this.saveIcons(appsWithIcons);
@@ -100,10 +141,10 @@ class LocalApps {
     return result;
   }
 
-  saveIconInternal(apps, appKey) {
+  _saveIconInternal(apps, appKey) {
     let app = apps[appKey];
     const outPath = `${this.iconDir}/${app.name}.iconset`;
-    exec(`iconutil --convert iconset "${app.iconset}" --output "${outPath}"`, { timeout: 1000 }, (err) => {
+    exec(`iconutil --convert iconset "${app.iconset}" --output "${outPath}"`, { timeout: 2000 }, (err) => {
       if(err) {
         console.log(`Could not extract icons from app '${app.name}' iconset`);
       } else {
@@ -163,10 +204,10 @@ class LocalApps {
       if (app.cachedIcon === null && app.iconset) {
         counter = counter + 1;
         // To avoid IO errors when running multiple iconutils instances in parallel, we use setTimeout() hack.
-        setTimeout(() => { self.saveIconInternal(apps, appKey) }, counter * 500);
+        setTimeout(() => { self._saveIconInternal(apps, appKey) }, counter * 300);
       }
     }
-    this.timeout = setTimeout(() => { self._init() }, Math.max(counter * 550, 90000)); // run again after 90s
+    this.timeout = setTimeout(() => { self._init() }, Math.max(counter * 350, 300000)); // run again after 300s=5min
   }
 
   saveAll(apps) {
@@ -179,7 +220,54 @@ class LocalApps {
       return {};
     }
     this.currentApps = JSON.parse(readFileSync(this.file, 'utf8'));
+    this.currentAppsAssociations = {};
+    for (let app in this.currentApps) {
+      for (let mime of this.currentApps[app].editorFor) {
+        if (this._shouldOverride(app, mime, true)) {
+          this.currentAppsAssociations[mime] = this.currentApps[app];
+        }
+      }
+      for (let mime of this.currentApps[app].viewerFor) {
+        if (this._shouldOverride(app, mime, false)) {
+          this.currentAppsAssociations[mime] = this.currentApps[app];
+        }
+      }
+    }
+    // Finder is special case, so we override any other mime association for 'public.folder'
+    if('finder' in this.currentApps) {
+      this.currentAppsAssociations['public.folder'] = this.currentApps['finder']
+    }
     return this.currentApps;
+  }
+
+  _shouldOverride(app, mime, editor) {
+    let existing = this.currentAppsAssociations[mime];
+    if (!existing) {
+      return true;
+    }
+
+    let existingEditor = existing.editorFor.indexOf(mime) > -1;
+
+    if (existingEditor !== editor) {
+      return editor;
+    }
+    // if both are either viewers (or editors), then check last opened date
+    if (existing.opened !== this.currentApps[app].opened) {
+      return this.currentApps[app].opened > existing.opened;
+    }
+
+    // finally, check created timestamp
+    return this.currentApps[app].created > existing.created;
+  }
+
+  getIconForMime(mime) {
+    if (mime && this.currentAppsAssociations) {
+      let mimeLower = mime.toLowerCase();
+      if (mimeLower in this.currentAppsAssociations) {
+        return this.currentAppsAssociations[mimeLower].cachedIcon;
+      }
+    }
+    return null;
   }
 
   stop() {
@@ -192,7 +280,7 @@ class LocalApps {
 let Local;
 
 function initLocal(path) {
-if (!Local) {
+  if (!Local) {
     Local = new LocalApps(path);
   }
   return Local;

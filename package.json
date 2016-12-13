@@ -50,6 +50,7 @@
     "markdown-it": "^8.0.1",
     "marked": "^0.3.6",
     "mathjs": "^3.8.0",
+    "mdfind": "^1.0.0",
     "moment": "^2.15.1",
     "opbeat": "^3.21.1",
     "plist": "^2.0.1",

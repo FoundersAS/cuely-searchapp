@@ -154,17 +154,26 @@ ipcMain.on('search', (event, arg, time) => {
     // search for user's docs in the last 30 days
     const ts = parseInt((Date.now() - 1000 * 3600 * 24 * 30) / 1000);
     searchPromise = searchAfter(prefs.settings.account.name, ts);
-  }
-  else if (localWords.length > 1 && localWords[1] != ''){
-    searchLocalFiles(localWords[1], function (localResult){
-      if (time > latestSearchTime){
+  } else if (localWords.length > 1 && localWords[1] != '') {
+    searchLocalFiles(localWords[1], function (localResult) {
+      if (time > latestSearchTime) {
         latestSearchTime = time;
-
+        // fix icon
+        localResult = localResult.map(x => {
+          let icon = local.getIconForMime(x.metaInfo.extension);
+          if(!icon) {
+            icon = local.getIconForMime(x.metaInfo.contentType);
+          }
+          if(!icon) {
+            icon = local.getIconForMime(x.mime);
+          }
+          x.displayIcon = icon;
+          return x;
+        });
         event.sender.send('search-result', localResult);
       }
     });
-  }
-  else {
+  } else {
     searchPromise = search(arg);
   }
 
