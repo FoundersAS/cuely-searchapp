@@ -81,6 +81,7 @@ const integrationsAuth = [
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let searchWindow;
+let previewWindow;
 let loginWindow;
 let settingsWindow;
 let debugWindow;
@@ -158,6 +159,7 @@ ipcMain.on('search', (event, arg, time) => {
     searchLocalFiles(localWords[1], function (localResult){
       if (time > latestSearchTime){
         latestSearchTime = time;
+
         event.sender.send('search-result', localResult);
       }
     });
@@ -296,6 +298,24 @@ ipcMain.on('settings-save', (event, settings) => {
 ipcMain.on('track', (event, arg) => {
   resetSession();
   segment.track(arg.name, arg.props);
+});
+
+ipcMain.on('previewFile', (event, arg) => {
+  previewWindow = new BrowserWindow({
+    width: screenBounds.width,
+    height: screenBounds.height,
+    x: screenBounds.x,
+    y: screenBounds.y,
+    transparent: true,
+    frame: false,
+    show: true,
+    enableLargerThanScreen: true,
+    shadow: true,
+    resizable: false
+  });
+
+  previewWindow.previewFile(arg);
+
 });
 
 ipcMain.on('openSettings', (event, arg) => {

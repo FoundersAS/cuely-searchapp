@@ -77,7 +77,7 @@ em {
 
 			.search_suggestions_logo_sprite {
 				background: url('../assets/images/other/cuely_icons_sprite@2x.png');
-				background-size: 25px 475px;
+				background-size: 25px 500px;
 				background-repeat: no-repeat;
 			}
 
@@ -443,32 +443,42 @@ em {
 		right: 1.25rem;
 		font-size: 12px;
 		font-weight: 300;
-		color: rgba(240, 240, 240, 0.9);
-		background-color: rgba(40, 69, 127, 0.9);
-		padding: 0.5rem 0.75rem;
-		border-radius: 1.5rem;
-		cursor: pointer;
-	}
+		display: flex;
 
-	.action_link_first {
-		right: 5.8rem;
-		border-right:1px solid rgba(40, 69, 127, 1);
-		border-top-right-radius: 0;
-		border-bottom-right-radius: 0;
-	}
+		.action_link {
+			color: rgba(240, 240, 240, 0.9);
+			background-color: rgba(40, 69, 127, 0.9);
+			padding: 0.5rem 0.75rem;
+			border-radius: 1.5rem;
+			cursor: pointer;
+		}
 
-	.action_link_second {
-		border-top-left-radius: 0;
-		border-bottom-left-radius: 0;
-	}
+		.action_link_first {
+			border-right:1px solid rgba(40, 69, 127, 1);
+			border-top-right-radius: 0;
+			border-bottom-right-radius: 0;
+		}
 
-	.content_bottom_view_link .glyphicons {
-		padding: 0.05rem 0.3rem 0 0;
-	}
+		.action_link_second {
+			padding-left: 0.6rem;
+			border-top-left-radius: 0;
+			border-bottom-left-radius: 0;
+		}
 
-	.content_bottom_view_link:hover {
-		background-color: rgba(40, 69, 127, 0.97);
-		color: rgba(240, 240, 240, 0.95);
+		.action_link_middle {
+			padding-left: 0.6rem;
+			border-radius: 0;
+			border-right:1px solid rgba(40, 69, 127, 1);
+		}
+
+		.action_link:hover {
+			background-color: rgba(40, 69, 127, 0.97);
+			color: rgba(240, 240, 240, 0.95);
+		}
+		
+		.glyphicons {
+			padding: 0.05rem 0.3rem 0 0;
+		}
 	}
 }
 

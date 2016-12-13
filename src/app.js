@@ -9,6 +9,7 @@ import PipedriveContent from './components/PipedriveContent';
 import HelpscoutContent from './components/HelpscoutContent';
 import HelpscoutDocsContent from './components/HelpscoutDocsContent';
 import JiraContent from './components/JiraContent';
+import LocalFileContent from './components/LocalFileContent';
 require('../css/style.scss');
 
 const icons = [
@@ -90,7 +91,7 @@ const icons = [
   },
   {
     type: 'jira',
-    spriteOffset: 10
+    spriteOffset: 19
   }
 ]
 
@@ -114,6 +115,8 @@ export default class App extends Component {
     this.openExternalLink = ::this.openExternalLink;
     this.getIntegrationComponent = ::this.getIntegrationComponent;
     this.copyValueToClipboard = ::this.copyValueToClipboard;
+    this.handleLocalAppInFinder = ::this.handleLocalAppInFinder;
+    this.handleLocalAppPreview = ::this.handleLocalAppPreview;
     this.state = {
       searchResults: [],
       selectedIndex: -1,
@@ -213,13 +216,14 @@ export default class App extends Component {
 
   handleKeyUp(e) {
     let index = this.state.selectedIndex;
+
     if (e.key === 'Escape') {
       ipcRenderer.send('hide-search');
     }
     else if (e.key === 'Enter') {
       const item = this.state.searchResults[index];
 
-      //if item has link we open the link otherwise we enable copying to clipboard on enter
+      //if item has link we open the link otherwise we enable copying to clipboard on enter (eg calculator results)
       if (item.webLink){
         this.openExternalLink(item.webLink, 'enter', item.type);  
       }
@@ -293,9 +297,10 @@ export default class App extends Component {
   }
 
   openExternalLink(link, triggerType, itemType=null) {
-    if(itemType && itemType === 'local-app') {
+    if(itemType && (itemType === 'local-app' || itemType === 'local-file')) {
       shell.openItem(link);
-    } else {
+    }
+    else {
       shell.openExternal(link);
     }
     
@@ -320,6 +325,20 @@ export default class App extends Component {
     if (link) {
       link.focus();
     }*/
+  }
+
+  handleLocalAppInFinder(e) {
+    e.preventDefault();
+
+    const item = this.state.searchResults[this.state.selectedIndex];
+    shell.showItemInFolder(item.webLink);
+  }
+
+  handleLocalAppPreview(e) {
+    e.preventDefault();
+
+    const item = this.state.searchResults[this.state.selectedIndex];
+    ipcRenderer.send('previewFile', item.webLink);
   }
 
   handleMouseMove(e) {
@@ -500,6 +519,7 @@ export default class App extends Component {
           );
         }
       } else if (item.type === 'local-file') {
+        content = () => (<LocalFileContent item={item} />);
         if (item.metaInfo && item.metaInfo.path) {
           itemStatus = () => (
             <span>
@@ -565,11 +585,20 @@ export default class App extends Component {
   }
 
   getActionButtons(item) {
+    if (item.webLink && item.type === 'local-file'){
+      return (
+        <div className="content_bottom_view_link">
+          <div className="action_link action_link_first" onClick={this.handleLocalAppPreview}><span className="glyphicons glyphicons-search"></span>Preview</div>
+          <div className="action_link action_link_middle" onClick={this.handleLocalAppInFinder}><span className="glyphicons glyphicons-folder-open"></span>Open in Finder</div>
+          <div className="action_link action_link_second" onClick={this.handleExternalLink}><span className="glyphicons glyphicons-new-window"></span>Open</div>
+        </div>
+      ); 
+    }
     if (item.webLink) {
       return (
-        <div>
-          <div className="content_bottom_view_link action_link_first" onClick={this.handleExternalLink}><span className="glyphicons glyphicons-new-window"></span>Open</div>
-          <div className="content_bottom_view_link action_link_second" onClick={this.handleActionIconLinkClick}><span className="glyphicons glyphicons-more-items"></span>Share</div>
+        <div className="content_bottom_view_link">
+          <div className="action_link action_link_first" onClick={this.handleExternalLink}><span className="glyphicons glyphicons-new-window"></span>Open</div>
+          <div className="action_link action_link_second" onClick={this.handleActionIconLinkClick}><span className="glyphicons glyphicons-more-items"></span>Share</div>
         </div>
       );
     }

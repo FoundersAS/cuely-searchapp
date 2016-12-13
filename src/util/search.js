@@ -80,7 +80,7 @@ export function searchInternal(query, search_settings) {
 
 export function searchLocalFiles(query, callback) {
   let buf = [];
-  let res = mdfind({query: query, attributes: ['kMDItemDisplayName', 'kMDItemFSContentChangeDate', 'kMDItemKind'], limit: 20, interpret: true});
+  let res = mdfind({names:[query], directories : ['/Users/'], attributes: ['kMDItemDisplayName', 'kMDItemFSContentChangeDate', 'kMDItemKind', 'kMDItemFSSize'], limit: 40});
   
   res.output.on('data', function(result) {
     let fullPath = result.kMDItemPath.split('/');
@@ -88,14 +88,20 @@ export function searchLocalFiles(query, callback) {
     if (isLegitLocalPath(result.kMDItemPath)){
       let itemPath = cutLocalPath(result.kMDItemPath, 27);
       let itemTitle = fullPath[(fullPath.length - 1)];
+      let itemSize = getLocalFileSize(result.kMDItemFSSize);
+      
 
       buf.push({
         type : 'local-file',
-        mime : result.kMDItemKind,
+        mime : getLocalFileExtension(result.kMDItemPath,result.kMDItemKind),
         title : itemTitle,
+        titleRaw : itemTitle,
+        webLink : result.kMDItemPath,
         metaInfo : {
+          timestamp : Date.parse(result.kMDItemFSContentChangeDate),
           time : moment(Date.parse(result.kMDItemFSContentChangeDate)).fromNow(),
-          path : itemPath
+          path : itemPath,
+          size : itemSize
         }
       });
     }
@@ -103,14 +109,53 @@ export function searchLocalFiles(query, callback) {
   });
 
   res.output.on('end', function () {
+    //sort output by last changed
+    buf = buf.sort(function(x, y){
+      if (x.title.toUpperCase() === query.toUpperCase()) {
+        return -1;
+      }
+      else {
+        return y.metaInfo.timestamp - x.metaInfo.timestamp;
+      }
+
+    });
+
     callback(buf);
   });
 }
 
-function isLegitLocalPath(fullPath) {
-  let badPaths = /(Library\/Application Support)|(Library\/Application Scripts)|(Library\/Containers)|(\/Applications)/i;
+function getLocalFileSize(itemSize) {
+  if (itemSize){
+    if (itemSize > 1000000000) {
+      itemSize = (Math.round((itemSize / 1000000) * 10) / 10).toString() + " GB";
+    }
+    if (itemSize > 1000000) {
+      itemSize = (Math.round((itemSize / 1000000) * 10) / 10).toString() + " MB";
+    }
+    else if (itemSize > 1000) {
+      itemSize = (Math.round((itemSize / 1000) * 10) / 10).toString() + " KB";
+    }
+    else {
+      itemSize = itemSize.toString() + " B";  
+    }
+  }
 
-  return !badPaths.test(fullPath);
+  return itemSize;
+}
+
+function getLocalFileExtension(fullPath, type) {
+  if (type == 'Folder'){
+    return type;
+  }
+  else {
+    return fullPath.substring(fullPath.lastIndexOf('.') + 1, fullPath.length).toUpperCase();
+  }
+}
+
+function isLegitLocalPath(fullPath, query) {
+  let badPaths = /(\/Library\/)|(\/Applications\/)/i;
+
+  return (!badPaths.test(fullPath));
 }
 
 function cutLocalPath(fullPath, maxLen) {
@@ -119,11 +164,19 @@ function cutLocalPath(fullPath, maxLen) {
   if (path == '') {
     return null;
   }
-  if (maxLen > path.length) {
+  if (maxLen >= path.length) {
     return path;
   }
   else {
-    return '...' + path.substr(((path.length - 1) - maxLen), (path.length - 1));
+    path = path.substr(((path.length - 1) - maxLen), (path.length - 1));
+    let slashIndex = path.indexOf('/');
+
+    if (slashIndex > -1){
+      return '...' + path.substr(slashIndex, (path.length - 1));
+    }
+    else {
+      return '...' + path;
+    }
   }
 }
 
