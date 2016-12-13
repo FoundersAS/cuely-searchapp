@@ -103,24 +103,23 @@ class LocalApps {
       }
     }
 
-    let removed = false;
-    // check if an app was deleted
-    for(let cachedAppKey in appsWithIcons) {
-      if (!appKeys.includes(cachedAppKey)) {
-        removed = true;
-        console.log(`Removing app ${cachedAppKey} from app cache`);
-        if (appsWithIcons[cachedAppKey].cachedIcon) {
-          unlinkSync(appsWithIcons[cachedAppKey].cachedIcon);
-        }
-        delete appsWithIcons[cachedAppKey];
-      }
-    }
-    if (removed) {
-      this.saveAll(appsWithIcons);
-    }
-
     if (counter < 1) {
-      // happens on re-runs, when apps have already been synced
+      // happens on re-runs, when apps have already been synced ...
+      // check if an app was deleted
+      let removed = false;
+      for(let cachedAppKey in appsWithIcons) {
+        if (!appKeys.includes(cachedAppKey)) {
+          removed = true;
+          console.log(`Removing app ${cachedAppKey} from app cache`);
+          if (appsWithIcons[cachedAppKey].cachedIcon) {
+            unlinkSync(appsWithIcons[cachedAppKey].cachedIcon);
+          }
+          delete appsWithIcons[cachedAppKey];
+        }
+      }
+      if (removed) {
+        this.saveAll(appsWithIcons);
+      }
       this.saveIcons(appsWithIcons);
     }
   }
@@ -204,15 +203,15 @@ class LocalApps {
       if (app.cachedIcon === null && app.iconset) {
         counter = counter + 1;
         // To avoid IO errors when running multiple iconutils instances in parallel, we use setTimeout() hack.
-        setTimeout(() => { self._saveIconInternal(apps, appKey) }, counter * 300);
+        setTimeout(() => { self._saveIconInternal(apps, appKey) }, counter * 500);
       }
     }
-    this.timeout = setTimeout(() => { self._init() }, Math.max(counter * 350, 300000)); // run again after 300s=5min
+    this.timeout = setTimeout(() => { self._init() }, Math.max(counter * 550, 300000)); // run again after 300s=5min
   }
 
   saveAll(apps) {
     writeFileSync(this.file, JSON.stringify(apps, null, 2), 'utf8');
-    this.currentApps = apps;
+    this.loadAll();
   }
 
   loadAll() {
