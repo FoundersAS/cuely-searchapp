@@ -43,7 +43,7 @@ class LocalApps {
       appKeys.push(appKey);
       if (appsWithIcons[appKey] === undefined
           || appsWithIcons[appKey].location !== app
-          || appsWithIcons[appKey].editorFor === undefined) {
+          || appsWithIcons[appKey].created === undefined) {
         const filename = `${app}/Contents/Info.plist`;
         if (existsSync(filename)) {
           this.plistCounter = this.plistCounter + 1;
@@ -90,7 +90,7 @@ class LocalApps {
                 }
               }
 
-              if (appsWithIcons[appKey].editorFor === undefined) {
+              if (appsWithIcons[appKey].created === undefined) {
                 let editorFor = [];
                 let viewerFor = [];
 
@@ -194,21 +194,23 @@ class LocalApps {
               console.log('Could not read file ' + iconPath, err);
               return;
             }
-            writeFile(apps[appKey].cachedIcon, data, (err) => {
-              if (err) {
-                console.log('Could not write file ' + apps[appKey].cachedIcon, err);
-                return;
-              }
-              for (let iconFile of icons) {
-                unlinkSync(outPath + '/' + iconFile);
-              }
-
-              rmdir(outPath, (err) => {
-                if(err) {
-                  console.log(err);
+            if (appKey in apps) {
+              writeFile(apps[appKey].cachedIcon, data, (err) => {
+                if (err) {
+                  console.log('Could not write file ' + apps[appKey].cachedIcon, err);
+                  return;
                 }
+                for (let iconFile of icons) {
+                  unlinkSync(outPath + '/' + iconFile);
+                }
+
+                rmdir(outPath, (err) => {
+                  if(err) {
+                    console.log(err);
+                  }
+                });
               });
-            });
+            }
           });
         }
       }
@@ -234,6 +236,16 @@ class LocalApps {
   }
 
   saveAll(apps) {
+    let seen = [];
+    // check for duplicates, and remove them
+    for (let key in apps) {
+      let app = apps[key];
+      if (seen.indexOf(app.name) > -1) {
+        delete apps[key];
+      }
+      seen.push(app.name);
+    }
+
     writeFileSync(this.file, JSON.stringify(apps, null, 2), 'utf8');
     this.loadAll();
   }

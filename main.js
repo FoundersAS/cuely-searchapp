@@ -768,7 +768,7 @@ function endLogin() {
   if (isOsx() && !local) {
     local = initLocal(app.getPath('userData'));
   }
-  searchWindow.show();
+  toggleHide();
 }
 
 function checkGlobalShortcut(shortcut) {
