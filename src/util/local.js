@@ -237,13 +237,20 @@ class LocalApps {
 
   saveAll(apps) {
     let seen = [];
-    // check for duplicates, and remove them
+    // check for duplicates, and remove them ...
     for (let key in apps) {
       let app = apps[key];
       if (seen.indexOf(app.name) > -1) {
         delete apps[key];
       }
       seen.push(app.name);
+      // also, check icons for preference panes/apps, because some don't have them and
+      // then we assign them default Sytem preferences icon
+      if (app.cachedIcon === null && app.name.startsWith(PREFERENCE_PREFIX)) {
+        let sysApp = apps['system preferences'];
+        app.cachedIcon = sysApp.cachedIcon;
+        app.iconset = sysApp.iconset;
+      }
     }
 
     writeFileSync(this.file, JSON.stringify(apps, null, 2), 'utf8');
