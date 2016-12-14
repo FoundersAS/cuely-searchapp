@@ -143,9 +143,12 @@ class LocalApps {
   _saveIconInternal(apps, appKey) {
     let app = apps[appKey];
     const outPath = `${this.iconDir}/${app.name}.iconset`;
+    console.log("getting icon for app", appKey);
     exec(`iconutil --convert iconset "${app.iconset}" --output "${outPath}"`, { timeout: 2000 }, (err) => {
       if(err) {
         console.log(`Could not extract icons from app '${app.name}' iconset`);
+        console.log(err);
+        delete apps[appKey];
       } else {
         const icons = readdirSync(outPath);
         let filtered = icons.filter(x => x.indexOf('32x32@2x.') > -1);
@@ -182,15 +185,15 @@ class LocalApps {
             });
           });
         }
-        let shouldSave = true;
-        for(let an in apps) {
-          if (apps[an].cachedIcon === null) {
-            shouldSave = false;
-          }
+      }
+      let shouldSave = true;
+      for(let an in apps) {
+        if (apps[an].cachedIcon === null) {
+          shouldSave = false;
         }
-        if (shouldSave) {
-          this.saveAll(apps);
-        }
+      }
+      if (shouldSave) {
+        this.saveAll(apps);
       }
     });
   }
