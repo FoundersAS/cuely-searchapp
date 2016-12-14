@@ -528,7 +528,7 @@ export default class App extends Component {
             </span>
           );
         }
-      } else if (item.type === 'local-file') {
+      } else if (item.type === 'local-file' || item.type === 'local-folder') {
         content = () => (<LocalFileContent item={item} />);
         if (item.metaInfo && item.metaInfo.path) {
           itemStatus = () => (
