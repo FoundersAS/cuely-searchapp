@@ -4,7 +4,7 @@ import { search, searchAfter, setAlgoliaCredentials, searchLocalFiles } from './
 import { getAlgoliaCredentials, getSyncStatus, startSync, setSegmentStatus } from './src/util/util.js';
 import { API_ROOT, isDevelopment, UPDATE_FEED_URL } from './src/util/const.js';
 import { initPrefs } from './src/util/prefs.js';
-import { initLocal } from './src/util/local.js';
+import { initLocal, PREFERENCE_PREFIX } from './src/util/local.js';
 import { initSegment } from './src/util/segment.js';
 import AutoLaunch from 'auto-launch';
 const math = require('mathjs');
@@ -201,18 +201,25 @@ ipcMain.on('search', (event, arg, time) => {
       // check if query matches any of the installed/local apps
       if (arg && arg.length >= 2 && local && local.currentApps) {
         let argLower = arg.toLowerCase();
-        let localHits = Object.keys(local.currentApps).filter(x => {
-          if (argLower.split(' ').length > 1) {
-            return x.indexOf(argLower) > -1;
+        let localHits = [];
+        for (let item in local.currentApps) {
+          let value = local.currentApps[item].name.toLowerCase();
+          if (value.startsWith(PREFERENCE_PREFIX)) {
+            value = value.split(PREFERENCE_PREFIX)[1];
           }
 
-          for(let word of x.split(' ')) {
+          if (argLower.split(' ').length > 1 && value.indexOf(argLower) > -1) {
+            localHits.push(item);
+            continue;
+          }
+
+          for(let word of value.split(' ')) {
             if (word.startsWith(argLower)) {
-              return true;
+              localHits.push(item);
+              break;
             }
           }
-          return false;
-        });
+        }
         if (localHits.length > 0) {
           localHits.sort((a, b) => {
             return b.indexOf(argLower) - a.indexOf(argLower);
@@ -932,10 +939,15 @@ function getNewItem(item) {
 }
 
 function getLocalItem(item) {
+  let title = `App: <em>${item.name}</em>`;
+  if (item.name.startsWith(PREFERENCE_PREFIX)) {
+    title = 'Preferences: <em>' + item.name.split(PREFERENCE_PREFIX)[1] + '</em>';
+  }
+
   return {
     type: 'local-app',
     mime: 'local-app',
-    title: `App: <em>${item.name}</em>`,
+    title: title,
     titleRaw: item.name,
     content: null,
     metaInfo: null,
