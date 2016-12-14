@@ -130,6 +130,7 @@ export default class App extends Component {
   componentDidMount() {
     ipcRenderer.on('search-result', (event, arg) => {
       this.userDir = arg.userDir;
+      this.integrations = arg.integrations;
       this.setState({ searchResults: arg.items, clearInput: false, selectedIndex: arg.items.length > 0 ? 0 : -1, keyFocus: false });
     });
     ipcRenderer.on('notification', (event, arg) => {
@@ -147,7 +148,6 @@ export default class App extends Component {
     });
     // start empty search (should return 10 most recent items by signed in user name)
     ipcRenderer.send('search', '', Date.now());
-
   }
 
   componentDidUpdate() {
