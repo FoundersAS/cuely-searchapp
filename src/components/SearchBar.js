@@ -37,6 +37,15 @@ export default class SearchBar extends Component {
     ReactDOM.findDOMNode(this.refs.input).focus();
   }
 
+  setText(text) {
+    const input = ReactDOM.findDOMNode(this.refs.input);
+    input.value = text;
+    input.dispatchEvent(new Event('input', {
+      'bubbles': true,
+      'cancelable': true
+    }));
+  }
+
   render() {
     return (
       <div className={this.props.className} id={this.props.id} onMouseUp={this.props.onDragEnd}>

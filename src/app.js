@@ -220,15 +220,13 @@ export default class App extends Component {
 
     if (e.key === 'Escape') {
       ipcRenderer.send('hide-search');
-    }
-    else if (e.key === 'Enter') {
+    } else if (e.key === 'Enter') {
       const item = this.state.searchResults[index];
 
       //if item has link we open the link otherwise we enable copying to clipboard on enter (eg calculator results)
       if (item.webLink){
         this.openExternalLink(item.webLink, 'enter', item.type);  
-      }
-      else {
+      } else {
         this.copyValueToClipboard(item);
       }
     }
