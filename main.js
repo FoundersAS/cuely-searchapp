@@ -183,7 +183,7 @@ ipcMain.on('search', (event, arg, time) => {
           x.displayIcon = icon;
           return x;
         });
-        event.sender.send('search-result', localResult);
+        event.sender.send('search-result', { items: localResult, userDir: app.getPath('home') });
       }
     });
   } else {
@@ -238,7 +238,7 @@ ipcMain.on('search', (event, arg, time) => {
       //check if we have alreay rendered newer result => if not we render this one
       if (time > latestSearchTime){
         latestSearchTime = time;
-        event.sender.send('search-result', hits);
+        event.sender.send('search-result', { items: hits, userDir: app.getPath('home') });
       }
     });
   }
