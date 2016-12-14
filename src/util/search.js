@@ -80,7 +80,7 @@ export function searchInternal(query, search_settings) {
 
 export function searchLocalFiles(query, callback) {
   let buf = [];
-  let res = mdfind({names:[query], directories : ['/Users/'], attributes: ['kMDItemDisplayName', 'kMDItemFSContentChangeDate', 'kMDItemKind', 'kMDItemFSSize', 'kMDItemContentType'], limit: 40});
+  let res = mdfind({names:[query], directories : ['/Users/'], attributes: ['kMDItemDisplayName', 'kMDItemFSContentChangeDate', 'kMDItemKind', 'kMDItemFSSize', 'kMDItemContentTypeTree'], limit: 40});
   
   res.output.on('data', function(result) {
     let fullPath = result.kMDItemPath.split('/');
@@ -90,7 +90,6 @@ export function searchLocalFiles(query, callback) {
       let itemTitle = fullPath[(fullPath.length - 1)];
       let itemSize = getLocalFileSize(result.kMDItemFSSize);
       
-
       let ts = Date.parse(result.kMDItemFSContentChangeDate);
       buf.push({
         type: 'local-file',
@@ -103,7 +102,7 @@ export function searchLocalFiles(query, callback) {
           time: moment(ts).fromNow(),
           path: itemPath,
           size: itemSize,
-          contentType: result.kMDItemContentType
+          contentTypes: result.kMDItemContentTypeTree
         }
       });
     }

@@ -162,9 +162,22 @@ ipcMain.on('search', (event, arg, time) => {
         localResult = localResult.map(x => {
           let icon = local.getIconForMime(x.mime);
           if(!icon) {
-            icon = local.getIconForMime(x.metaInfo.contentType);
+            // try the first one (primary content type)
+            if (x.metaInfo.contentTypes[0] !== 'public.item') {
+              icon = local.getIconForMime(x.metaInfo.contentTypes[0]);
+            }
+            if (!icon) {
+              // look for text type, otherwise give up
+              for (let ct of x.metaInfo.contentTypes.filter(t => t.indexOf('text') > -1)) {
+                icon = local.getIconForMime(ct);
+                if (icon) {
+                  break;
+                }
+              }
+            }
           }
           if(!icon) {
+            // fall back to finder icon
             icon = local.getIconForMime('public.folder');
           }
           x.displayIcon = icon;
