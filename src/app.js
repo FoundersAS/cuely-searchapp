@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom';
 import { ipcRenderer, shell, clipboard } from 'electron';
 import { Scrollbars } from 'react-custom-scrollbars';
 import SearchBar from './components/SearchBar';
+import SideBar from './components/SideBar';
 import GdriveContent from './components/GdriveContent';
 import IntercomContent from './components/IntercomContent';
 import PipedriveContent from './components/PipedriveContent';
@@ -621,20 +622,25 @@ export default class App extends Component {
   render() {
     const open = this.state.searchResults.length > 0;
     return (
-      <div className="search_root">
-        <SearchBar
-          onKeyUp={this.handleKeyUp}
-          onKeyDown={this.handleKeyDown}
-          onInput={this.handleInput}
-          onSettingsClick ={this.handleSettingsClick}
-          onDragEnd={this.handleDragEnd}
-          className={"search_bar_open"}
-          id="searchBar"
-          ref="searchBar"
-          selectedIndex={this.state.selectedIndex}
-          clearInput={this.state.clearInput}
+      <div className="main_app">
+        <SideBar
+          className={"sidebar"}
         />
-        {open ? this.renderSearchResults() : this.renderEmptyResults()}
+        <div className="search_root">
+          <SearchBar
+            onKeyUp={this.handleKeyUp}
+            onKeyDown={this.handleKeyDown}
+            onInput={this.handleInput}
+            onSettingsClick ={this.handleSettingsClick}
+            onDragEnd={this.handleDragEnd}
+            className={"search_bar_open"}
+            id="searchBar"
+            ref="searchBar"
+            selectedIndex={this.state.selectedIndex}
+            clearInput={this.state.clearInput}
+          />
+          {open ? this.renderSearchResults() : this.renderEmptyResults()}
+        </div>
       </div>
     );
   }

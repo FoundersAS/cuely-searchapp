@@ -12,6 +12,7 @@ const appVersion = require('./package.json').version;
 const sessionLength = 900000; //900000 15 minutes = 1000 * 60 * 15
 
 const { app, dialog, shell, BrowserWindow, Menu, MenuItem, Tray, globalShortcut } = electron;
+const winHeight = 460;
 
 let newKeywords = [
   {
@@ -147,6 +148,7 @@ ipcMain.on('log', (event, arg) => {
 
 ipcMain.on('search', (event, arg, time) => {
   let searchPromise;
+  arg = arg.trim();
   let localWords = arg.split('find ');
   latestSearchTime = 0;
   
@@ -228,7 +230,7 @@ ipcMain.on('search-rendered', (event, arg) => {
   // Resize the window after search results have been rendered to html/dom, due to weird GUI artifacts
   // when resizing elements, e.g. <ul> component. Probably happens because of frameless and transparent window.
   if (searchWindow.getSize()[1] !== arg.height) {
-    searchWindow.setSize(searchWindow.getSize()[0], 477, false);
+    searchWindow.setSize(searchWindow.getSize()[0], 460, false);
   }
 });
 
@@ -428,14 +430,14 @@ function calculatePositionAndSize() {
   const screen = getScreenProps();
   // try to account for small and big screens
   // const w = Math.round(Math.max(800, Math.min(1000, screen.width / 3)));
-  const w = 816;
+  const w = 863;
   return {
     width: w,
-    height: 477,
+    height: 400,
     x: Math.round(screen.center.x - (w / 2)),
     y: Math.round(screen.center.y / 2),
     screenWidth: screen.width,
-    screenHeight: screen.height
+    screenHeight: 400
   }
 }
 

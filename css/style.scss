@@ -2,7 +2,7 @@ html {
   -webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
   -moz-box-sizing: border-box; /* Firefox, other Gecko */
   box-sizing: border-box; /* Opera/IE 8+ */
-  border: 8px solid rgba(40, 69, 127, 0.55);
+  border: 0px solid rgba(40, 69, 127, 1);
   -webkit-app-region: drag;
 }
 
@@ -25,6 +25,7 @@ em {
 
 .search_root {
   display: inline;
+  width: 800px;
 }
 
 .search_suggestions {
@@ -71,13 +72,12 @@ em {
 				padding: 0 .5rem 0 0;
 				margin-top: .35rem;
 				pointer-events: none;
-				background-size: 25px 25px;
 				background-repeat: no-repeat;
 			}
 
 			.search_suggestions_logo_sprite {
 				background: url('../assets/images/other/cuely_icons_sprite@2x.png');
-				background-size: 25px 500px;
+				background-size: 25px;
 				background-repeat: no-repeat;
 			}
 
@@ -221,7 +221,7 @@ em {
 .search_suggestions_content {
 	width: 50%;
 	margin: 0;
-	background-color: #F9F9F9;
+	background-color: #FBFBFB;
 	overflow: auto;
 	height: 397px;
 	border-left: 1px solid #DEDEDE;
@@ -500,8 +500,10 @@ em {
 }
 
 .search_bar_open {
+	position: relative;
+	margin-left: 50;
 	width: 100%;
-	background-color: #EEE;
+	background-color: #FDFDFD;
 	border-bottom: 1px solid #D2D2D2;
 	display: flex;
 	flex-wrap: nowrap;
@@ -534,8 +536,8 @@ em {
 	.cuely_prefs_icon {
 	  border-bottom-left-radius: 4px;
 	  position: absolute;
-	  top: 1rem;
-	  right: 1rem;
+	  top: 0.5rem;
+	  right: 0.5rem;
 	  font-size: 13px;
 	  color: #BBB;
 	}
@@ -584,4 +586,54 @@ em {
 /* Glyphicons reset */
 .glyphicons:before {
   padding: 0;
+}
+
+.sidebar {
+	top: 0;
+	left: 0;
+	height: 460.38px;
+	width: 63px;
+	background-color: rgba(40, 69, 127, 1);
+
+	ul {
+		padding: 0.5rem 1rem;
+		margin: 0;
+
+		li {
+			display: block;
+			list-style-type: none;
+			background-color: #fff;
+			border-radius: 4px;
+			padding: 2px;
+
+			.sidebar_integration_logo {
+				width: 27px;
+				height: 27px;
+				border-radius: 4px;
+			}
+		}
+
+		li.secondary_style {
+			opacity: 0.6;
+		}
+
+		li + li {
+			margin-top: 0.5rem;
+		}
+	}
+
+	ul:first-child {
+		padding: 1rem;
+	}
+
+	.search_suggestions_logo_sprite {
+		background: url('../assets/images/other/cuely_icons_sprite@2x.png');
+		background-size: 27px;
+		background-repeat: no-repeat;
+	}
+
+}
+
+.main_app {
+	display: flex;
 }
