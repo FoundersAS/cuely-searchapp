@@ -80,18 +80,19 @@ export function searchInternal(query, search_settings) {
 
 export function searchLocalFiles(query, callback) {
   let buf = [];
+  let bufExact = [];
   let res = mdfind({names:[query], directories : ['/Users/'], attributes: ['kMDItemDisplayName', 'kMDItemFSContentChangeDate', 'kMDItemKind', 'kMDItemFSSize', 'kMDItemContentTypeTree'], limit: 40});
   
   res.output.on('data', function(result) {
     let fullPath = result.kMDItemPath.split('/');
 
     if (isLegitLocalPath(result.kMDItemPath)) {
-      let itemPath = cutLocalPath(result.kMDItemPath, 27);
+      let itemPath = cutLocalPath(result.kMDItemPath, 25);
       let itemTitle = fullPath[(fullPath.length - 1)];
       let itemSize = getLocalFileSize(result.kMDItemFSSize);
-      
       let ts = Date.parse(result.kMDItemFSContentChangeDate);
-      buf.push({
+
+      let item = {
         type: 'local-file',
         mime: getLocalFileExtension(result.kMDItemPath,result.kMDItemKind),
         title: itemTitle,
@@ -104,22 +105,24 @@ export function searchLocalFiles(query, callback) {
           size: itemSize,
           contentTypes: result.kMDItemContentTypeTree
         }
-      });
+      };
+
+      if (itemTitle.toUpperCase() === query.toUpperCase()){
+        bufExact.push(item);
+      }
+      else {
+        buf.push(item);
+      }
     }
   });
 
   res.output.on('end', function () {
     //sort output by last changed
     buf = buf.sort(function(x, y){
-      if (x.title.toUpperCase() === query.toUpperCase()) {
-        return -1;
-      }
-      else {
-        return y.metaInfo.timestamp - x.metaInfo.timestamp;
-      }
-
+      return y.metaInfo.timestamp - x.metaInfo.timestamp;
     });
-    callback(buf);
+
+    callback(bufExact.concat(buf));
   });
 }
 

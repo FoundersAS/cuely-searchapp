@@ -447,9 +447,9 @@ em {
 
 		.action_link {
 			color: rgba(240, 240, 240, 0.9);
-			background-color: rgba(40, 69, 127, 0.9);
+			background-color: rgba(40, 69, 127, 0.92);
 			padding: 0.5rem 0.75rem;
-			border-radius: 1.5rem;
+			border-radius: 4px;
 			cursor: pointer;
 		}
 
@@ -460,13 +460,11 @@ em {
 		}
 
 		.action_link_second {
-			padding-left: 0.6rem;
 			border-top-left-radius: 0;
 			border-bottom-left-radius: 0;
 		}
 
 		.action_link_middle {
-			padding-left: 0.6rem;
 			border-radius: 0;
 			border-right:1px solid rgba(40, 69, 127, 1);
 		}
@@ -605,6 +603,7 @@ em {
 			background-color: #fff;
 			border-radius: 4px;
 			padding: 2px;
+			opacity: 0.5;
 
 			.sidebar_integration_logo {
 				width: 27px;
@@ -613,8 +612,8 @@ em {
 			}
 		}
 
-		li.secondary_style {
-			opacity: 0.6;
+		li.active {
+			opacity: 1;
 		}
 
 		li + li {
