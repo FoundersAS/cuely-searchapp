@@ -4,19 +4,27 @@ import { homedir } from 'os';
 import { readFile as readPlist } from 'simple-plist';
 import { exec } from 'child_process';
 import { mdls } from './mdls.js';
+import { hash } from './util.js';
+
+export const PREFERENCE_PREFIX = 'pref:';
 
 class LocalApps {
   constructor(path) {
     let fsName = 'local_apps';
     this.file = `${path}/.cuely_${fsName}.json`;
     this.iconDir = `${path}/.${fsName}_icons`;
+    this.plistCounter = 0;
+    this.iconsCounter = 0;
     this._init();
   }
 
   _init() {
     console.log("Running local apps sync");
+    this.plistCounter = 0;
     let apps = this.getApps('/Applications');
+    apps = apps.concat(this.getApps('/System/Library/PreferencePanes').map(x => PREFERENCE_PREFIX + x));
     apps = apps.concat(this.getApps(homedir() + '/Applications'));
+    apps = apps.concat(this.getApps(homedir() + '/Library/PreferencePanes').map(x => PREFERENCE_PREFIX + x));
     // special case for Finder.app
     apps = apps.concat(this.getApps('/System/Library/CoreServices').filter(x => x.endsWith('Finder.app')));
 
@@ -27,83 +35,101 @@ class LocalApps {
       // parse the app name from its location, i.e. /Users/xyz/Applications/pgAdmin3.app -> pgAdmin3
       let appName = app.split('/').slice(-1)[0].split('.')[0];
       let appKey = appName.toLowerCase();
+      let isPref = app.startsWith(PREFERENCE_PREFIX);
+      if (isPref) {
+        app = app.split(PREFERENCE_PREFIX)[1];
+        appKey = PREFERENCE_PREFIX + appKey;
+      }
       appKeys.push(appKey);
       if (appsWithIcons[appKey] === undefined
           || appsWithIcons[appKey].location !== app
           || appsWithIcons[appKey].editorFor === undefined) {
         const filename = `${app}/Contents/Info.plist`;
         if (existsSync(filename)) {
-          counter = counter + 1;
-          readPlist(filename, (err, data) => {
-            counter = counter - 1;
-            if (err) {
-              console.log('Could not read/parse Info.plist for app ' + appName, err);
-              return;
-            }
-
-            // some vendors, such as Google for their 'web' apps, install apps with
-            // auto-generated names (e.g. 'coobgpohoikkiipiblmjeljniedjpjpf') and the human-readable name is in the plist file
-            if (data.CrAppModeShortcutName && data.CrAppModeShortcutName.length > 0) {
-              appName = data.CrAppModeShortcutName;
-              appKey = appName.toLowerCase();
-              appKeys.push(appKey);
-            }
-            if (!appsWithIcons[appKey]) {
-              appsWithIcons[appKey] = {
-                iconset: null,
-                cachedIcon: null,
-                location: app,
-                name: appName
+          this.plistCounter = this.plistCounter + 1;
+          // run with intervals to avoid blocking the app (spin wheel)
+          setTimeout(() => {
+            readPlist(filename, (err, data) => {
+              this.plistCounter = this.plistCounter - 1;
+              if (err) {
+                console.log('Could not read/parse Info.plist for app ' + appName, err);
+                return;
               }
-            }
-            if (!appsWithIcons[appKey].cachedIcon) {
-              let iconsFile = `${app}/Contents/Resources/${data.CFBundleIconFile}`;
-              if (!existsSync(iconsFile)) {
-                iconsFile = iconsFile + '.icns';
+
+              if (data.CFBundleName) {
+                appName = data.CFBundleName;
               }
-              if (existsSync(iconsFile)) {
-                appsWithIcons[appKey].iconset = iconsFile;
+              // some vendors, such as Google for their 'web' apps, install apps with
+              // auto-generated names (e.g. 'coobgpohoikkiipiblmjeljniedjpjpf') and the human-readable name is in the plist file
+              if (data.CrAppModeShortcutName && data.CrAppModeShortcutName.length > 0) {
+                appName = data.CrAppModeShortcutName;
               }
-            }
 
-            if (appsWithIcons[appKey].editorFor === undefined) {
-              let editorFor = [];
-              let viewerFor = [];
+              if (isPref) {
+                if (data.NSPrefPaneIconLabel) {
+                  appName = data.NSPrefPaneIconLabel;
+                }
+                appName = PREFERENCE_PREFIX + appName;
+              }
 
-              if (data.CFBundleDocumentTypes) {
-                for (let docType of data.CFBundleDocumentTypes) {
-                  let exts = []
-                  if (docType.CFBundleTypeExtensions) {
-                    exts = exts.concat(docType.CFBundleTypeExtensions.map(x => x.toLowerCase()));
-                  }
-                  if (docType.LSItemContentTypes) {
-                    exts = exts.concat(docType.LSItemContentTypes.map(x => x.toLowerCase()));
-                  }
-
-                  if (docType.CFBundleTypeRole === 'Editor') {
-                    editorFor = editorFor.concat(exts);
-                  } else {
-                    viewerFor = viewerFor.concat(exts);
-                  }
+              if (!appsWithIcons[appKey]) {
+                appsWithIcons[appKey] = {
+                  iconset: null,
+                  cachedIcon: null,
+                  location: app,
+                  name: appName
+                }
+              }
+              if (!appsWithIcons[appKey].cachedIcon) {
+                let iconsFile = `${app}/Contents/Resources/${data.CFBundleIconFile}`;
+                if (!existsSync(iconsFile)) {
+                  iconsFile = iconsFile + '.icns';
+                }
+                if (existsSync(iconsFile)) {
+                  appsWithIcons[appKey].iconset = iconsFile;
                 }
               }
 
-              appsWithIcons[appKey].editorFor = editorFor;
-              appsWithIcons[appKey].viewerFor = viewerFor;
-              let metadata = mdls(app);
-              appsWithIcons[appKey].created = metadata.kMDItemFSCreationDate ? metadata.kMDItemFSCreationDate.getTime() : 0;
-              appsWithIcons[appKey].opened = metadata.kMDItemLastUsedDate ? metadata.kMDItemLastUsedDate.getTime() : 0;
-            }
+              if (appsWithIcons[appKey].editorFor === undefined) {
+                let editorFor = [];
+                let viewerFor = [];
 
-            if (counter < 1) {
-              this.saveIcons(appsWithIcons);
-            }
-          });
+                if (data.CFBundleDocumentTypes) {
+                  for (let docType of data.CFBundleDocumentTypes) {
+                    let exts = []
+                    if (docType.CFBundleTypeExtensions) {
+                      exts = exts.concat(docType.CFBundleTypeExtensions.map(x => x.toLowerCase()));
+                    }
+                    if (docType.LSItemContentTypes) {
+                      exts = exts.concat(docType.LSItemContentTypes.map(x => x.toLowerCase()));
+                    }
+
+                    if (docType.CFBundleTypeRole === 'Editor') {
+                      editorFor = editorFor.concat(exts);
+                    } else {
+                      viewerFor = viewerFor.concat(exts);
+                    }
+                  }
+                }
+
+                appsWithIcons[appKey].editorFor = editorFor;
+                appsWithIcons[appKey].viewerFor = viewerFor;
+                let metadata = mdls(app);
+                appsWithIcons[appKey].created = metadata.kMDItemFSCreationDate ? metadata.kMDItemFSCreationDate.getTime() : 0;
+                appsWithIcons[appKey].opened = metadata.kMDItemLastUsedDate ? metadata.kMDItemLastUsedDate.getTime() : 0;
+              }
+
+              if (this.plistCounter < 1) {
+                console.log("Done reading plist files");
+                this.saveIcons(appsWithIcons);
+              }
+            })
+          }, this.plistCounter * 200);
         }
       }
     }
 
-    if (counter < 1) {
+    if (this.plistCounter < 1) {
       // happens on re-runs, when apps have already been synced ...
       // check if an app was deleted
       let removed = false;
@@ -128,7 +154,7 @@ class LocalApps {
     let result = [];
     if (existsSync(path) && statSync(path).isDirectory()) {
       let apps = readdirSync(path).filter(x => !(x.startsWith('.') || x.indexOf('Cuely') > -1));
-      result = apps.filter(x => x.endsWith('.app')).map(x => path + '/' + x);
+      result = apps.filter(x => x.endsWith('.app') || x.endsWith('.prefPane')).map(x => path + '/' + x);
       // add possible apps in subdir
       if (level < 1) {
         for (let subdir of apps.filter(x => !x.endsWith('.app'))) {
@@ -142,10 +168,13 @@ class LocalApps {
 
   _saveIconInternal(apps, appKey) {
     let app = apps[appKey];
-    const outPath = `${this.iconDir}/${app.name}.iconset`;
+    this.iconsCounter = this.iconsCounter - 1;
+    const filename = hash(app.name);
+    const outPath = `${this.iconDir}/${filename}.iconset`;
     exec(`iconutil --convert iconset "${app.iconset}" --output "${outPath}"`, { timeout: 2000 }, (err) => {
       if(err) {
         console.log(`Could not extract icons from app '${app.name}' iconset`);
+        delete apps[appKey];
       } else {
         const icons = readdirSync(outPath);
         let filtered = icons.filter(x => x.indexOf('32x32@2x.') > -1);
@@ -158,7 +187,7 @@ class LocalApps {
         }
         if (filtered.length > 0) {
           const iconPath = outPath + '/' + filtered[0];
-          apps[appKey].cachedIcon = this.iconDir + '/' + app.name + '.' + filtered[0].split('.').slice(-1)[0];
+          apps[appKey].cachedIcon = this.iconDir + '/' + filename + '.' + filtered[0].split('.').slice(-1)[0];
           // copy the chosen icon and remove cache dir
           readFile(iconPath, (err, data) => {
             if (err) {
@@ -182,31 +211,26 @@ class LocalApps {
             });
           });
         }
-        let shouldSave = true;
-        for(let an in apps) {
-          if (apps[an].cachedIcon === null) {
-            shouldSave = false;
-          }
-        }
-        if (shouldSave) {
-          this.saveAll(apps);
-        }
+      }
+      if (this.iconsCounter < 1) {
+        console.log("Done storing icons");
+        this.saveAll(apps);
       }
     });
   }
 
   saveIcons(apps) {
     let self = this;
-    let counter = 0;
+    this.iconsCounter = 0;
     for(let appKey in apps) {
       let app = apps[appKey];
       if (app.cachedIcon === null && app.iconset) {
-        counter = counter + 1;
+        this.iconsCounter = this.iconsCounter + 1;
         // To avoid IO errors when running multiple iconutils instances in parallel, we use setTimeout() hack.
-        setTimeout(() => { self._saveIconInternal(apps, appKey) }, counter * 500);
+        setTimeout(() => { self._saveIconInternal(apps, appKey) }, this.iconsCounter * 500);
       }
     }
-    this.timeout = setTimeout(() => { self._init() }, Math.max(counter * 550, 300000)); // run again after 300s=5min
+    this.timeout = setTimeout(() => { self._init() }, Math.max(this.iconsCounter * 550, 300000)); // run again after 300s=5min
   }
 
   saveAll(apps) {
