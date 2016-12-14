@@ -130,7 +130,9 @@ export default class App extends Component {
 
   componentDidMount() {
     ipcRenderer.on('search-result', (event, arg) => {
-      this.setState({ searchResults: arg, clearInput: false, selectedIndex: arg.length > 0 ? 0 : -1, keyFocus: false });
+      this.userDir = arg.userDir;
+      this.integrations = arg.integrations;
+      this.setState({ searchResults: arg.items, clearInput: false, selectedIndex: arg.items.length > 0 ? 0 : -1, keyFocus: false });
     });
     ipcRenderer.on('notification', (event, arg) => {
       // show desktop notification
@@ -147,7 +149,6 @@ export default class App extends Component {
     });
     // start empty search (should return 10 most recent items by signed in user name)
     ipcRenderer.send('search', '', Date.now());
-
   }
 
   componentDidUpdate() {
@@ -220,15 +221,13 @@ export default class App extends Component {
 
     if (e.key === 'Escape') {
       ipcRenderer.send('hide-search');
-    }
-    else if (e.key === 'Enter') {
+    } else if (e.key === 'Enter') {
       const item = this.state.searchResults[index];
 
       //if item has link we open the link otherwise we enable copying to clipboard on enter (eg calculator results)
       if (item.webLink){
         this.openExternalLink(item.webLink, 'enter', item.type);  
-      }
-      else {
+      } else {
         this.copyValueToClipboard(item);
       }
     }
@@ -298,10 +297,15 @@ export default class App extends Component {
   }
 
   openExternalLink(link, triggerType, itemType=null) {
-    if(itemType && (itemType === 'local-app' || itemType === 'local-file')) {
-      shell.openItem(link);
-    }
-    else {
+    if(itemType && itemType.startsWith('local-')) {
+      if (itemType === 'local-folder') {
+        shell.showItemInFolder(link);
+      } else if (link.endsWith('Finder.app')) {
+        shell.showItemInFolder(this.userDir + '/Documents');
+      } else {
+        shell.openItem(link);
+      }
+    } else {
       shell.openExternal(link);
     }
     
@@ -424,9 +428,8 @@ export default class App extends Component {
       'style': 'search_suggestions_logo'
     };
     
-    if (item.type === 'local-app' || item.type === 'local-file') {
+    if (item.type.startsWith('local-')) {
       if (item.displayIcon) {
-        console.log(item.displayIcon);
         displayIcon.inlineStyle = {
           'backgroundSize': '25px 25px',
           'backgroundRepeat': 'no-repeat',
@@ -591,7 +594,7 @@ export default class App extends Component {
   }
 
   getActionButtons(item) {
-    if (item.webLink && item.type === 'local-file'){
+    if (item.webLink && item.type === 'local-file') {
       return (
         <div className="content_bottom_view_link">
           <div className="action_link action_link_first" onClick={this.handleLocalAppPreview}><span className="glyphicons glyphicons-search"></span>Preview</div>

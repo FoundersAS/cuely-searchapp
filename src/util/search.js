@@ -92,9 +92,9 @@ export function searchLocalFiles(query, callback) {
       let itemSize = getLocalFileSize(result.kMDItemFSSize);
       let ts = Date.parse(result.kMDItemFSContentChangeDate);
 
-      let item = {
-        type: 'local-file',
-        mime: getLocalFileExtension(result.kMDItemPath,result.kMDItemKind),
+      buf.push({
+        type: 'local-' + (result.kMDItemKind == 'Folder' ? 'folder' : 'file'),
+        mime: getLocalFileExtension(result.kMDItemPath, result.kMDItemKind),
         title: itemTitle,
         titleRaw: itemTitle,
         webLink: result.kMDItemPath,
@@ -146,7 +146,7 @@ function getLocalFileSize(itemSize) {
 }
 
 function getLocalFileExtension(fullPath, type) {
-  if (type == 'Folder'){
+  if (type == 'Folder') {
     return type;
   } else {
     let pos = fullPath.lastIndexOf('.');

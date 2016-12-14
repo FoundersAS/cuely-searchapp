@@ -185,7 +185,7 @@ ipcMain.on('search', (event, arg, time) => {
           x.displayIcon = icon;
           return x;
         });
-        event.sender.send('search-result', localResult);
+        event.sender.send('search-result', { items: localResult, userDir: app.getPath('home'), integrations: prefs.settings.account.integrations });
       }
     });
   } else {
@@ -240,7 +240,7 @@ ipcMain.on('search', (event, arg, time) => {
       //check if we have alreay rendered newer result => if not we render this one
       if (time > latestSearchTime){
         latestSearchTime = time;
-        event.sender.send('search-result', hits);
+        event.sender.send('search-result', { items: hits, userDir: app.getPath('home'), integrations: prefs.settings.account.integrations });
       }
     });
   }
@@ -609,7 +609,8 @@ function loadCredentialsOrLogin() {
               username: response.username,
               name: response.name,
               userid: response.userid,
-              segmentIdentified: response.segmentIdentified
+              segmentIdentified: response.segmentIdentified,
+              integrations: response.integrations
             }
             
             prefs.saveAll(settings);
@@ -770,7 +771,7 @@ function endLogin() {
   if (isOsx() && !local) {
     local = initLocal(app.getPath('userData'));
   }
-  searchWindow.show();
+  toggleHide();
 }
 
 function checkGlobalShortcut(shortcut) {
