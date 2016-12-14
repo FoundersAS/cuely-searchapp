@@ -92,7 +92,7 @@ export function searchLocalFiles(query, callback) {
       let itemSize = getLocalFileSize(result.kMDItemFSSize);
       let ts = Date.parse(result.kMDItemFSContentChangeDate);
 
-      buf.push({
+      let item = {
         type: 'local-' + (result.kMDItemKind == 'Folder' ? 'folder' : 'file'),
         mime: getLocalFileExtension(result.kMDItemPath, result.kMDItemKind),
         title: itemTitle,

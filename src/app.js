@@ -118,6 +118,7 @@ export default class App extends Component {
     this.copyValueToClipboard = ::this.copyValueToClipboard;
     this.handleLocalAppInFinder = ::this.handleLocalAppInFinder;
     this.handleLocalAppPreview = ::this.handleLocalAppPreview;
+    this.handleSidebarIntegrationClick = ::this.handleSidebarIntegrationClick;
     this.state = {
       searchResults: [],
       selectedIndex: -1,
@@ -622,25 +623,31 @@ export default class App extends Component {
       return '';
   }
 
+  handleSidebarIntegrationClick(integration) {
+    this.refs.searchBar.setText(integration);
+  }
+
   render() {
     const open = this.state.searchResults.length > 0;
     return (
       <div className="main_app">
         <SideBar
-          className={"sidebar"}
+          className = {"sidebar"}
+          onIntegrationClick = {this.handleSidebarIntegrationClick}
+          integrations = {this.integrations}
         />
-        <div className="search_root">
+        <div className = "search_root">
           <SearchBar
-            onKeyUp={this.handleKeyUp}
-            onKeyDown={this.handleKeyDown}
-            onInput={this.handleInput}
-            onSettingsClick ={this.handleSettingsClick}
-            onDragEnd={this.handleDragEnd}
-            className={"search_bar_open"}
-            id="searchBar"
-            ref="searchBar"
-            selectedIndex={this.state.selectedIndex}
-            clearInput={this.state.clearInput}
+            onKeyUp = {this.handleKeyUp}
+            onKeyDown = {this.handleKeyDown}
+            onInput = {this.handleInput}
+            onSettingsClick = {this.handleSettingsClick}
+            onDragEnd = {this.handleDragEnd}
+            className = {"search_bar_open"}
+            id = "searchBar"
+            ref = "searchBar"
+            selectedIndex = {this.state.selectedIndex}
+            clearInput = {this.state.clearInput}
           />
           {open ? this.renderSearchResults() : this.renderEmptyResults()}
         </div>

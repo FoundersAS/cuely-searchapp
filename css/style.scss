@@ -613,11 +613,16 @@ em {
 		}
 
 		li.active {
-			opacity: 1;
+			opacity: 1 !important;
 		}
 
 		li + li {
 			margin-top: 0.5rem;
+		}
+
+		li:hover {
+			cursor: pointer;
+			opacity: 0.75;
 		}
 	}
 
