@@ -26,24 +26,24 @@ export default class SideBar extends Component {
   }
 
   fixIntegrations(integrations) {
-    let sidebarIntegrations = [];
+    let sidebarIntegrations = new Set();
 
+    sidebarIntegrations.add('mac');
     for (let integration of integrations){
       if (integration == 'google') {
-        sidebarIntegrations.push('gdrive');
+        sidebarIntegrations.add('gdrive');
       } else if (integration == 'helpscout-docs') {
-        sidebarIntegrations.push('helpscout');
+        sidebarIntegrations.add('helpscout');
       } else {
-        sidebarIntegrations.push(integration);
+        sidebarIntegrations.add(integration);
       }
     }
 
-    sidebarIntegrations.unshift('mac');
-    sidebarIntegrations.push('google');
-    sidebarIntegrations.push('gmail');
-    sidebarIntegrations.push('gcal');
+    sidebarIntegrations.add('google');
+    sidebarIntegrations.add('gmail');
+    sidebarIntegrations.add('gcal');
 
-    return new Set(sidebarIntegrations);
+    return sidebarIntegrations;
   }
 
 
