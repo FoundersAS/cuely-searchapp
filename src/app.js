@@ -99,7 +99,7 @@ const icons = [
     spriteOffset: 20
   },
   {
-    type: 'find',
+    type: 'mac',
     spriteOffset: 21
   },
   {

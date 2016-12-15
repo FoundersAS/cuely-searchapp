@@ -31,18 +31,19 @@ export default class SideBar extends Component {
     for (let integration of integrations){
       if (integration == 'google') {
         sidebarIntegrations.push('gdrive');
-      }
-      else {
+      } else if (integration == 'helpscout-docs') {
+        sidebarIntegrations.push('helpscout');
+      } else {
         sidebarIntegrations.push(integration);
       }
     }
 
-    sidebarIntegrations.unshift('find');
+    sidebarIntegrations.unshift('mac');
     sidebarIntegrations.push('google');
     sidebarIntegrations.push('gmail');
     sidebarIntegrations.push('gcal');
 
-    return sidebarIntegrations;
+    return new Set(sidebarIntegrations);
   }
 
 
@@ -84,7 +85,7 @@ export default class SideBar extends Component {
     let words = query.toLowerCase().split(' ');
     let activeIntegration = 'cuely';
 
-    for (let integration of this.state.currentIntegrations){
+    for (let integration of this.state.currentIntegrations) {
       if (integration === words[0]) {
         activeIntegration = integration;
       }
