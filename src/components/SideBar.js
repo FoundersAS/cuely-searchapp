@@ -39,9 +39,9 @@ export default class SideBar extends Component {
       }
     }
 
-    sidebarIntegrations.add('google');
     sidebarIntegrations.add('gmail');
     sidebarIntegrations.add('gcal');
+    sidebarIntegrations.add('google');
 
     return sidebarIntegrations;
   }
@@ -116,13 +116,18 @@ export default class SideBar extends Component {
     }
 
     return (
-      <div className={this.props.className} id={this.props.id}>
-        <ul>
-          {this.renderIntegrationItem('cuely')}
-        </ul>
-        <ul>
-          {integrations}
-        </ul>
+      <div>
+        <div className={this.props.className} id={this.props.id}>
+          <ul>
+            {this.renderIntegrationItem('cuely')}
+          </ul>
+          <ul>
+            {integrations}
+          </ul>
+        </div>
+        <div className='sidebar_bottom' onClick={this.props.addIntegrationsClick}>
+        +
+        </div>
       </div>
     );
   }

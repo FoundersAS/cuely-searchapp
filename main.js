@@ -257,7 +257,9 @@ ipcMain.on('logout', (event, arg) => {
 
 ipcMain.on('account', (event, arg) => {
   createLoginWindow();
-  settingsWindow.close();
+  if(settingsWindow){
+    settingsWindow.close(); 
+  }
 });
 
 ipcMain.on('settings-load', (event, arg) => {
@@ -742,6 +744,7 @@ function endLogin() {
 
   if (!searchWindow) {
     createSearchWindow();
+    toggleHide();
   }
   if (loginWindow) {
     loginWindow.close();
@@ -749,7 +752,6 @@ function endLogin() {
   if (isOsx() && !local) {
     local = initLocal(app.getPath('userData'));
   }
-  toggleHide();
 }
 
 function checkGlobalShortcut(shortcut) {

@@ -640,6 +640,10 @@ export default class App extends Component {
     this.refs.searchBar.setText(integration);
   }
 
+  handleAddIntegrationsClick() {
+    ipcRenderer.send('account');
+  }
+
   render() {
     const open = this.state.searchResults.length > 0;
     return (
@@ -649,6 +653,7 @@ export default class App extends Component {
           id = "sideBar"
           ref = "sideBar"
           onIntegrationClick = {this.handleSidebarIntegrationClick}
+          addIntegrationsClick = {this.handleAddIntegrationsClick}
           integrations = {this.integrations}
           icons = {icons}
         />
