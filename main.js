@@ -152,7 +152,8 @@ ipcMain.on('search', (event, arg, time) => {
   latestSearchTime = 0;
   
   if (localWords) {
-    searchLocalFiles(arg.split(' ').splice(1).join(' '), function (localResult) {
+    let localQuery = arg.split(' ').splice(1).join(' ');
+    searchLocalFiles(localQuery, localResult => {
       if (time > latestSearchTime) {
         latestSearchTime = time;
         // fix icon
@@ -180,6 +181,7 @@ ipcMain.on('search', (event, arg, time) => {
           x.displayIcon = icon;
           return x;
         });
+        localResult = searchLocalApps(localQuery).concat(localResult);
         event.sender.send('search-result', { items: localResult, userDir: app.getPath('home'), integrations: prefs.settings.account.integrations });
       }
     });
@@ -199,37 +201,7 @@ ipcMain.on('search', (event, arg, time) => {
         searchCache.unshift(result.searchInfo);
         searchCache = searchCache.slice(0, 20);
 
-        // check if query matches any of the installed/local apps
-        if (arg && arg.length >= 2 && local && local.currentApps) {
-          let argLower = arg.toLowerCase();
-          let localHits = [];
-          for (let item in local.currentApps) {
-            let value = local.currentApps[item].name.toLowerCase();
-            if (value.startsWith(PREFERENCE_PREFIX)) {
-              value = value.split(PREFERENCE_PREFIX)[1];
-            }
-
-            if (argLower.split(' ').length > 1 && value.indexOf(argLower) > -1) {
-              localHits.push(item);
-              continue;
-            }
-
-            for(let word of value.split(' ')) {
-              if (word.startsWith(argLower)) {
-                localHits.push(item);
-                break;
-              }
-            }
-          }
-          if (localHits.length > 0) {
-            localHits.sort((a, b) => {
-              return b.indexOf(argLower) - a.indexOf(argLower);
-            });
-            for (let lh of localHits.slice(0, 3)) {
-              hits.unshift(getLocalItem(local.currentApps[lh]));
-            }
-          }
-        }
+        hits = searchLocalApps(arg).concat(hits);
         //check if query matches any of the special actions
         const actionItemType = getActionItem(arg);
         if (actionItemType) {
@@ -798,6 +770,39 @@ function updateGlobalShortcut() {
 
     console.log(ret ? `Registered global shurtcut <${shortcut}>` : `Could not register global shortcut <${shortcut}>`);
   }
+}
+
+function searchLocalApps(query) {
+  // check if query matches any of the installed/local apps
+  if (query && query.length >= 2 && local && local.currentApps) {
+    let qLower = query.toLowerCase();
+    let localHits = [];
+    for (let item in local.currentApps) {
+      let value = local.currentApps[item].name.toLowerCase();
+      if (value.startsWith(PREFERENCE_PREFIX)) {
+        value = value.split(PREFERENCE_PREFIX)[1];
+      }
+
+      if (qLower.split(' ').length > 1 && value.indexOf(qLower) > -1) {
+        localHits.push(item);
+        continue;
+      }
+
+      for(let word of value.split(' ')) {
+        if (word.startsWith(qLower)) {
+          localHits.push(item);
+          break;
+        }
+      }
+    }
+    if (localHits.length > 0) {
+      localHits.sort((a, b) => {
+        return b.indexOf(qLower) - a.indexOf(qLower);
+      });
+      return localHits.slice(0, 3).map(x => getLocalItem(local.currentApps[x]));
+    }
+  }
+  return [];
 }
 
 function getActionItem(arg) {
