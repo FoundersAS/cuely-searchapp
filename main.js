@@ -213,8 +213,7 @@ ipcMain.on('search', (event, arg, time) => {
 });
 
 function finalizeSearch(event, time, hits, query, local) {
-
-  if (!local){
+  if (!local) {
     hits = checkKeywords(query, hits);
   }
 
