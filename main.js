@@ -178,9 +178,9 @@ ipcMain.on('search', (event, arg, time) => {
               }
             }
           }
-          if(!icon) {
+          if(!icon && local.currentApps && 'finder' in local.currentApps) {
             // fall back to finder icon
-            icon = local.getIconForMime('public.folder');
+            icon = local.currentApps['finder'].cachedIcon;
           }
           x.displayIcon = icon;
           return x;

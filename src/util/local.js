@@ -15,6 +15,7 @@ class LocalApps {
     this.iconDir = `${path}/.${fsName}_icons`;
     this.plistCounter = 0;
     this.iconsCounter = 0;
+    this.genericFolderIcon = null;
     this._init();
   }
 
@@ -148,6 +149,7 @@ class LocalApps {
       }
       this.saveIcons(appsWithIcons);
     }
+    this._loadGenericFolderIcon();
   }
 
   getApps(path, level = 0) {
@@ -168,57 +170,96 @@ class LocalApps {
 
   _saveIconInternal(apps, appKey) {
     let app = apps[appKey];
-    this.iconsCounter = this.iconsCounter - 1;
     const filename = hash(app.name);
     const outPath = `${this.iconDir}/${filename}.iconset`;
     exec(`iconutil --convert iconset "${app.iconset}" --output "${outPath}"`, { timeout: 2000 }, (err) => {
+      this.iconsCounter = this.iconsCounter - 1;
       if(err) {
         console.log(`Could not extract icons from app '${app.name}' iconset`);
         delete apps[appKey];
       } else {
-        const icons = readdirSync(outPath);
-        let filtered = icons.filter(x => x.indexOf('32x32@2x.') > -1);
-        if (filtered.length < 1) {
-          filtered = icons.filter(x => x.indexOf('128x128.') > -1);
-        }
-        if (filtered.length < 1) {
-          // just take whatever icons are there
-          filtered = icons;
-        }
-        if (filtered.length > 0) {
-          const iconPath = outPath + '/' + filtered[0];
-          apps[appKey].cachedIcon = this.iconDir + '/' + filename + '.' + filtered[0].split('.').slice(-1)[0];
-          // copy the chosen icon and remove cache dir
-          readFile(iconPath, (err, data) => {
-            if (err) {
-              console.log('Could not read file ' + iconPath, err);
-              return;
-            }
-            if (appKey in apps) {
-              writeFile(apps[appKey].cachedIcon, data, (err) => {
-                if (err) {
-                  console.log('Could not write file ' + apps[appKey].cachedIcon, err);
-                  return;
-                }
-                for (let iconFile of icons) {
-                  unlinkSync(outPath + '/' + iconFile);
-                }
-
-                rmdir(outPath, (err) => {
-                  if(err) {
-                    console.log(err);
-                  }
-                });
-              });
-            }
-          });
-        }
-      }
-      if (this.iconsCounter < 1) {
-        console.log("Done storing icons");
-        this.saveAll(apps);
+        this._handleIconsetDir(outPath, null, filename, (iconPath) => {
+          if (appKey in apps) {
+            apps[appKey].cachedIcon = iconPath;
+          }
+          if (this.iconsCounter < 1) {
+            console.log("Done storing icons");
+            this.saveAll(apps);
+          }
+        });
       }
     });
+  }
+
+  _loadGenericFolderIcon() {
+    if (this.genericFolderIcon !== null) {
+      return;
+    }
+    const iconPath = `${this.iconDir}/genericFolder.png`;
+    if (existsSync(iconPath)) {
+      this.genericFolderIcon = iconPath;
+      return;
+    }
+    const iconsetPath = '/System/Library/CoreServices/CoreTypes.bundle/Contents/Resources/GenericFolderIcon.icns';
+    const outPath = `${this.iconDir}/GenericFolder.iconset`;
+    if (existsSync(iconsetPath)) {
+      exec(`iconutil --convert iconset "${iconsetPath}" --output "${outPath}"`, { timeout: 2000 }, (err) => {
+        if(err) {
+          console.log(`Could not extract icons for generic folder`);
+          console.log(err);
+        } else {
+          this._handleIconsetDir(outPath, iconPath, null, () => {
+            this.genericFolderIcon = iconPath;
+            console.log("Found and loaded generic folder icon");
+          });
+        }
+      })
+    }
+  }
+
+  _handleIconsetDir(iconsetPath, destIconPath, iconName, cb) {
+    const icons = readdirSync(iconsetPath);
+    let filtered = icons.filter(x => x.indexOf('32x32@2x.') > -1);
+    if (filtered.length < 1) {
+      filtered = icons.filter(x => x.indexOf('128x128.') > -1);
+    }
+    if (filtered.length < 1) {
+      // just take whatever icons are there
+      filtered = icons;
+    }
+    if (filtered.length > 0) {
+      const iconPath = iconsetPath + '/' + filtered[0];
+      if (!destIconPath) {
+        destIconPath = this.iconDir + '/' + iconName + '.' + filtered[0].split('.').slice(-1)[0];
+      }
+      readFile(iconPath, (err, data) => {
+        if (err) {
+          console.log('Could not read file ' + iconPath, err);
+          return;
+        }
+        if (destIconPath) {
+          writeFile(destIconPath, data, (err) => {
+            if (err) {
+              console.log('Could not write file ' + destIconPath, err);
+              return;
+            }
+            cb(destIconPath);
+            for (let iconFile of icons) {
+              let rmPath = iconsetPath + '/' + iconFile;
+              if (existsSync(rmPath)) {
+                unlinkSync(rmPath);
+              }
+            }
+
+            rmdir(iconsetPath, (err) => {
+              if(err) {
+                console.log(err);
+              }
+            });
+          });
+        }
+      });
+    }
   }
 
   saveIcons(apps) {
@@ -305,10 +346,16 @@ class LocalApps {
   }
 
   getIconForMime(mime) {
-    if (mime && this.currentAppsAssociations) {
+    if (mime) {
       let mimeLower = mime.toLowerCase();
-      if (mimeLower in this.currentAppsAssociations) {
-        return this.currentAppsAssociations[mimeLower].cachedIcon;
+      if ((mimeLower === 'public.folder' || mimeLower === "folder") && this.genericFolderIcon !== null) {
+        return this.genericFolderIcon;
+      }
+
+      if (this.currentAppsAssociations) {
+        if (mimeLower in this.currentAppsAssociations) {
+          return this.currentAppsAssociations[mimeLower].cachedIcon;
+        }
       }
     }
     return null;
