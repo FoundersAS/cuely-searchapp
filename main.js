@@ -38,22 +38,21 @@ let newKeywords = [
   }
 ];
 
-let specialKeywords = [
-  {
+let gmailKeyword = {
     mime: 'gmail',
     type: 'gmail',
     keywords: ['gmail'],
     title: '<em>Open your work Gmail</em>',
     link: 'https://mail.google.com/a/your.domain.com/'
-  },
-  {
+};
+
+let gcalKeyword = {
     mime: 'gcal',
     type: 'gcal',
     keywords: ['gcal','calendar','google calendar'],
     title: '<em>Open your work Google Calendar</em>',
     link: 'https://calendar.google.com/a/your.domain.com/'
-  }
-];
+};
 
 let googleKeyword = {
   mime: 'google',
@@ -70,11 +69,10 @@ let websiteKeyword = {
 }
 
 const KEYWORDS = {
-  'find' : getMacItems,
-  'gdrive' : getGdriveItems,
   'google' : getGoogleItems,
   'gmail' : getGmailItems,
   'gcal' : getGcalItems,
+  'calendar' : getGcalItems,
   'new' : getNewItems,
 }
 
@@ -205,16 +203,6 @@ ipcMain.on('search', (event, arg, time) => {
         let hits = [].concat.apply([], result.hits);
         searchCache.unshift(result.searchInfo);
         searchCache = searchCache.slice(0, 20);
-
-        /*
-        //check if query matches any of the special actions
-        const actionItemType = getActionItem(arg);
-        if (actionItemType) {
-          hits.unshift(getNewItem(actionItemType));
-        }
-        else if (!actionItemType && hits.length < 3 && arg.length > 2) {
-          hits.push(getNewItem(generateGoogleKeyword(arg)));
-        }*/
         
         hits = searchLocalApps(arg).concat(hits);
         finalizeSearch(event, time, hits, arg, false);
@@ -791,11 +779,11 @@ function updateGlobalShortcut() {
 function checkKeywords(query, hits) {
   let itemsStart = [];
   let itemsEnd = [];
-
   let firstWord = '';
   let restOfQuery = '';
   let indexOfSpace = query.indexOf(' ');
 
+  //cut query
   if (indexOfSpace == -1){
     firstWord = query;
   }
@@ -804,13 +792,12 @@ function checkKeywords(query, hits) {
     restOfQuery = query.substr(indexOfSpace + 1, query.length);
   }
 
+  //insert special keywords
   if (firstWord in KEYWORDS) {
     let items = KEYWORDS[firstWord](restOfQuery);
 
-    if (items){
-      itemsStart = itemsStart.concat(items.start);
-      itemsEnd = itemsEnd.concat(items.end);
-    }
+    itemsStart = itemsStart.concat(items.start);
+    itemsEnd = itemsEnd.concat(items.end);
   }
   else if (query.length > 1) {
     try {
@@ -820,7 +807,8 @@ function checkKeywords(query, hits) {
       }
     } catch(err) {}
   }
-  else {
+  
+  if (restOfQuery === ''){
     let item = checkWebsiteKeyword(firstWord);
     
     if (item) {
@@ -835,18 +823,69 @@ function checkKeywords(query, hits) {
 }
 
 function getGoogleItems(query) {
-  if(query !== ''){
+  let itemsStart = [];
+  let itemsEnd = [];
 
+  let itemStaticGoogle = Object.assign({}, googleKeyword);
+  itemStaticGoogle = replaceGenericDomain(itemStaticGoogle);
+  itemStaticGoogle.title = '<em>Open Google</em>';
+
+  let itemSearchGoogle = Object.assign({}, googleKeyword);
+  itemSearchGoogle = replaceGenericDomain(itemSearchGoogle);
+  itemSearchGoogle.link = itemSearchGoogle.link + query;
+
+  if (query === ''){
+    itemSearchGoogle.title = 'Search Google: <em>&lt;type anything&gt;</em>';
   }
+  else {
+    itemSearchGoogle.title = 'Search Google: <em>' + query + '</em>';
+  }
+
+  itemsStart.push(getNewItem(itemStaticGoogle));
+
+  if(query !== '') {
+    itemsStart.unshift(getNewItem(itemSearchGoogle)); 
+  }
+  else {
+    itemsStart.push(getNewItem(itemSearchGoogle));
+  }
+
+  let items = (itemsStart == [] && itemsEnd == []) ? null : { start: itemsStart, end: itemsEnd};
+
+  return items;
 }
 
 function getGmailItems(query) {
-  if(query !== '') {
-    
+  let itemsStart = [];
+  let itemsEnd = [];
+
+  let itemStaticGmail = Object.assign({}, gmailKeyword);
+  itemStaticGmail = replaceGenericDomain(itemStaticGmail);
+  itemStaticGmail.title = '<em>Open your work Gmail</em>';
+
+  let itemSearchGmail = Object.assign({}, gmailKeyword);
+  itemSearchGmail = replaceGenericDomain(itemSearchGmail);
+  itemSearchGmail.link = itemSearchGmail.link + '#search/' + query;
+
+  if (query === ''){
+    itemSearchGmail.title = 'Search work Gmail: <em>&lt;type anything&gt;</em>';
   }
   else {
-
+    itemSearchGmail.title = 'Search work Gmail: <em>' + query + '</em>';
   }
+
+  itemsStart.push(getNewItem(itemStaticGmail));
+
+  if(query !== '') {
+    itemsStart.unshift(getNewItem(itemSearchGmail)); 
+  }
+  else {
+    itemsStart.push(getNewItem(itemSearchGmail));
+  }
+
+  let items = (itemsStart == [] && itemsEnd == []) ? null : { start: itemsStart, end: itemsEnd};
+
+  return items;
 }
 
 function getNewItems(query) {
@@ -876,22 +915,18 @@ function getNewItems(query) {
   return items;
 }
 
-function getGdriveItems(query) {
-  if (query === ''){
-    
-  }
-}
-
-function getMacItems(query) {
-  if (query === ''){
-
-  }
-}
-
 function getGcalItems(query) {
-  if(query === ''){
-    
-  }
+  let itemsStart = [];
+  let itemsEnd = [];
+
+  let itemStaticGcal = Object.assign({}, gcalKeyword);
+  itemStaticGcal = replaceGenericDomain(itemStaticGcal);
+  itemStaticGcal.title = '<em>Open your work Google Calendar</em>';
+  itemsStart.push(getNewItem(itemStaticGcal));
+
+  let items = (itemsStart == [] && itemsEnd == []) ? null : { start: itemsStart, end: itemsEnd};
+
+  return items;
 }
 
 function searchLocalApps(query) {
@@ -927,36 +962,6 @@ function searchLocalApps(query) {
   return [];
 }
 
-function getActionItem(arg) {
-  let item = null;
-  let mathResult = null;
-
-  //check if query matches math expression 
-  if (arg.length > 1) {
-    try {
-      mathResult = math.eval(arg);  
-      if (mathResult && typeof(mathResult) !== 'function' && String(mathResult) !== arg) {
-        item = getMathExpression(mathResult);
-      }
-    } catch(err) {}
-  }
-  if (!mathResult && arg.length > 2){
-    item = checkNewKeywordType(arg);
-
-    if (item == null){
-      item = checkSpecialKeywords(arg);
-    }
-    if (item == null){
-      item = checkGoogleKeyword(arg);
-    }
-    if (item == null){
-      item = checkWebsiteKeyword(arg);
-    }
-  }
-
-  return item;
-}
-
 function checkWebsiteKeyword(arg){
   if (arg.indexOf('.') > -1){
     const urlRegex = /[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/;
@@ -972,72 +977,9 @@ function checkWebsiteKeyword(arg){
       }      
       item.title = 'Visit: <em>' + arg + '</em>';
 
-      return item;
+      return getNewItem(item);
     }
   }
-}
-
-function checkSpecialKeywords(arg){
-  for (let item of specialKeywords){
-    for (let keyword of item.keywords){
-      if (keyword.indexOf(arg) === 0){
-        let itemCopy = Object.assign({}, item);
-        itemCopy = replaceGenericDomain(itemCopy);
-
-        return itemCopy;
-      }
-      else if (keyword == 'gmail' && arg.indexOf(keyword) === 0){
-        const words = arg.split('gmail');
-        let itemCopy = Object.assign({}, item);
-        itemCopy = replaceGenericDomain(itemCopy);
-        itemCopy.link = itemCopy.link + '#search/' + words[1];
-        itemCopy.title = 'Search work Gmail: <em>' + words[1] + '</em>';
-
-        return itemCopy;
-      }
-    }
-  }
-  return null;
-}
-
-function checkNewKeywordType(arg){
-  const words = arg.split('new ');
-  if (words.length < 2){
-    return null;
-  }
-  else {
-    for (let item of newKeywords){
-      for (let keyword of item.keywords){
-        if (keyword.indexOf(words[1].trim()) != -1){
-          return replaceGenericDomain(item);
-        }
-      }
-    }
-    return null;
-  }
-}
-
-function checkGoogleKeyword(arg){
-  const words = arg.split('google ');
-  if (words.length < 2) {
-    return null;
-  }
-  else {
-    let item = Object.assign({}, googleKeyword);
-    item.link = item.link + words[1];
-    console.log(words[1]);
-    item.title = words[1] != '' ? 'Search Google: <em>' + words[1] + '</em>' : 'Search Google: <em>bla bla</em>';
-
-    return item;
-  }
-}
-
-function generateGoogleKeyword(arg){
-  let item = Object.assign({}, googleKeyword);
-  item.link = item.link + arg;
-  item.title = arg != '' ? 'Search Google: <em>' + arg + '</em>' : 'Search Google: <em>type anything</em>';
-
-  return item;
 }
 
 function replaceGenericDomain(item){
