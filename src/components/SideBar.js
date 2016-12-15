@@ -6,9 +6,9 @@ export default class SideBar extends Component {
     super();
     this.handleIntegrationClick = ::this.handleIntegrationClick;
     this.state = {
-      active : 'cuely',
-      currentIntegrations : [],
-      icons : props.icons
+      active: 'cuely',
+      currentIntegrations: new Set(),
+      icons: props.icons
     }
   }
 
@@ -21,7 +21,7 @@ export default class SideBar extends Component {
 
   componentWillReceiveProps(nextProps){
     this.setState ({
-      currentIntegrations : this.fixIntegrations(nextProps.integrations),
+      currentIntegrations: this.fixIntegrations(nextProps.integrations),
     });
   }
 
@@ -54,7 +54,7 @@ export default class SideBar extends Component {
     
     let item = {};
 
-    for (let itemIcons of this.state.icons){
+    for (let itemIcons of this.state.icons) {
       if (itemIcons.type == mime) {
         const verticalOffset = itemIcons.spriteOffset*(-27) + 'px';
 
@@ -75,8 +75,7 @@ export default class SideBar extends Component {
 
     if (e.target.id != 'cuely') {
       this.props.onIntegrationClick(e.target.id + ' ');
-    }
-    else {
+    } else {
       this.props.onIntegrationClick('');
     } 
   }
