@@ -155,7 +155,7 @@ ipcMain.on('log', (event, arg) => {
 
 ipcMain.on('search', (event, arg, time) => {
   let searchPromise;
-  let localWords = arg.startsWith('find ');
+  let localWords = arg.startsWith('mac ');
   
   if (localWords) {
     let localQuery = arg.split(' ').splice(1).join(' ');

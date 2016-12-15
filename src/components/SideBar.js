@@ -6,9 +6,9 @@ export default class SideBar extends Component {
     super();
     this.handleIntegrationClick = ::this.handleIntegrationClick;
     this.state = {
-      active : 'cuely',
-      currentIntegrations : [],
-      icons : props.icons
+      active: 'cuely',
+      currentIntegrations: new Set(),
+      icons: props.icons
     }
   }
 
@@ -21,26 +21,27 @@ export default class SideBar extends Component {
 
   componentWillReceiveProps(nextProps){
     this.setState ({
-      currentIntegrations : this.fixIntegrations(nextProps.integrations),
+      currentIntegrations: this.fixIntegrations(nextProps.integrations),
     });
   }
 
   fixIntegrations(integrations) {
-    let sidebarIntegrations = [];
+    let sidebarIntegrations = new Set();
 
+    sidebarIntegrations.add('mac');
     for (let integration of integrations){
       if (integration == 'google') {
-        sidebarIntegrations.push('gdrive');
-      }
-      else {
-        sidebarIntegrations.push(integration);
+        sidebarIntegrations.add('gdrive');
+      } else if (integration == 'helpscout-docs') {
+        sidebarIntegrations.add('helpscout');
+      } else {
+        sidebarIntegrations.add(integration);
       }
     }
 
-    sidebarIntegrations.unshift('find');
-    sidebarIntegrations.push('google');
-    sidebarIntegrations.push('gmail');
-    sidebarIntegrations.push('gcal');
+    sidebarIntegrations.add('google');
+    sidebarIntegrations.add('gmail');
+    sidebarIntegrations.add('gcal');
 
     return sidebarIntegrations;
   }
@@ -53,7 +54,7 @@ export default class SideBar extends Component {
     
     let item = {};
 
-    for (let itemIcons of this.state.icons){
+    for (let itemIcons of this.state.icons) {
       if (itemIcons.type == mime) {
         const verticalOffset = itemIcons.spriteOffset*(-27) + 'px';
 
@@ -74,8 +75,7 @@ export default class SideBar extends Component {
 
     if (e.target.id != 'cuely') {
       this.props.onIntegrationClick(e.target.id + ' ');
-    }
-    else {
+    } else {
       this.props.onIntegrationClick('');
     } 
   }
@@ -84,7 +84,7 @@ export default class SideBar extends Component {
     let words = query.toLowerCase().split(' ');
     let activeIntegration = 'cuely';
 
-    for (let integration of this.state.currentIntegrations){
+    for (let integration of this.state.currentIntegrations) {
       if (integration === words[0]) {
         activeIntegration = integration;
       }
@@ -102,7 +102,7 @@ export default class SideBar extends Component {
     const liActive = (integration == this.state.active) ? 'active' : '';
 
     return (
-      <li id={integration} className={liActive} onClick={this.handleIntegrationClick}>
+      <li id={integration} className={liActive} onClick={this.handleIntegrationClick} key={`li_${integration}`}>
         <div id={integration} style={icon.inlineStyle} className={icon.style} />
       </li>
     );
