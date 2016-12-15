@@ -93,8 +93,20 @@ const icons = [
   {
     type: 'jira',
     spriteOffset: 19
+  },
+  {
+    type: 'cuely',
+    spriteOffset: 20
+  },
+  {
+    type: 'find',
+    spriteOffset: 21
+  },
+  {
+    type: 'gdrive',
+    spriteOffset: 22
   }
-]
+];
 
 export default class App extends Component {
   constructor(props){
@@ -253,6 +265,7 @@ export default class App extends Component {
   handleInput(e) {
     const q = e.target.value;
     ipcRenderer.send('search', q, Date.now());
+    this.refs.sideBar.changeIcon(q);
     if (this.segmentTimer) {
       clearTimeout(this.segmentTimer);
     }
@@ -633,8 +646,11 @@ export default class App extends Component {
       <div className="main_app">
         <SideBar
           className = {"sidebar"}
+          id = "sideBar"
+          ref = "sideBar"
           onIntegrationClick = {this.handleSidebarIntegrationClick}
           integrations = {this.integrations}
+          icons = {icons}
         />
         <div className = "search_root">
           <SearchBar

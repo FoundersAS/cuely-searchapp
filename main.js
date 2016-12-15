@@ -69,6 +69,15 @@ let websiteKeyword = {
   title: '<em>Visit: </em>'
 }
 
+const KEYWORDS = {
+  'find' : getMacItems,
+  'gdrive' : getGdriveItems,
+  'google' : getGoogleItems,
+  'gmail' : getGmailItems,
+  'gcal' : getGcalItems,
+  'new' : getNewItems,
+}
+
 const integrationsAuth = [
   { name: 'Google Drive', id: 'google-oauth2'},
   { name: 'Intercom', id: 'intercom-oauth'},
@@ -229,6 +238,8 @@ ipcMain.on('search', (event, arg, time) => {
           }
         }
       }
+      finalResults = hits;
+      /*
       //check if query matches any of the special actions
       const actionItemType = getActionItem(arg);
       if (actionItemType) {
@@ -237,6 +248,10 @@ ipcMain.on('search', (event, arg, time) => {
       else if (!actionItemType && hits.length < 3 && arg.length > 2) {
         hits.push(getNewItem(generateGoogleKeyword(arg)));
       }
+      
+      if (arg === 'google') {
+        hits.unshift(getNewItem(generateGoogleKeyword('')));
+      }*/
       //check if we have alreay rendered newer result => if not we render this one
       if (time > latestSearchTime){
         latestSearchTime = time;
@@ -244,6 +259,10 @@ ipcMain.on('search', (event, arg, time) => {
       }
     });
   }
+
+  //finalize search
+
+
 });
 
 ipcMain.on('search-rendered', (event, arg) => {
@@ -798,6 +817,91 @@ function updateGlobalShortcut() {
   }
 }
 
+function checkKeywords(firstWord, restOfQuery, query, hits) {
+  let itemsStart = [];
+  let itemsEnd = [];
+
+  if (firstWord in KEYWORDS) {
+    let items = KEYWORDS[firstWord](restOfQuery);
+
+    if (items){
+      itemsStart.concat(items.start);
+      itemsEnd.concat(items.end);
+    }
+  }
+  else if (query.length > 1) {
+    try {
+      let mathResult = math.eval(query);  
+      if (mathResult && typeof(mathResult) !== 'function' && String(mathResult) !== query) {
+        itemsStart.unshift(getMathExpression(mathResult));
+      }
+    } catch(err) {}
+  }
+  else {
+    let item = checkWebsiteKeyword(firstWord);
+    
+    if (item) {
+      itemsStart.unshift(item);
+    }
+  }
+
+  hits = itemsStart.concat(hits);
+  hits = hits.concat(itemsEnd);
+
+  return hits;
+}
+
+function getGoogleItems(query) {
+  if(query !== ''){
+
+  }
+}
+
+function getGmailItems(query) {
+  if(query !== '') {
+    
+  }
+  else {
+
+  }
+}
+
+function getNewItems(query) {
+  let itemsStart = [];
+  let itemsEnd = [];
+
+  if(query === ''){
+    //give all the options
+    for (let item of newKeywords){
+      itemsStart.concat(replaceGenericDomain(item));
+    }
+  }
+  else {
+    //give specific options
+    for (let item of newKeywords){
+      if (query in item.keywords){
+        itemsStart.concat(replaceGenericDomain(item));
+      }
+    }
+  }
+
+  let items = (itemsStart == [] && itemsEnd == []) ? null : { start: itemsStart, end: itemsEnd};
+
+  return items;
+}
+
+function getGdriveItems(query) {
+  if(query === ''){
+    
+  }
+}
+
+function getGcalItems(query) {
+  if(query === ''){
+    
+  }
+}
+
 function getActionItem(arg) {
   let item = null;
   let mathResult = null;
@@ -852,25 +956,19 @@ function checkSpecialKeywords(arg){
   for (let item of specialKeywords){
     for (let keyword of item.keywords){
       if (keyword.indexOf(arg) === 0){
-        let item_copy = Object.assign({}, item);
-        item_copy = replaceGenericDomain(item_copy);
+        let itemCopy = Object.assign({}, item);
+        itemCopy = replaceGenericDomain(itemCopy);
 
-        return item_copy;
+        return itemCopy;
       }
       else if (keyword == 'gmail' && arg.indexOf(keyword) === 0){
-        const words = arg.split('gmail ');
-        let item_copy = Object.assign({}, item);
-        item_copy = replaceGenericDomain(item_copy);
+        const words = arg.split('gmail');
+        let itemCopy = Object.assign({}, item);
+        itemCopy = replaceGenericDomain(itemCopy);
+        itemCopy.link = itemCopy.link + '#search/' + words[1];
+        itemCopy.title = 'Search work Gmail: <em>' + words[1] + '</em>';
 
-        if (words[1] == 0){
-          item_copy.title = 'Search work Gmail: <em>' + words[1] + '</em>';
-        }
-        if (words.length > 1 && words[1].length > 0){
-          item_copy.link = item_copy.link + '#search/' + words[1];
-          item_copy.title = 'Search work Gmail: <em>' + words[1] + '</em>';
-        }
-
-        return item_copy;
+        return itemCopy;
       }
     }
   }
@@ -902,7 +1000,8 @@ function checkGoogleKeyword(arg){
   else {
     let item = Object.assign({}, googleKeyword);
     item.link = item.link + words[1];
-    item.title = 'Search Google: <em>' + words[1] + '</em>';
+    console.log(words[1]);
+    item.title = words[1] != '' ? 'Search Google: <em>' + words[1] + '</em>' : 'Search Google: <em>bla bla</em>';
 
     return item;
   }
@@ -911,7 +1010,7 @@ function checkGoogleKeyword(arg){
 function generateGoogleKeyword(arg){
   let item = Object.assign({}, googleKeyword);
   item.link = item.link + arg;
-  item.title = 'Search Google: <em>' + arg + '</em>';
+  item.title = arg != '' ? 'Search Google: <em>' + arg + '</em>' : 'Search Google: <em>type anything</em>';
 
   return item;
 }

@@ -1,108 +1,14 @@
 import React, {Component} from 'react';
 import ReactDOM from 'react-dom';
 
-const icons = [
-  {
-    type: 'application/vnd.google-apps.document',
-    spriteOffset: 0
-  },
-  {
-    type: 'application/vnd.google-apps.spreadsheet',
-    spriteOffset: 3
-  },
-  {
-    type: 'image',
-    spriteOffset: 1
-  },
-  {
-    type: 'application/vnd.google-apps.presentation',
-    spriteOffset: 2
-  },
-  {
-    type: 'application/vnd.google-apps.form',
-    spriteOffset: 4
-  },
-  {
-    type: 'application/vnd.google-apps.drawing',
-    spriteOffset: 5
-  },
-  {
-    type: 'application/vnd.google-apps.folder',
-    spriteOffset: 6
-  },
-  {
-    type: 'intercom',
-    spriteOffset: 7
-  },
-  {
-    type: 'salesforce',
-    spriteOffset: 8
-  },
-  {
-    type: 'trello',
-    spriteOffset: 9
-  },
-  {
-    type: 'github',
-    spriteOffset: 10
-  },
-  {
-    type: 'stripe',
-    spriteOffset: 11
-  },
-  {
-    type: 'application/pdf',
-    spriteOffset: 12
-  },
-  {
-    type: 'pipedrive',
-    spriteOffset: 13
-  },
-  {
-    type: 'helpscout',
-    spriteOffset: 14
-  },
-  {
-    type: 'gmail',
-    spriteOffset: 15
-  },
-  {
-    type: 'gcal',
-    spriteOffset: 16
-  },
-  {
-    type: 'math',
-    spriteOffset: 17
-  },
-  {
-    type: 'google',
-    spriteOffset: 18
-  },
-  {
-    type: 'jira',
-    spriteOffset: 19
-  },
-  {
-    type: 'cuely',
-    spriteOffset: 20
-  },
-  {
-    type: 'find',
-    spriteOffset: 21
-  },
-  {
-    type: 'gdrive',
-    spriteOffset: 22
-  }
-]
-
 export default class SideBar extends Component {
   constructor(props){
     super();
     this.handleIntegrationClick = ::this.handleIntegrationClick;
     this.state = {
       active : 'cuely',
-      currentIntegrations : []
+      currentIntegrations : [],
+      icons : props.icons
     }
   }
 
@@ -115,25 +21,28 @@ export default class SideBar extends Component {
 
   componentWillReceiveProps(nextProps){
     this.setState ({
-      currentIntegrations : this.fixIntegrations(nextProps.integrations)
+      currentIntegrations : this.fixIntegrations(nextProps.integrations),
     });
   }
 
   fixIntegrations(integrations) {
-    let integrat = [];
+    let sidebarIntegrations = [];
 
     for (let integration of integrations){
       if (integration == 'google') {
-        integrat.push('gdrive');
+        sidebarIntegrations.push('gdrive');
       }
       else {
-        integrat.push(integration);
+        sidebarIntegrations.push(integration);
       }
     }
 
-    integrat.unshift('find');
+    sidebarIntegrations.unshift('find');
+    sidebarIntegrations.push('google');
+    sidebarIntegrations.push('gmail');
+    sidebarIntegrations.push('gcal');
 
-    return integrat;
+    return sidebarIntegrations;
   }
 
 
@@ -144,7 +53,7 @@ export default class SideBar extends Component {
     
     let item = {};
 
-    for (let itemIcons of icons){
+    for (let itemIcons of this.state.icons){
       if (itemIcons.type == mime) {
         const verticalOffset = itemIcons.spriteOffset*(-27) + 'px';
 
@@ -168,8 +77,24 @@ export default class SideBar extends Component {
     }
     else {
       this.props.onIntegrationClick('');
+    } 
+  }
+
+  changeIcon(query) {
+    let words = query.toLowerCase().split(' ');
+    let activeIntegration = 'cuely';
+
+    for (let integration of this.state.currentIntegrations){
+      if (integration === words[0]) {
+        activeIntegration = integration;
+      }
     }
-    
+
+    if (this.state.active != activeIntegration) {
+      this.setState({
+        active : activeIntegration
+      });
+    }
   }
 
   renderIntegrationItem(integration) {
