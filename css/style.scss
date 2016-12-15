@@ -640,16 +640,16 @@ em {
 .sidebar_bottom {
 	height: 63px;
 	width: 63px;
-	background-color: #203766;
+	background-color: rgba(40, 69, 127, 1);
 	cursor: pointer;
 	font-size: 2em;
-	color: rgba(255, 255, 255, 0.5);
+	color: rgba(255, 255, 255, 0.4);
 	padding-top: 6px;
 	text-align: center;
 }
 
 .sidebar_bottom:hover {
-	color: rgba(255, 255, 255, 0.8);
+	color: rgba(255, 255, 255, 0.9);
 }
 
 .main_app {
