@@ -160,7 +160,8 @@ ipcMain.on('search', (event, arg, time) => {
   let localWords = arg.startsWith('find ');
   
   if (localWords) {
-    searchLocalFiles(arg.split(' ').splice(1).join(' '), function (localResult) {
+    let localQuery = arg.split(' ').splice(1).join(' ');
+    searchLocalFiles(localQuery, function (localResult) {
       // fix icon
       localResult = localResult.map(x => {
         let icon = local.getIconForMime(x.mime);
@@ -186,6 +187,7 @@ ipcMain.on('search', (event, arg, time) => {
         x.displayIcon = icon;
         return x;
       });
+      localResult = searchLocalApps(localQuery).concat(localResult);
       finalizeSearch(event, time, localResult, arg, true);
     });
   } else {
@@ -204,37 +206,6 @@ ipcMain.on('search', (event, arg, time) => {
         searchCache.unshift(result.searchInfo);
         searchCache = searchCache.slice(0, 20);
 
-        // check if query matches any of the installed/local apps
-        if (arg && arg.length >= 2 && local && local.currentApps) {
-          let argLower = arg.toLowerCase();
-          let localHits = [];
-          for (let item in local.currentApps) {
-            let value = local.currentApps[item].name.toLowerCase();
-            if (value.startsWith(PREFERENCE_PREFIX)) {
-              value = value.split(PREFERENCE_PREFIX)[1];
-            }
-
-            if (argLower.split(' ').length > 1 && value.indexOf(argLower) > -1) {
-              localHits.push(item);
-              continue;
-            }
-
-            for(let word of value.split(' ')) {
-              if (word.startsWith(argLower)) {
-                localHits.push(item);
-                break;
-              }
-            }
-          }
-          if (localHits.length > 0) {
-            localHits.sort((a, b) => {
-              return b.indexOf(argLower) - a.indexOf(argLower);
-            });
-            for (let lh of localHits.slice(0, 3)) {
-              hits.unshift(getLocalItem(local.currentApps[lh]));
-            }
-          }
-        }
         /*
         //check if query matches any of the special actions
         const actionItemType = getActionItem(arg);
@@ -244,7 +215,8 @@ ipcMain.on('search', (event, arg, time) => {
         else if (!actionItemType && hits.length < 3 && arg.length > 2) {
           hits.push(getNewItem(generateGoogleKeyword(arg)));
         }*/
-        //check if we have alreay rendered newer result => if not we render this one
+        
+        hits = searchLocalApps(arg).concat(hits);
         finalizeSearch(event, time, hits, arg, false);
       });
     }
@@ -920,6 +892,39 @@ function getGcalItems(query) {
   if(query === ''){
     
   }
+}
+
+function searchLocalApps(query) {
+  // check if query matches any of the installed/local apps
+  if (query && query.length >= 2 && local && local.currentApps) {
+    let qLower = query.toLowerCase();
+    let localHits = [];
+    for (let item in local.currentApps) {
+      let value = local.currentApps[item].name.toLowerCase();
+      if (value.startsWith(PREFERENCE_PREFIX)) {
+        value = value.split(PREFERENCE_PREFIX)[1];
+      }
+
+      if (qLower.split(' ').length > 1 && value.indexOf(qLower) > -1) {
+        localHits.push(item);
+        continue;
+      }
+
+      for(let word of value.split(' ')) {
+        if (word.startsWith(qLower)) {
+          localHits.push(item);
+          break;
+        }
+      }
+    }
+    if (localHits.length > 0) {
+      localHits.sort((a, b) => {
+        return b.indexOf(qLower) - a.indexOf(qLower);
+      });
+      return localHits.slice(0, 3).map(x => getLocalItem(local.currentApps[x]));
+    }
+  }
+  return [];
 }
 
 function getActionItem(arg) {
