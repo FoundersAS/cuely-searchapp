@@ -102,7 +102,7 @@ export default class SideBar extends Component {
     const liActive = (integration == this.state.active) ? 'active' : '';
 
     return (
-      <li id={integration} className={liActive} onClick={this.handleIntegrationClick}>
+      <li id={integration} className={liActive} onClick={this.handleIntegrationClick} key={`li_${integration}`}>
         <div id={integration} style={icon.inlineStyle} className={icon.style} />
       </li>
     );
