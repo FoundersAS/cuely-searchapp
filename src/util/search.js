@@ -81,8 +81,20 @@ export function searchInternal(query, search_settings) {
 export function searchLocalFiles(query, callback) {
   let buf = [];
   let bufExact = [];
-  let res = mdfind({names:[query], directories : ['/Users/'], attributes: ['kMDItemDisplayName', 'kMDItemFSContentChangeDate', 'kMDItemKind', 'kMDItemFSSize', 'kMDItemContentTypeTree'], limit: 40});
-  
+  let options = {
+    directories : ['/Users/'],
+    attributes: ['kMDItemDisplayName', 'kMDItemFSContentChangeDate', 'kMDItemKind', 'kMDItemFSSize', 'kMDItemContentTypeTree'],
+    limit: 40
+  };
+  if (query && query.length > 0) {
+    options['names'] = [query];
+  } else {
+    // default to recent items
+    options['query'] = 'kMDItemFSContentChangeDate >= $time.today(-7)';
+    options['limit'] = 1000;
+  }
+
+  let res = mdfind(options);
   res.output.on('data', function(result) {
     let fullPath = result.kMDItemPath.split('/');
 
@@ -122,6 +134,7 @@ export function searchLocalFiles(query, callback) {
       return y.metaInfo.timestamp - x.metaInfo.timestamp;
     });
 
+    buf.splice(40);
     callback(bufExact.concat(buf));
   });
 }

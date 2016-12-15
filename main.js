@@ -148,16 +148,11 @@ ipcMain.on('log', (event, arg) => {
 
 ipcMain.on('search', (event, arg, time) => {
   let searchPromise;
-  arg = arg.trim();
-  let localWords = arg.split('find ');
+  let localWords = arg.startsWith('find ');
   latestSearchTime = 0;
   
-  if (arg === '') {
-    // search for user's docs in the last 30 days
-    const ts = parseInt((Date.now() - 1000 * 3600 * 24 * 30) / 1000);
-    searchPromise = searchAfter(prefs.settings.account.name, ts);
-  } else if (localWords.length > 1 && localWords[1] != '') {
-    searchLocalFiles(localWords[1], function (localResult) {
+  if (localWords) {
+    searchLocalFiles(arg.split(' ').splice(1).join(' '), function (localResult) {
       if (time > latestSearchTime) {
         latestSearchTime = time;
         // fix icon
@@ -189,60 +184,67 @@ ipcMain.on('search', (event, arg, time) => {
       }
     });
   } else {
-    searchPromise = search(arg);
-  }
+    arg = arg.trim();
+    if (arg === '') {
+      // search for user's docs in the last 30 days
+      const ts = parseInt((Date.now() - 1000 * 3600 * 24 * 30) / 1000);
+      searchPromise = searchAfter(prefs.settings.account.name, ts);
+    } else {
+      searchPromise = search(arg);
+    }
 
-  if (searchPromise){
-    searchPromise.then(result => {
-      let hits = [].concat.apply([], result.hits);
-      searchCache.unshift(result.searchInfo);
-      searchCache = searchCache.slice(0, 20);
+    if (searchPromise) {
+      searchPromise.then(result => {
+        let hits = [].concat.apply([], result.hits);
+        searchCache.unshift(result.searchInfo);
+        searchCache = searchCache.slice(0, 20);
 
-      // check if query matches any of the installed/local apps
-      if (arg && arg.length >= 2 && local && local.currentApps) {
-        let argLower = arg.toLowerCase();
-        let localHits = [];
-        for (let item in local.currentApps) {
-          let value = local.currentApps[item].name.toLowerCase();
-          if (value.startsWith(PREFERENCE_PREFIX)) {
-            value = value.split(PREFERENCE_PREFIX)[1];
-          }
+        // check if query matches any of the installed/local apps
+        if (arg && arg.length >= 2 && local && local.currentApps) {
+          let argLower = arg.toLowerCase();
+          let localHits = [];
+          for (let item in local.currentApps) {
+            let value = local.currentApps[item].name.toLowerCase();
+            if (value.startsWith(PREFERENCE_PREFIX)) {
+              value = value.split(PREFERENCE_PREFIX)[1];
+            }
 
-          if (argLower.split(' ').length > 1 && value.indexOf(argLower) > -1) {
-            localHits.push(item);
-            continue;
-          }
-
-          for(let word of value.split(' ')) {
-            if (word.startsWith(argLower)) {
+            if (argLower.split(' ').length > 1 && value.indexOf(argLower) > -1) {
               localHits.push(item);
-              break;
+              continue;
+            }
+
+            for(let word of value.split(' ')) {
+              if (word.startsWith(argLower)) {
+                localHits.push(item);
+                break;
+              }
+            }
+          }
+          if (localHits.length > 0) {
+            localHits.sort((a, b) => {
+              return b.indexOf(argLower) - a.indexOf(argLower);
+            });
+            for (let lh of localHits.slice(0, 3)) {
+              hits.unshift(getLocalItem(local.currentApps[lh]));
             }
           }
         }
-        if (localHits.length > 0) {
-          localHits.sort((a, b) => {
-            return b.indexOf(argLower) - a.indexOf(argLower);
-          });
-          for (let lh of localHits.slice(0, 3)) {
-            hits.unshift(getLocalItem(local.currentApps[lh]));
-          }
+        //check if query matches any of the special actions
+        const actionItemType = getActionItem(arg);
+        if (actionItemType) {
+          hits.unshift(getNewItem(actionItemType));
         }
-      }
-      //check if query matches any of the special actions
-      const actionItemType = getActionItem(arg);
-      if (actionItemType) {
-        hits.unshift(getNewItem(actionItemType));
-      }
-      else if (!actionItemType && hits.length < 3 && arg.length > 2) {
-        hits.push(getNewItem(generateGoogleKeyword(arg)));
-      }
-      //check if we have alreay rendered newer result => if not we render this one
-      if (time > latestSearchTime){
-        latestSearchTime = time;
-        event.sender.send('search-result', { items: hits, userDir: app.getPath('home'), integrations: prefs.settings.account.integrations });
-      }
-    });
+        else if (!actionItemType && hits.length < 3 && arg.length > 2) {
+          hits.push(getNewItem(generateGoogleKeyword(arg)));
+        }
+        //check if we have alreay rendered newer result => if not we render this one
+        if (time > latestSearchTime){
+          latestSearchTime = time;
+          event.sender.send('search-result', { items: hits, userDir: app.getPath('home'), integrations: prefs.settings.account.integrations });
+        }
+      });
+    }
   }
 });
 
