@@ -146,7 +146,7 @@ app.on('activate', () => {
 
 // ipc communication
 ipcMain.on('hide-search', () => {
-  app.hide();
+  hide();
 });
 
 ipcMain.on('keep-search', () => {
