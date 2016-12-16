@@ -448,15 +448,23 @@ em {
 		.action_link {
 			color: rgba(240, 240, 240, 0.9);
 			background-color: rgba(40, 69, 127, 0.92);
+			border-right: 1px solid rgba(40, 69, 127, 1);
 			padding: 0.5rem 0.75rem;
 			cursor: pointer;
 		}
 
 		.action_link:last-child {
-			border-right:1px solid rgba(40, 69, 127, 1);
-			border-radius: 4px;
-			border-top-right-radius: 0;
-			border-bottom-right-radius: 0;			
+			border-right: 0;
+			border-radius: 0px 4px 4px 0px;
+		}
+
+		.action_link:first-child {
+			border-right: 1px solid rgba(40, 69, 127, 1);
+			border-radius: 4px 0px 0px 4px;		
+		}
+
+		.action_link:only-child {
+			border-radius: 4px;		
 		}
 
 		.action_link_second {

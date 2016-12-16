@@ -797,8 +797,7 @@ function checkKeywords(query, hits) {
   if (firstWord in KEYWORDS) {
     let items = KEYWORDS[firstWord](restOfQuery);
 
-    itemsStart = itemsStart.concat(items.start);
-    itemsEnd = itemsEnd.concat(items.end);
+    itemsStart = itemsStart.concat(items);
   }
   else if (query.length > 1) {
     try {
@@ -817,6 +816,13 @@ function checkKeywords(query, hits) {
     }
   }
 
+  //add search google at the end of hits
+  if (((hits.length + itemsStart.length + itemsEnd.length) < 2) && firstWord != 'google') {
+    let items = KEYWORDS['google'](query);
+
+    itemsEnd = itemsEnd.concat(items);
+  }
+
   hits = itemsStart.concat(hits);
   hits = hits.concat(itemsEnd);
 
@@ -824,8 +830,7 @@ function checkKeywords(query, hits) {
 }
 
 function getGoogleItems(query) {
-  let itemsStart = [];
-  let itemsEnd = [];
+  let items = [];
 
   let itemStaticGoogle = Object.assign({}, googleKeyword);
   itemStaticGoogle = replaceGenericDomain(itemStaticGoogle);
@@ -842,23 +847,20 @@ function getGoogleItems(query) {
     itemSearchGoogle.title = 'Search Google: <em>' + query + '</em>';
   }
 
-  itemsStart.push(getNewItem(itemStaticGoogle));
+  items.push(getNewItem(itemStaticGoogle));
 
   if(query !== '') {
-    itemsStart.unshift(getNewItem(itemSearchGoogle)); 
+    items.unshift(getNewItem(itemSearchGoogle)); 
   }
   else {
-    itemsStart.push(getNewItem(itemSearchGoogle));
+    items.push(getNewItem(itemSearchGoogle));
   }
-
-  let items = (itemsStart == [] && itemsEnd == []) ? null : { start: itemsStart, end: itemsEnd};
 
   return items;
 }
 
 function getGmailItems(query) {
-  let itemsStart = [];
-  let itemsEnd = [];
+  let items = [];
 
   let itemStaticGmail = Object.assign({}, gmailKeyword);
   itemStaticGmail = replaceGenericDomain(itemStaticGmail);
@@ -875,28 +877,25 @@ function getGmailItems(query) {
     itemSearchGmail.title = 'Search work Gmail: <em>' + query + '</em>';
   }
 
-  itemsStart.push(getNewItem(itemStaticGmail));
+  items.push(getNewItem(itemStaticGmail));
 
   if(query !== '') {
-    itemsStart.unshift(getNewItem(itemSearchGmail)); 
+    items.unshift(getNewItem(itemSearchGmail)); 
   }
   else {
-    itemsStart.push(getNewItem(itemSearchGmail));
+    items.push(getNewItem(itemSearchGmail));
   }
-
-  let items = (itemsStart == [] && itemsEnd == []) ? null : { start: itemsStart, end: itemsEnd};
 
   return items;
 }
 
 function getNewItems(query) {
-  let itemsStart = [];
-  let itemsEnd = [];
+  let items = [];
 
   if(query === ''){
     //give all the options
     for (let item of newKeywords){
-      itemsStart.push(getNewItem(replaceGenericDomain(item)));
+      items.push(getNewItem(replaceGenericDomain(item)));
     }
   }
   else {
@@ -904,28 +903,23 @@ function getNewItems(query) {
     for (let item of newKeywords){
       for (let keyword of item.keywords){
         if (keyword.indexOf(query) != -1){
-          itemsStart.push(getNewItem(replaceGenericDomain(item)));
+          items.push(getNewItem(replaceGenericDomain(item)));
           break;
         }
       }
     }
   }
 
-  let items = (itemsStart == [] && itemsEnd == []) ? null : { start: itemsStart, end: itemsEnd};
-
   return items;
 }
 
 function getGcalItems(query) {
-  let itemsStart = [];
-  let itemsEnd = [];
+  let items = [];
 
   let itemStaticGcal = Object.assign({}, gcalKeyword);
   itemStaticGcal = replaceGenericDomain(itemStaticGcal);
   itemStaticGcal.title = '<em>Open your work Google Calendar</em>';
-  itemsStart.push(getNewItem(itemStaticGcal));
-
-  let items = (itemsStart == [] && itemsEnd == []) ? null : { start: itemsStart, end: itemsEnd};
+  items.push(getNewItem(itemStaticGcal));
 
   return items;
 }

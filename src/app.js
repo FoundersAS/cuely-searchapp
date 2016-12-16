@@ -629,7 +629,7 @@ export default class App extends Component {
     else {
       return (
         <div className="content_bottom_view_link">
-        <div className="action_link" onClick={this.copyValueToClipboard}><span className="glyphicons glyphicons-new-window"></span>Copy to Clipboard</div>
+        <div className="action_link" onClick={this.copyValueToClipboard}><span className="glyphicons glyphicons-more-items"></span>Copy to Clipboard</div>
         </div>
       );
     }
