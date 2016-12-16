@@ -213,8 +213,7 @@ ipcMain.on('search', (event, arg, time) => {
 });
 
 function finalizeSearch(event, time, hits, query, local) {
-
-  if (!local){
+  if (!local) {
     hits = checkKeywords(query, hits);
   }
 
@@ -479,7 +478,7 @@ function createSearchWindow() {
     }
   });
   searchWindow.on('blur', () => {
-    //hide();
+    hide();
   });
 };
 
@@ -1045,6 +1044,7 @@ function getMathExpression(expression) {
 }
 
 function hide() {
+  /*
   if (appHide && isOsx()) {
     app.hide();
   } else {
@@ -1054,6 +1054,8 @@ function hide() {
   if (!appHide) {
     appHide = true;
   }
+  */
+  searchWindow.hide();
 }
 
 function toggleHide() {
