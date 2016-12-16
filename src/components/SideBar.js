@@ -7,7 +7,7 @@ export default class SideBar extends Component {
     this.handleIntegrationClick = ::this.handleIntegrationClick;
     this.state = {
       active: 'cuely',
-      currentIntegrations: new Set(),
+      currentIntegrations: [],
       icons: props.icons
     }
   }
@@ -43,7 +43,7 @@ export default class SideBar extends Component {
     sidebarIntegrations.add('gcal');
     sidebarIntegrations.add('google');
 
-    return sidebarIntegrations;
+    return [...sidebarIntegrations];
   }
 
 
