@@ -157,8 +157,9 @@ export default class App extends Component {
     });
     ipcRenderer.on('end-session', (event, selector) => {
       //empty search result box
-      this.setState({clearInput: true});
+      this.setState({ clearInput: true });
       ipcRenderer.send('search', '', Date.now());
+      this.refs.sideBar.changeIcon('');
     });
     // start empty search (should return 10 most recent items by signed in user name)
     ipcRenderer.send('search', '', Date.now());
