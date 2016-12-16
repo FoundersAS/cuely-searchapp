@@ -370,7 +370,7 @@ function pipedrive(hit) {
     value: hit.pipedrive_deal_value,
     currency: hit.pipedrive_deal_currency,
   }
-  const cleaned_content = cleanJsonContent(highlightedValue('pipedrive_content', hit), ['url', 'icon_url', 'done_time'], hit.user_id);
+  const cleaned_content = cleanJsonContent(highlightedValue('pipedrive_content', hit), ['url', 'icon_url', 'done_time', 'email'], hit.user_id);
   let contacts, users, activities = [];
   if (cleaned_content) {
     ({ contacts, users, activities } = cleaned_content);
