@@ -145,12 +145,16 @@ app.on('activate', () => {
 });
 
 // ipc communication
-ipcMain.on('hide-search', () => {  
+ipcMain.on('hide-search', () => {
   app.hide();
 });
 
+ipcMain.on('keep-search', () => {
+  keepSearchVisible = true;
+});
+
 ipcMain.on('log', (event, arg) => {
-  
+  console.log(arg);
 });
 
 ipcMain.on('search', (event, arg, time, afterCreate) => {
