@@ -135,7 +135,8 @@ export default class App extends Component {
       searchResults: [],
       selectedIndex: -1,
       clearInput: false,
-      keyFocus: false
+      keyFocus: false,
+      integrations: []
     }
     this.hoverDisabled = false;
     this.segmentTimer = null;
@@ -144,8 +145,15 @@ export default class App extends Component {
   componentDidMount() {
     ipcRenderer.on('search-result', (event, arg) => {
       this.userDir = arg.userDir;
-      this.integrations = arg.integrations;
-      this.setState({ searchResults: arg.items, clearInput: false, selectedIndex: arg.items.length > 0 ? 0 : -1, keyFocus: false });
+      this.setState({
+        searchResults: arg.items,
+        clearInput: false,
+        selectedIndex: arg.items.length > 0 ? 0 : -1,
+        keyFocus: false
+      });
+    });
+    ipcRenderer.on('integrations-load', (event, integrations) => {
+      this.setState({ integrations });
     });
     ipcRenderer.on('notification', (event, arg) => {
       // show desktop notification
@@ -158,11 +166,11 @@ export default class App extends Component {
     ipcRenderer.on('end-session', (event, selector) => {
       //empty search result box
       this.setState({ clearInput: true });
-      ipcRenderer.send('search', '', Date.now());
+      ipcRenderer.send('search', '', Date.now(), false);
       this.refs.sideBar.changeIcon('');
     });
     // start empty search (should return 10 most recent items by signed in user name)
-    ipcRenderer.send('search', '', Date.now());
+    ipcRenderer.send('search', '', Date.now(), true);
   }
 
   componentDidUpdate() {
@@ -265,7 +273,7 @@ export default class App extends Component {
 
   handleInput(e) {
     const q = e.target.value;
-    ipcRenderer.send('search', q, Date.now());
+    ipcRenderer.send('search', q, Date.now(), false);
     this.refs.sideBar.changeIcon(q);
     if (this.segmentTimer) {
       clearTimeout(this.segmentTimer);
@@ -655,7 +663,7 @@ export default class App extends Component {
           ref = "sideBar"
           onIntegrationClick = {this.handleSidebarIntegrationClick}
           addIntegrationsClick = {this.handleAddIntegrationsClick}
-          integrations = {this.integrations}
+          integrations = {this.state.integrations}
           icons = {icons}
         />
         <div className = "search_root">

@@ -153,7 +153,11 @@ ipcMain.on('log', (event, arg) => {
   
 });
 
-ipcMain.on('search', (event, arg, time) => {
+ipcMain.on('search', (event, arg, time, afterCreate) => {
+  if (afterCreate) {
+    refreshIntegrations();
+  }
+
   let searchPromise;
   let localWords = arg.startsWith('mac ');
   
@@ -219,7 +223,7 @@ function finalizeSearch(event, time, hits, query, local) {
 
   if (time > latestSearchTime){
     latestSearchTime = time;
-    event.sender.send('search-result', { items: hits, userDir: app.getPath('home'), integrations: prefs.settings.account.integrations });
+    event.sender.send('search-result', { items: hits, userDir: app.getPath('home') });
   }
 }
 
@@ -755,6 +759,11 @@ function endLogin() {
   if (isOsx() && !local) {
     local = initLocal(app.getPath('userData'));
   }
+  refreshIntegrations();
+}
+
+function refreshIntegrations() {
+  searchWindow.webContents.send('integrations-load', prefs.settings.account.integrations);
 }
 
 function checkGlobalShortcut(shortcut) {
