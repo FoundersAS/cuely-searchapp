@@ -141,11 +141,11 @@ export default class PipedriveContent extends Component {
           </div>
           <div className="content_row">
             <div className="content_attribute_name">Status</div>
-            <div className="content_attribute_value">{this.renderAttribute(item.metaInfo.status)}</div>
+            <div className="content_attribute_value" dangerouslySetInnerHTML={{ __html: item.metaInfo.status || '/' }} />
           </div>
           <div className="content_row">
             <div className="content_attribute_name">Stage</div>
-            <div className="content_attribute_value">{this.renderAttribute(item.metaInfo.stage)}</div>
+            <div className="content_attribute_value" dangerouslySetInnerHTML={{ __html: item.metaInfo.stage || '/' }} />
           </div>
         </div>
 
