@@ -137,6 +137,10 @@ em {
 				}
 			}
 
+			.search_suggestions_card:hover {
+				cursor: pointer;
+			}
+
 			.action_icon {
 				color: #BBB;
 				font-size: 12px;
@@ -502,7 +506,6 @@ em {
 
 .search_bar_open {
 	position: relative;
-	margin-left: 50;
 	width: 100%;
 	background-color: #FDFDFD;
 	border-bottom: 1px solid #D2D2D2;
