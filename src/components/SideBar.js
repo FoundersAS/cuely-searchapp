@@ -116,11 +116,13 @@ export default class SideBar extends Component {
     }
 
     return (
-      <div>
-        <div className={this.props.className} id={this.props.id}>
+      <div className={this.props.className}>
+        <div className='sidebar_top'> 
           <ul>
             {this.renderIntegrationItem('cuely')}
           </ul>
+        </div>
+        <div className='sidebar_body' id={this.props.id}>
           <ul>
             {integrations}
           </ul>

@@ -797,26 +797,29 @@ function checkKeywords(query, hits) {
     restOfQuery = query.substr(indexOfSpace + 1, query.length);
   }
 
-  //insert special keywords
-  if (firstWord in KEYWORDS) {
-    let items = KEYWORDS[firstWord](restOfQuery);
+  if (firstWord.length > 2) {
 
-    itemsStart = itemsStart.concat(items);
-  }
-  else if (query.length > 1) {
-    try {
-      let mathResult = math.eval(query);  
-      if (mathResult && typeof(mathResult) !== 'function' && String(mathResult) !== query && ('"' + String(mathResult) + '"' !== query)) {
-        itemsStart.unshift(getMathExpression(mathResult));
-      }
-    } catch(err) {}
-  }
-  
-  if (restOfQuery === ''){
-    let item = checkWebsiteKeyword(firstWord);
+    //insert special keywords
+    if (firstWord in KEYWORDS) {
+      let items = KEYWORDS[firstWord](restOfQuery);
+
+      itemsStart = itemsStart.concat(items);
+    }
+    else {
+      try {
+        let mathResult = math.eval(query);  
+        if (mathResult && typeof(mathResult) !== 'function' && String(mathResult) !== query && ('"' + String(mathResult) + '"' !== query)) {
+          itemsStart.unshift(getMathExpression(mathResult));
+        }
+      } catch(err) {}
+    }
     
-    if (item) {
-      itemsStart.unshift(item);
+    if (restOfQuery === '' && itemsStart.length == 0){
+      let item = checkWebsiteKeyword(firstWord);
+      
+      if (item) {
+        itemsStart.unshift(item);
+      }
     }
   }
 

@@ -82,7 +82,6 @@ export function searchLocalFiles(query, callback) {
   let buf = [];
   let bufExact = [];
   let options = {
-    directories : ['/Users/'],
     attributes: ['kMDItemDisplayName', 'kMDItemFSContentChangeDate', 'kMDItemKind', 'kMDItemFSSize', 'kMDItemContentTypeTree'],
     limit: 40
   };
@@ -133,6 +132,12 @@ export function searchLocalFiles(query, callback) {
     buf = buf.sort(function(x, y){
       return y.metaInfo.timestamp - x.metaInfo.timestamp;
     });
+
+    if (bufExact.length > 1){
+      bufExact = bufExact.sort(function(x, y){
+        return y.metaInfo.timestamp - x.metaInfo.timestamp;
+      });
+    }
 
     buf.splice(40);
     callback(bufExact.concat(buf));

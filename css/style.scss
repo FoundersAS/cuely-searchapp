@@ -592,13 +592,11 @@ em {
 .sidebar {
 	top: 0;
 	left: 0;
-	height: 397.38px;
+	height: 460.38px;
 	width: 63px;
 	background-color: rgba(40, 69, 127, 1);
-	overflow: auto;
 
 	ul {
-		padding: 0.5rem 1rem;
 		margin: 0;
 
 		li {
@@ -630,30 +628,41 @@ em {
 		}
 	}
 
-	ul:first-child {
-		padding: 1rem;
-	}
-
 	.search_suggestions_logo_sprite {
 		background: url('../assets/images/other/cuely_icons_sprite@2x.png');
 		background-size: 27px;
 		background-repeat: no-repeat;
 	}
-}
 
-.sidebar_bottom {
-	height: 63px;
-	width: 63px;
-	background-color: rgba(40, 69, 127, 1);
-	cursor: pointer;
-	font-size: 2em;
-	color: rgba(255, 255, 255, 0.4);
-	padding-top: 6px;
-	text-align: center;
-}
+	.sidebar_bottom {
+		height: 63px;
+		width: 63px;
+		background-color: rgba(40, 69, 127, 1);
+		cursor: pointer;
+		font-size: 2em;
+		color: rgba(255, 255, 255, 0.4);
+		padding-top: 6px;
+		text-align: center;
+	}
 
-.sidebar_bottom:hover {
-	color: rgba(255, 255, 255, 0.9);
+	.sidebar_bottom:hover {
+		color: rgba(255, 255, 255, 0.9);
+	}
+
+	.sidebar_top {
+		ul {
+			padding: 1rem;
+		}
+	}
+
+	.sidebar_body{
+		overflow: auto;
+		height: 340.38px;
+
+		ul {
+			padding: 0 1rem;
+		}
+	}
 }
 
 .main_app {
