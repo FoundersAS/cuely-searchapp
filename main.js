@@ -311,6 +311,7 @@ ipcMain.on('track', (event, arg) => {
 });
 
 ipcMain.on('previewFile', (event, arg) => {
+  keepSearchVisible = true;
   previewWindow = new BrowserWindow({
     width: screenBounds.width,
     height: screenBounds.height,
@@ -325,7 +326,6 @@ ipcMain.on('previewFile', (event, arg) => {
   });
 
   previewWindow.previewFile(arg);
-
 });
 
 ipcMain.on('openSettings', (event, arg) => {
