@@ -478,7 +478,7 @@ function createSearchWindow() {
     }
   });
   searchWindow.on('blur', () => {
-    //hide();
+    hide();
   });
 };
 
@@ -1044,6 +1044,7 @@ function getMathExpression(expression) {
 }
 
 function hide() {
+  /*
   if (appHide && isOsx()) {
     app.hide();
   } else {
@@ -1053,6 +1054,8 @@ function hide() {
   if (!appHide) {
     appHide = true;
   }
+  */
+  searchWindow.hide();
 }
 
 function toggleHide() {
