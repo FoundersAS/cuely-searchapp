@@ -241,7 +241,7 @@ export default class App extends Component {
       if (item.webLink){
         this.openExternalLink(item.webLink, 'enter', item.type);  
       } else {
-        this.copyValueToClipboard(item);
+        this.copyValueToClipboard();
       }
     }
 
@@ -256,7 +256,8 @@ export default class App extends Component {
     return (e.key === 'ArrowDown' || (e.ctrlKey && e.key === 'n'));
   }
 
-  copyValueToClipboard(item){
+  copyValueToClipboard(){
+    const item = this.state.searchResults[this.state.selectedIndex];
     clipboard.writeText(item.titleRaw);
     ipcRenderer.send('send-notification', { title: 'Value Copied ✓', body: `${item.titleRaw} has been copied to your clipboard.` });
     ipcRenderer.send('track', { name: 'Copy value', props: {} });
@@ -299,7 +300,7 @@ export default class App extends Component {
       this.openExternalLink(item.webLink, 'double click', item.type);  
     }
     else {
-      this.copyValueToClipboard(item);
+      this.copyValueToClipboard();
     }
     
   }
@@ -611,17 +612,24 @@ export default class App extends Component {
     if (item.webLink && item.type === 'local-file') {
       return (
         <div className="content_bottom_view_link">
-          <div className="action_link action_link_first" onClick={this.handleLocalAppPreview}><span className="glyphicons glyphicons-search"></span>Preview</div>
-          <div className="action_link action_link_middle" onClick={this.handleLocalAppInFinder}><span className="glyphicons glyphicons-folder-open"></span>Open in Finder</div>
-          <div className="action_link action_link_second" onClick={this.handleExternalLink}><span className="glyphicons glyphicons-new-window"></span>Open</div>
+          <div className="action_link" onClick={this.handleLocalAppPreview}><span className="glyphicons glyphicons-search"></span>Preview</div>
+          <div className="action_link" onClick={this.handleLocalAppInFinder}><span className="glyphicons glyphicons-folder-open"></span>Open in Finder</div>
+          <div className="action_link" onClick={this.handleExternalLink}><span className="glyphicons glyphicons-new-window"></span>Open</div>
         </div>
       ); 
     }
     if (item.webLink) {
       return (
         <div className="content_bottom_view_link">
-          <div className="action_link action_link_first" onClick={this.handleExternalLink}><span className="glyphicons glyphicons-new-window"></span>Open</div>
-          <div className="action_link action_link_second" onClick={this.handleActionIconLinkClick}><span className="glyphicons glyphicons-more-items"></span>Share</div>
+          <div className="action_link" onClick={this.handleExternalLink}><span className="glyphicons glyphicons-new-window"></span>Open</div>
+          <div className="action_link" onClick={this.handleActionIconLinkClick}><span className="glyphicons glyphicons-more-items"></span>Share</div>
+        </div>
+      );
+    }
+    else {
+      return (
+        <div className="content_bottom_view_link">
+        <div className="action_link" onClick={this.copyValueToClipboard}><span className="glyphicons glyphicons-new-window"></span>Copy to Clipboard</div>
         </div>
       );
     }

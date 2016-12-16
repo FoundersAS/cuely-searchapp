@@ -449,24 +449,19 @@ em {
 			color: rgba(240, 240, 240, 0.9);
 			background-color: rgba(40, 69, 127, 0.92);
 			padding: 0.5rem 0.75rem;
-			border-radius: 4px;
 			cursor: pointer;
 		}
 
-		.action_link_first {
+		.action_link:last-child {
 			border-right:1px solid rgba(40, 69, 127, 1);
+			border-radius: 4px;
 			border-top-right-radius: 0;
-			border-bottom-right-radius: 0;
+			border-bottom-right-radius: 0;			
 		}
 
 		.action_link_second {
 			border-top-left-radius: 0;
 			border-bottom-left-radius: 0;
-		}
-
-		.action_link_middle {
-			border-radius: 0;
-			border-right:1px solid rgba(40, 69, 127, 1);
 		}
 
 		.action_link:hover {

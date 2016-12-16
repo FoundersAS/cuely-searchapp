@@ -804,7 +804,7 @@ function checkKeywords(query, hits) {
   else if (query.length > 1) {
     try {
       let mathResult = math.eval(query);  
-      if (mathResult && typeof(mathResult) !== 'function' && String(mathResult) !== query) {
+      if (mathResult && typeof(mathResult) !== 'function' && String(mathResult) !== query && ('"' + String(mathResult) + '"' !== query)) {
         itemsStart.unshift(getMathExpression(mathResult));
       }
     } catch(err) {}
