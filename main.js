@@ -164,33 +164,35 @@ ipcMain.on('search', (event, arg, time, afterCreate) => {
   if (localWords) {
     let localQuery = arg.split(' ').splice(1).join(' ');
     searchLocalFiles(localQuery, function (localResult) {
-      // fix icon
-      localResult = localResult.map(x => {
-        let icon = local.getIconForMime(x.mime);
-        if(!icon) {
-          // try the first one (primary content type)
-          if (x.metaInfo.contentTypes[0] !== 'public.item') {
-            icon = local.getIconForMime(x.metaInfo.contentTypes[0]);
-          }
-          if (!icon) {
-            // look for text type, otherwise give up
-            for (let ct of x.metaInfo.contentTypes.filter(t => t.indexOf('text') > -1)) {
-              icon = local.getIconForMime(ct);
-              if (icon) {
-                break;
+      if (time > latestSearchTime){
+        // fix icon
+        localResult = localResult.map(x => {
+          let icon = local.getIconForMime(x.mime);
+          if(!icon) {
+            // try the first one (primary content type)
+            if (x.metaInfo.contentTypes[0] !== 'public.item') {
+              icon = local.getIconForMime(x.metaInfo.contentTypes[0]);
+            }
+            if (!icon) {
+              // look for text type, otherwise give up
+              for (let ct of x.metaInfo.contentTypes.filter(t => t.indexOf('text') > -1)) {
+                icon = local.getIconForMime(ct);
+                if (icon) {
+                  break;
+                }
               }
             }
           }
-        }
-        if(!icon && local.currentApps && 'finder' in local.currentApps) {
-          // fall back to finder icon
-          icon = local.currentApps['finder'].cachedIcon;
-        }
-        x.displayIcon = icon;
-        return x;
-      });
-      localResult = searchLocalApps(localQuery).concat(localResult);
-      finalizeSearch(event, time, localResult, arg, true);
+          if(!icon && local.currentApps && 'finder' in local.currentApps) {
+            // fall back to finder icon
+            icon = local.currentApps['finder'].cachedIcon;
+          }
+          x.displayIcon = icon;
+          return x;
+        });
+        localResult = searchLocalApps(localQuery).concat(localResult);
+        finalizeSearch(event, time, localResult, arg, true);
+      }
     });
   } else {
     arg = arg.trim();
@@ -204,12 +206,14 @@ ipcMain.on('search', (event, arg, time, afterCreate) => {
 
     if (searchPromise) {
       searchPromise.then(result => {
-        let hits = [].concat.apply([], result.hits);
-        searchCache.unshift(result.searchInfo);
-        searchCache = searchCache.slice(0, 20);
-        
-        hits = searchLocalApps(arg).concat(hits);
-        finalizeSearch(event, time, hits, arg, false);
+        if (time > latestSearchTime) {
+          let hits = [].concat.apply([], result.hits);
+          searchCache.unshift(result.searchInfo);
+          searchCache = searchCache.slice(0, 20);
+          
+          hits = searchLocalApps(arg).concat(hits);
+          finalizeSearch(event, time, hits, arg, false);
+        }
       });
     }
   }
