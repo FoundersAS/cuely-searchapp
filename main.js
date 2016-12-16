@@ -96,7 +96,7 @@ let debugWindow;
 let tray;
 
 let credentials;
-let appHide = false;
+let keepSearchVisible = false;
 let screenBounds;
 let syncPollerTimeouts = {};
 let prefs;
@@ -478,12 +478,16 @@ function createSearchWindow() {
     }
   });
   searchWindow.on('blur', () => {
-    hide();
+    if (keepSearchVisible) {
+      keepSearchVisible = false;
+    } else {
+      hide();
+    }
   });
 };
 
 function createLoginWindow() {
-  appHide = false;
+  keepSearchVisible = true;
   if (loginWindow) {
     loginWindow.show();
     return;
@@ -525,7 +529,7 @@ function createLoginWindow() {
 }
 
 function createDebugWindow() {
-  appHide = false;
+  keepSearchVisible = true;
   if (debugWindow) {
     debugWindow.show();
     return;
@@ -550,7 +554,7 @@ function createDebugWindow() {
 }
 
 function createSettingsWindow() {
-  appHide = false;
+  keepSearchVisible = true;
   if (settingsWindow) {
     settingsWindow.show();
     return;
@@ -1038,18 +1042,11 @@ function getMathExpression(expression) {
 }
 
 function hide() {
-  /*
-  if (appHide && isOsx()) {
+  if (isOsx() && prefs.settings.showDockIcon) {
     app.hide();
   } else {
     searchWindow.hide();
   }
-
-  if (!appHide) {
-    appHide = true;
-  }
-  */
-  searchWindow.hide();
 }
 
 function toggleHide() {
