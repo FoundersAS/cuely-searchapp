@@ -179,7 +179,7 @@ class LocalApps {
         delete apps[appKey];
       } else {
         this._handleIconsetDir(outPath, null, filename, (iconPath) => {
-          if (appKey in apps) {
+          if (iconPath && appKey in apps) {
             apps[appKey].cachedIcon = iconPath;
           }
           if (this.iconsCounter < 1) {
@@ -218,6 +218,11 @@ class LocalApps {
   }
 
   _handleIconsetDir(iconsetPath, destIconPath, iconName, cb) {
+    if (!existsSync(iconsetPath)) {
+      cb(null);
+      return;
+    }
+
     const icons = readdirSync(iconsetPath);
     let filtered = icons.filter(x => x.indexOf('32x32@2x.') > -1);
     if (filtered.length < 1) {
