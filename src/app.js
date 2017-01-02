@@ -333,7 +333,9 @@ export default class App extends Component {
       shell.openExternal(link);
     }
     
-    ipcRenderer.send('keep-search');
+    if (itemType !== 'local-app') {
+      ipcRenderer.send('keep-search');
+    }
     ipcRenderer.send('track', { name: 'Open link', props: { type: triggerType, integration: itemType } });
   }
 
