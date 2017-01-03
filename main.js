@@ -523,9 +523,10 @@ function createSearchWindow() {
   });
   searchWindow.on('blur', () => {
     if (keepSearchVisible) {
-      keepSearchVisible = false;
-    } 
-    else if (!isDevelopment()) {
+      if (!auxilaryWindowVisible()) {
+        keepSearchVisible = false;
+      }
+    } else {
       hide();
     }
   });
@@ -564,12 +565,16 @@ function createLoginWindow() {
 
   loginWindow.loadURL(`file://${__dirname}/index.html?route=login`);
 
+  loginWindow.on('show', () => {
+    keepSearchVisible = true;
+  });
   // Emitted when the window is closed.
   loginWindow.on('closed', () => {
     // Dereference the window object, usually you would store windows
     // in an array if your app supports multi windows, this is the time
     // when you should delete the corresponding element.
     loginWindow = null;
+    keepSearchVisible = false;
   });
 }
 
@@ -589,12 +594,16 @@ function createDebugWindow() {
 
   debugWindow.loadURL(`file://${__dirname}/index.html?route=debug`);
 
+  debugWindow.on('show', () => {
+    keepSearchVisible = true;
+  });
   // Emitted when the window is closed.
   debugWindow.on('closed', () => {
     // Dereference the window object, usually you would store windows
     // in an array if your app supports multi windows, this is the time
     // when you should delete the corresponding element.
     debugWindow = null;
+    keepSearchVisible = false;
   });
 }
 
@@ -614,13 +623,26 @@ function createSettingsWindow() {
 
   settingsWindow.loadURL(`file://${__dirname}/index.html?route=settings`);
 
+  settingsWindow.on('show', () => {
+    keepSearchVisible = true;
+  });
   // Emitted when the window is closed.
   settingsWindow.on('closed', () => {
     // Dereference the window object, usually you would store windows
     // in an array if your app supports multi windows, this is the time
     // when you should delete the corresponding element.
     settingsWindow = null;
+    keepSearchVisible = false;
   });
+}
+
+function auxilaryWindowVisible() {
+  for (let win of [loginWindow, debugWindow, settingsWindow]) {
+    if (win && win.isVisible()) {
+      return true;
+    }
+  }
+  return false;
 }
 
 function loadCredentialsOrLogin() {
