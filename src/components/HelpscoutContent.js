@@ -136,11 +136,10 @@ export default class HelpscoutContent extends Component {
   }
 
   renderAssigned(assigned, status) {
-    status = status.toLowerCase();
-    if (status == 'active' || status == 'pending'){
+    let s = status.toLowerCase();
+    if (s == 'active' || s == 'pending'){
       return assigned + '&nbsp;/&nbsp;';
     }
-    else 
-      return '';
+    return '';
   }
 }
