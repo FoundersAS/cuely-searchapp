@@ -76,7 +76,9 @@ export default class PipedriveContent extends Component {
         <div className="content_section_text">
           {people.map((p, i) => (
             <div className="content_row style_space_between" key={`peopleRow_${groupIndex}_${i}`}>
-              <a href={p.url} className="content_link"><div className="content_list_value" dangerouslySetInnerHTML={{ __html: p.name }} /></a>
+              <div className="content_list_value">
+                <a href={p.url} className="content_link"><span dangerouslySetInnerHTML={{ __html: p.name }} /></a>
+              </div>
               <div className="content_list_right_side" dangerouslySetInnerHTML={{ __html: p.email }} />
             </div>
           ))}

@@ -450,7 +450,7 @@ export default class App extends Component {
             {item.metaInfo ? this.renderBody(item) : null}
           </div>
         </a>
-        {item.metaInfo && item.type === 'local-file' ? this.renderActionItems(item,i) : null}
+        {this.renderActionItems(item, i)}
       </li>
     )
   }
@@ -478,6 +478,11 @@ export default class App extends Component {
       }
     }
 
+    //case where there was no icon found => let's insert placeholder
+    if (!displayIcon.inlineStyle) {
+      displayIcon.style = displayIcon.style + ' glyphicons glyphicons-question-sign';
+    }
+
     return (displayIcon);
   }
 
@@ -501,11 +506,30 @@ export default class App extends Component {
       );
   }
 
-  renderActionItems(item,i) {
-    if (item.metaInfo){
-      return (
-        <span id={`actionIcon_${i}`} className="action_icon glyphicons glyphicons-search" onClick={this.handleLocalAppPreview} onMouseEnter={this.handleMouseEnter}></span>
-      );
+  renderActionItems(item, i) {
+    if (item.metaInfo) {
+      if (item.type === 'local-file') {
+        return (
+          <span id={`actionIcon_${i}`} className="action_icon glyphicons glyphicons-search" onClick={this.handleLocalAppPreview} onMouseEnter={this.handleMouseEnter}></span>
+        );
+      }
+      else {
+        return (
+          <span id={`actionIcon_${i}`} className="action_icon glyphicons glyphicons-arrow-right" onClick={this.handleDoubleClick} onMouseEnter={this.handleMouseEnter}></span>
+        );
+      }      
+    }
+    else {
+      if (item.type === 'math') {
+        return (
+          <span id={`actionIcon_${i}`} className="action_icon action_icon_no_meta_info glyphicons glyphicons-more-items" onClick={this.copyValueToClipboard} onMouseEnter={this.handleMouseEnter}></span>
+        );
+      }
+      else {
+        return (
+          <span id={`actionIcon_${i}`} className="action_icon action_icon_no_meta_info glyphicons glyphicons-arrow-right" onClick={this.handleDoubleClick} onMouseEnter={this.handleMouseEnter}></span>
+        );
+      }
     }
   }
 
@@ -639,8 +663,8 @@ export default class App extends Component {
       return (
         <div className="content_bottom_view_link">
           <div className="content_center">
-            <div className="action_link" onClick={this.handleExternalLink}><span className="glyphicons glyphicons-new-window"></span>Open</div>
-            <div className="action_link" onClick={this.handleActionIconLinkClick}><span className="glyphicons glyphicons-link"></span>Share</div>
+            <div className="action_link" onClick={this.handleExternalLink}><span className="glyphicons glyphicons-new-window"></span>Open App</div>
+            <div className="action_link" onClick={this.handleActionIconLinkClick}><span className="glyphicons glyphicons-link"></span>Copy Link to Clipboard</div>
           </div>
         </div>
       );

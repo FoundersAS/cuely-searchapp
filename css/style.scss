@@ -5,39 +5,39 @@
 @charset "utf-8";
 
 /* Colors- DARK */
-$secondary-color: #000;
-$tertiary-color: #333;
+$color-white: #000;
 $brand-color-a: #F35803;
 $brand-color-b: #4A2230;
-$brand-color-c: #22191C;
+$color-white: #22191C;
 $brand-color-d: #1E191A;
-$color-yellow: #FFCF62;
-$color-dark: #333;
-$color-dark-blue: #2E52A2;
 
-$primary-color: #111;
-$secondary-color: #FDFDFD;
-$brand-color-c: #FDFDFD;
+$color-yellow: #FFCF62;
+$color-dark-blue: #2E52A2;
+$color-dark: #333;
+$color-very-dark: #111;
+
+$color-white: #FDFDFD;
 $brand-color-d: #F8F8F8;
 //NEW BACKGROUND COLOR: #47343B
 
 /* Colors- BRIGHT */
-// $primary-color: #FFF;
-// $secondary-color: #000;
-// $tertiary-color: #333;
+// $color-very-dark: #FFF;
+// $color-white: #000;
+// $color-dark: #333;
 // $brand-color-a: #F35803;
 // $brand-color-b: #4A2230;
-// $brand-color-c: #22191C;
+// $color-white: #22191C;
 // $brand-color-d: #1E191A;
 
 /* Font */
+$font-size-super-tiny: 1.1rem;
 $font-size-tiny: 1.2rem;
 $font-size-base: 1.3rem;
 $font-size-mid: 1.4rem;
 $font-size-big: 1.55rem;
 $font-size-giant: 1.88rem;
 
-$letter-spacing-base: 0.02rem;
+$letter-spacing-base: 0.015rem;
 
 $font-weight-regular: 400;
 $font-weight-medium: 500;
@@ -66,7 +66,7 @@ a {
 body {
   padding: 0px;
   margin: 0px;
-  font-family: "San Francisco Compact";
+  font: $system-font;
   font-size: $font-size-base;
   font-weight: $font-weight-regular;
   overflow: hidden;
@@ -80,7 +80,7 @@ body {
 em {
   font-weight: $font-weight-medium;
   font-style: inherit;
-  color: $primary-color;
+  color: $color-very-dark;
 }
 
 .search_root {
@@ -102,15 +102,14 @@ em {
 		position: relative;
 		top: 13rem;
 		font-size: $font-size-mid;
-		color: $primary-color;
+		color: $color-very-dark;
 		margin-left: -1.5rem;
 	}
 
 	.search_suggestions_list {
 		margin: 0;
 		padding: 0;
-		width: 50%;
-		background-color: $secondary-color;
+		background-color: $color-white;
 		height: 397px;
 
 		ul {
@@ -123,15 +122,15 @@ em {
 		.search_suggestions_card {
 			border: none;
 			font-size: $font-size-big;
-			color: rgba($primary-color, 0.85);
+			color: rgba($color-very-dark, 0.85);
 			position: relative;
 
 			.search_suggestions_logo_container {
 				width: 2.8rem;
 				height: 2.5rem;
 				pointer-events: none;
-				background-color: $secondary-color;
-				border: 1px solid rgba($primary-color, 0.1);
+				background-color: $color-white;
+				border: 1px solid rgba($color-very-dark, 0.1);
 				border-radius: 0.2rem;
 			}
 
@@ -142,6 +141,12 @@ em {
 				margin: 0.4rem 0 0 0.4rem;
 				background-position: center;
 				background-repeat: no-repeat;
+			}
+
+			.search_suggestions_logo.glyphicons-question-sign {
+				color: rgba($color-very-dark, 0.25);
+				font-size: $font-size-big;
+				padding: 0.1rem 0 0 0.1rem;
 			}
 
 			.search_suggestions_logo_sprite {
@@ -172,8 +177,8 @@ em {
 				}
 
 				.body {
-					color: rgba($primary-color, 0.6);
-					padding: 0.8rem 0 0 0;
+					color: rgba($color-very-dark, 0.6);
+					padding: 0.7rem 0 0 0;
 
 					div {
 						display: inline-block;
@@ -183,37 +188,35 @@ em {
 					.meta_data {
 						padding-right: 1rem;
 						display: inline-block;
-						text-transform: capitalize;
 					}
 
 					.meta_icon {
 						font-size: 11px;
-						color: #BBB;
 						padding: .3rem .5rem 0 0;
-					}
-
-					.meta_icon.glyphicons-folder-open {
-						margin-right: 0.15rem;
+						color: rgba($color-very-dark, 0.3);
 					}
 				}
 			}
 
 			.action_icon {
-				color: #BBB;
-				font-size: $font-size-tiny;
+				color: rgba($color-very-dark, 0.3);
+				font-size: 1.1rem;
 				font-weight: 300;
 				display: inline-block;
 				position: absolute;
 				z-index: 100;
-				right: .5rem;
-				top: 2.65rem;
-				padding: .4rem;
+				right: 1.7rem;
+				bottom: 1.2rem;
+				padding: .5rem;
 				cursor: pointer;
 			}
 
+			.action_icon_no_meta_info {
+				bottom: 1.7rem;
+			}
+
 			.action_icon:hover {
-			  color: #777;
-			  background-color: #BBB;
+			  background-color: rgba($color-very-dark, 0.15);;
 			  border-radius: 2px;
 			  cursor: pointer;
 			}
@@ -227,47 +230,39 @@ em {
 				outline: none;
 				padding: 1.5rem 1.5rem;
 			}
-
-			.search_suggestions_card_link:hover {
-				cursor: pointer;
-			}
 		}
 
 		.search_suggestions_card_highlight {
-			background-color: rgba($primary-color, 0.1) !important;
-
-			.search_suggestions_card_link:hover,
-			.search_suggestions_card_link_action_hover {
-				background-color: rgba($primary-color, 0.1);
-			}
-
-			.meta_icon { color: #AAA; }
-			.action_icon { color: #AAA; }
+			background-color: rgba($color-very-dark, 0.1) !important;
 		}
 
 		.search_suggestions_card + .search_suggestions_card {
-			border-top: 1px solid rgba($primary-color, 0.1);
+			border-top: 1px solid rgba($color-very-dark, 0.1);
+		}
+
+		.search_suggestions_card:last-child {
+			border-bottom: 1px solid rgba($color-very-dark, 0.1);
 		}
 
 		.search_suggestions_card + .search_suggestions_card_highlight,
 		.search_suggestions_card_highlight + .search_suggestions_card  {
-			border-top: 1px solid rgba($primary-color, 0.01);
+			border-top: 1px solid rgba($color-very-dark, 0.01);
 		}
 
 		.search_suggestions_card:hover { 
 			cursor: pointer;
-			background-color: rgba($primary-color, 0.03);
+			background-color: rgba($color-very-dark, 0.03);
 		}
 	}
 }
 
 .search_suggestions_content {
-	width: 50%;
+	width: 400px;
 	margin: 0;
-	background-color: rgba($primary-color, 0.02);
+	background-color: rgba($color-very-dark, 0.02);
 	overflow: auto;
 	height: 397px;
-	border-left: 1px solid rgba($primary-color,0.1);
+	border-left: 1px solid rgba($color-very-dark,0.1);
 	outline: none;
 
 	em {
@@ -293,21 +288,21 @@ em {
 	.content_section:last-child { padding-bottom: 6rem; }
 
 	.content_section_title {
-		color: rgba($primary-color, 0.3);
-		font-size: $font-size-tiny;
-		border-bottom: 1px solid rgba($primary-color, 0.1);
+		color: rgba($color-very-dark, 0.3);
+		font-size: $font-size-mid;
+		border-bottom: 1px solid rgba($color-very-dark, 0.1);
 		font-weight: $font-weight-regular;
 		line-height: $line-height-min;
 		padding-bottom: 0.7rem;
 		margin-bottom: 1rem;
-		text-transform: uppercase;
+		
 	}
 
 	.content_section_text {
 		font-size: $font-size-mid;
 		font-weight: $font-weight-regular;
 		line-height: 1.5;
-		color: $tertiary-color;
+		color: $color-dark;
 		overflow: auto;
 		word-wrap: break-word;
 
@@ -329,27 +324,27 @@ em {
 			}
 
 			.content_list_right_side {
-				color: rgba($primary-color, 0.6);
+				color: rgba($color-very-dark, 0.5);
 			}
 
 			.content_attribute_name {
-			  color: rgba($primary-color, 0.6);
+			  color: rgba($color-very-dark, 0.5);
 			  flex-basis: 35%;
 			}
 
 			.content_attribute_value,
 			.content_list_value {
 				flex-basis: 65%;
-				color: $primary-color;
+				color: $color-dark;
+			}
 
-				a {
-					color: $primary-color;
-					text-decoration: underline;
-				}
+			.content_link {
+				color: $color-dark;
+				text-decoration: underline !important;
+			}
 
-				a:hover {
-					color: rgba($primary-color, 0.6);
-				}
+			.content_link:hover {
+				color: rgba($color-very-dark, 0.7) !important;
 			}
 		}
 
@@ -363,10 +358,11 @@ em {
 	}
 
 	.content_section_pure_text {
-		color: $tertiary-color;
-		background-color: $secondary-color;
-		border: 1px solid rgba($primary-color, 0.1);
+		color: $color-dark;
+		background-color: $color-white;
+		border: 1px solid rgba($color-very-dark, 0.1);
 		font: $system-font;
+		font-size: $font-size-mid;
 		white-space: pre-wrap;
 		line-height: 1.5;
 		margin: 0;
@@ -380,9 +376,9 @@ em {
 		padding-right: 1.5rem;
 
 		.conversation_group {
-			background-color: $secondary-color;
+			background-color: $color-white;
 			border-radius: 0.4rem;
-			border: 1px solid rgba($primary-color, 0.1);
+			border: 1px solid rgba($color-very-dark, 0.1);
 
 			.status {
 				padding: 1.2rem 1rem 0.8rem 1rem;
@@ -401,7 +397,7 @@ em {
 				.sub_status {
 					font-size: $font-size-base;
 					text-decoration: none;
-					color: rgba($primary-color, 0.5);
+					color: rgba($color-very-dark, 0.5);
 				}
 			}
 		}
@@ -421,7 +417,7 @@ em {
 					margin-top: 0.7rem;
 					margin-bottom: 0.5rem;
 					font-size: $font-size-tiny;
-					color: rgba($primary-color, 0.33);
+					color: rgba($color-very-dark, 0.33);
 				}
 
 				.message_body {
@@ -437,7 +433,7 @@ em {
 
 					.message_body {	
 						background-color: $brand-color-a;
-						color: $secondary-color;
+						color: $color-white;
 					}
 
 					.conversation_meta {
@@ -449,7 +445,7 @@ em {
 					width: 80%;
 
 					.message_body {
-						background-color: rgba($primary-color, 0.1);
+						background-color: rgba($color-very-dark, 0.1);
 						color: rgba($color-dark, 0.75);
 					}
 				}
@@ -462,7 +458,7 @@ em {
 	}
 
 	table {
-		color: $tertiary-color;
+		color: $color-dark;
 		font-size: $font-size-base;
 		font-weight: $font-weight-regular;
 		overflow: scroll;
@@ -470,15 +466,15 @@ em {
 		display: block;
 
 		td {
-			border: 1px solid rgba($primary-color, 0.1);
-			background-color: $secondary-color;
+			border: 1px solid rgba($color-very-dark, 0.1);
+			background-color: $color-white;
 			padding: .75rem;
 			text-align: left;
 		}
 
 		th {
 			background-color: rgba($color-yellow, 0.4);
-			border: 1px solid rgba($primary-color, 0.1);
+			border: 1px solid rgba($color-very-dark, 0.1);
 			color: $color-dark;
 			padding: .75rem;
 			text-align: left;
@@ -491,14 +487,14 @@ em {
 	.content_bottom_view_link {
 		position: fixed;
 		bottom: 0;
-		background-color: $brand-color-c;
+		background-color: $color-white;
 		width: 40rem;
 		height: 4.4rem;
 		font-size: $font-size-tiny;
 		font-weight: $font-weight-medium;
 		text-align: center;
-		border-top: 1px solid rgba($primary-color, 0.1);
-		box-shadow: 0px -1px 1px 0px rgba($primary-color,0.03);
+		border-top: 1px solid rgba($color-very-dark, 0.1);
+		box-shadow: 0px -1px 1px 0px rgba($color-very-dark,0.03);
 
 		.content_center {
 			display: inline-block;
@@ -506,7 +502,7 @@ em {
 
 		.action_link {
 			margin-top: 1rem;
-			color: $brand-color-c;
+			color: $color-white;
 			background-color: rgba($color-dark-blue, 0.9);
 			padding: 0.4rem 0.75rem;
 			border-radius: 0.2rem;
@@ -550,7 +546,7 @@ em {
 .search_bar_open {
 	width: 100%;
 	height: 6.4rem;
-	border-bottom: 1px solid rgba($primary-color, 0.1);
+	border-bottom: 1px solid rgba($color-very-dark, 0.1);
 	display: flex;
 	flex-wrap: nowrap;
 	-webkit-app-region: drag;
@@ -560,7 +556,7 @@ em {
 		font-size: $font-size-giant;
 		font-weight: $font-weight-regular;
 		letter-spacing: $letter-spacing-base;
-		color: $primary-color;
+		color: $color-very-dark;
 		outline: none;
 		-webkit-app-region: no-drag;
 		position: relative;
@@ -588,7 +584,6 @@ em {
 		width: 2.5rem;
 		height: 2.5rem;
 		border-radius: 1.25rem;
-		opacity: 0.7;
 		background-repeat: no-repeat;
 		background-position: center center;
 		background-size: 2.5rem 2.5rem;
@@ -601,22 +596,24 @@ em {
 
 	.no_avatar {
 	  line-height: 2.4rem;
-	  color: white;
-	  background-color: rgba($primary-color, 0.4);
+	  color: $color-white;
+	  background-color: rgba($color-very-dark, 0.35);
 	  font-weight: $font-weight-regular;
-	  font-size: $font-size-tiny;
+	  font-size: $font-size-super-tiny;
+	  font-weight: $font-weight-medium;
+	  text-transform: uppercase;
 	  text-align: center;
 	  box-shadow:none;
-	}
-
-	.active {
-	  opacity: 1;
 	}
 }
  
 /* Glyphicons reset */
 .glyphicons:before {
   padding: 0;
+}
+
+.glyphicons-folder-open {
+	margin-right: 0.15rem;
 }
 
 .sidebar {

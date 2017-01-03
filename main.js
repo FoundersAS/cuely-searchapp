@@ -517,7 +517,6 @@ function createSearchWindow() {
     if (bounds.screenWidth != screenBounds.screenWidth || bounds.screenHeight != screenBounds.screenHeight || bounds.x != screenBounds.x) {
       // reposition, needed because of external screen(s) might be (un)plugged
       searchWindow.setPosition(bounds.x, bounds.y, false);
-      console.log(bounds.x);
       screenBounds = bounds;
     }
   });
@@ -526,7 +525,7 @@ function createSearchWindow() {
       if (!auxilaryWindowVisible()) {
         keepSearchVisible = false;
       }
-    } else {
+    } else if(!isDevelopment()){
       hide();
     }
   });
