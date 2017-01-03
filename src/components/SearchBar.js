@@ -49,7 +49,7 @@ export default class SearchBar extends Component {
   render() {
     return (
       <div className={this.props.className} id={this.props.id} onMouseUp={this.props.onDragEnd}>
-        <span className="search_bar_icon glyphicons glyphicons-search"/>
+        <span className="search_bar_icon"/>
           <input
             type="text"
             placeholder="Search your company items"
@@ -58,7 +58,6 @@ export default class SearchBar extends Component {
             onKeyDown={this.props.onKeyDown}
             onInput={this.props.onInput}
             ref='input' />
-        <span className="cuely_prefs_icon glyphicons glyphicons-cogwheel" onClick={this.props.onSettingsClick}/>
       </div>
     );
   }

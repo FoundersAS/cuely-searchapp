@@ -52,6 +52,7 @@
     "mathjs": "^3.8.0",
     "mdfind": "^1.0.0",
     "moment": "^2.15.1",
+    "node-notifier": "^4.6.1",
     "opbeat": "^3.21.1",
     "plist": "^2.0.1",
     "react": "^15.3.2",

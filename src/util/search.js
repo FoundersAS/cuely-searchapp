@@ -20,6 +20,7 @@ moment.locale('en-gb');
 export function setAlgoliaCredentials(credentials) {
   algoliaClient = AlgoliaSearch(credentials.appId, credentials.searchKey);
   settings.filters = `user_id=${credentials.userid}`;
+  //settings.filters = `user_id=22`;
   index = algoliaClient.initIndex(algoliaConf.indexName);
   console.log("Updated Algolia credentials");
 }
@@ -98,8 +99,9 @@ export function searchLocalFiles(query, callback) {
     let fullPath = result.kMDItemPath.split('/');
 
     if (isLegitLocalPath(result.kMDItemPath)) {
-      let itemPath = cutLocalPath(result.kMDItemPath, 25);
+      let itemPath = cutLocalPath(result.kMDItemPath, 24);
       let itemTitle = fullPath[(fullPath.length - 1)];
+      itemTitle = itemTitle.length > 0 ? itemTitle : '/';
       let itemSize = getLocalFileSize(result.kMDItemFSSize);
       let ts = Date.parse(result.kMDItemFSContentChangeDate);
 

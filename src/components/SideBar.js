@@ -12,13 +12,6 @@ export default class SideBar extends Component {
     }
   }
 
-  componentDidMount() {
-
-  }
-
-  componentDidUpdate() {
-  }
-
   componentWillReceiveProps(nextProps){
     this.setState ({
       currentIntegrations: this.fixIntegrations(nextProps.integrations),
@@ -46,7 +39,6 @@ export default class SideBar extends Component {
     return [...sidebarIntegrations];
   }
 
-
   getIconStyle(mime) {
     let displayIcon = {
       'style': 'sidebar_integration_logo'
@@ -56,7 +48,7 @@ export default class SideBar extends Component {
 
     for (let itemIcons of this.state.icons) {
       if (itemIcons.type == mime) {
-        const verticalOffset = itemIcons.spriteOffset*(-27) + 'px';
+        const verticalOffset = itemIcons.spriteOffset*(-26) + 'px';
 
         displayIcon.inlineStyle = { 'backgroundPosition': '0 ' + verticalOffset };
         displayIcon.style = displayIcon.style + ' ' + 'search_suggestions_logo_sprite';
@@ -72,12 +64,12 @@ export default class SideBar extends Component {
     this.setState({
       active : e.target.id
     });
-
+    
     if (e.target.id != 'cuely') {
       this.props.onIntegrationClick(e.target.id + ' ');
     } else {
       this.props.onIntegrationClick('');
-    } 
+    }
   }
 
   changeIcon(query) {
@@ -99,7 +91,7 @@ export default class SideBar extends Component {
 
   renderIntegrationItem(integration) {
     const icon = this.getIconStyle(integration);
-    const liActive = (integration == this.state.active) ? 'active' : '';
+    let liActive = (integration == this.state.active) ? 'active' : '';
 
     return (
       <li id={integration} className={liActive} onClick={this.handleIntegrationClick} key={`li_${integration}`}>
@@ -117,7 +109,7 @@ export default class SideBar extends Component {
 
     return (
       <div className={this.props.className}>
-        <div className='sidebar_top'> 
+        <div className='sidebar_top'>
           <ul>
             {this.renderIntegrationItem('cuely')}
           </ul>
@@ -127,8 +119,7 @@ export default class SideBar extends Component {
             {integrations}
           </ul>
         </div>
-        <div className='sidebar_bottom' onClick={this.props.addIntegrationsClick}>
-        +
+        <div className='sidebar_bottom' onClick={this.props.onSettingsClick}>
         </div>
       </div>
     );

@@ -55,7 +55,7 @@ export default class PipedriveContent extends Component {
       return null;
     }
     return (
-      <div>
+      <div className='content_section'>
         <div className="content_section_title">{title}</div>
         <div className="avatars">
             {item.metaInfo.users.map((user, i) => (
@@ -71,7 +71,7 @@ export default class PipedriveContent extends Component {
       return null;
     }
     return (
-      <div>
+      <div className='content_section'>
         <div className="content_section_title">{title}&nbsp;({people.length})</div>
         <div className="content_section_text">
           {people.map((p, i) => (
@@ -98,24 +98,28 @@ export default class PipedriveContent extends Component {
       return null;
     }
     return (
-      <div>
+      <div className='content_section'>
         <div className="content_section_title">Activity</div>
         <div className="content_section_text content_section_conversation">
-          {activites.map((activity, i) => (
-            <div className={i === 0 ? "conversation_first" : "conversation"} key={`activity_${i}`}>
-              
-              <div className="conversation_item">
-                <div className="message" dangerouslySetInnerHTML={{ __html: activity.subject }} />
-                <div className="conversation_meta style_space_between">
-                  <span>
-                    <div className="type">{this.renderActivityIcon(activity)}</div>
-                    <div className="author" dangerouslySetInnerHTML={{ __html: `${activity.username.split(' ')[0]} → ${activity.contact}` }} />
-                  </span>
-                  <div className="time">&nbsp;{activity.doneTime}</div>
+          <div className="conversation_group">
+            {activites.map((activity, i) => (
+              <div key={`activity_${i}`}>
+                <div className="conversation_items">
+                  <div className="conversation_item">
+                    <div className="message_user">
+                      <div className="message_body" dangerouslySetInnerHTML={{ __html: activity.subject }} />
+                        <div className="conversation_meta">
+                          <span>
+                            {this.renderActivityIcon(activity)}
+                            <span dangerouslySetInnerHTML={{ __html: `${activity.username.split(' ')[0]} → ${activity.contact}` }} />&nbsp;—&nbsp;{activity.doneTime}
+                          </span>
+                        </div>
+                    </div>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       </div>
     );
@@ -129,23 +133,25 @@ export default class PipedriveContent extends Component {
     return (
       <div>
         {this.renderUsers(item, 'Collaborators', 1)}
-        <div className="content_section_title">Deal info</div>
-        <div className="content_section_text">
-          <div className="content_row">
-            <div className="content_attribute_name">Company</div>
-            <div className="content_attribute_value" dangerouslySetInnerHTML={{ __html: item.content.company }} />
-          </div>
-          <div className="content_row">
-            <div className="content_attribute_name">Deal value</div>
-            <div className="content_attribute_value">{this.renderAttributeValue(item.content.value, item.content.currency)}</div>
-          </div>
-          <div className="content_row">
-            <div className="content_attribute_name">Status</div>
-            <div className="content_attribute_value" dangerouslySetInnerHTML={{ __html: item.metaInfo.status || '/' }} />
-          </div>
-          <div className="content_row">
-            <div className="content_attribute_name">Stage</div>
-            <div className="content_attribute_value" dangerouslySetInnerHTML={{ __html: item.metaInfo.stage || '/' }} />
+        <div className='content_section'>
+          <div className="content_section_title">Deal info</div>
+          <div className="content_section_text">
+            <div className="content_row">
+              <div className="content_attribute_name">Company</div>
+              <div className="content_attribute_value" dangerouslySetInnerHTML={{ __html: item.content.company }} />
+            </div>
+            <div className="content_row">
+              <div className="content_attribute_name">Deal value</div>
+              <div className="content_attribute_value">{this.renderAttributeValue(item.content.value, item.content.currency)}</div>
+            </div>
+            <div className="content_row">
+              <div className="content_attribute_name">Status</div>
+              <div className="content_attribute_value" dangerouslySetInnerHTML={{ __html: item.metaInfo.status || '/' }} />
+            </div>
+            <div className="content_row">
+              <div className="content_attribute_name">Stage</div>
+              <div className="content_attribute_value" dangerouslySetInnerHTML={{ __html: item.metaInfo.stage || '/' }} />
+            </div>
           </div>
         </div>
 

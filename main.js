@@ -10,7 +10,6 @@ import AutoLaunch from 'auto-launch';
 const math = require('mathjs');
 const appVersion = require('./package.json').version;
 const sessionLength = 900000; //900000 15 minutes = 1000 * 60 * 15
-
 const { app, dialog, shell, BrowserWindow, Menu, MenuItem, Tray, globalShortcut } = electron;
 const winHeight = 460;
 
@@ -106,6 +105,7 @@ let updateInterval;
 let sessionInterval;
 let updateManual = false;
 let latestSearchTime = 0;
+let eNotify;
 
 // debugging stuff
 let settingsCache = [];
@@ -325,19 +325,24 @@ ipcMain.on('track', (event, arg) => {
 ipcMain.on('previewFile', (event, arg) => {
   keepSearchVisible = true;
   previewWindow = new BrowserWindow({
+    closable: true,
     width: screenBounds.width,
     height: screenBounds.height,
     x: screenBounds.x,
     y: screenBounds.y,
     transparent: true,
     frame: false,
-    show: true,
-    enableLargerThanScreen: true,
     shadow: true,
     resizable: false
   });
 
   previewWindow.previewFile(arg);
+
+  previewWindow.on('blur', () => {
+    previewWindow.close();
+    previewWindow = null;
+  });
+
 });
 
 ipcMain.on('openSettings', (event, arg) => {
@@ -357,7 +362,6 @@ ipcMain.on('renderer-error', (event, arg) => {
   });
 });
 
-
 //----------- UTILITY FUNCTIONS
 function sendSyncDone(integrationName) {
   sendDesktopNotification('Synchronization complete ✓', 'Cuely has finished indexing your ' + integrationName);
@@ -366,6 +370,7 @@ function sendSyncDone(integrationName) {
 function sendDesktopNotification(title, body) {
   const target = searchWindow || loginWindow;
   if (target) {
+//    new Notification(title, body);
     target.webContents.send('notification', { title, body });
   } else {
     console.log("Could not send desktop notification -> no window available");
@@ -429,12 +434,37 @@ function aboutDialog() {
 }
 
 function getScreenProps() {
-  const {width, height} = electron.screen.getPrimaryDisplay().workAreaSize;
-  return {
-    width: width,
-    height: height,
-    center: { x: Math.round(width/2), y: Math.round(height/2) },
-  };
+  let activeDisplays = electron.screen.getAllDisplays();
+
+  if (activeDisplays.length > 1) {
+    let display = getActiveDisplay(activeDisplays);
+
+    return {
+      width: display.workAreaSize.width,
+      height: display.workAreaSize.height,
+      center: { x: Math.round(display.workAreaSize.width/2), y: Math.round(display.workAreaSize.height/2) },
+      const: { x: display.bounds.x, y: display.bounds.y }
+    };
+  }
+  else {
+    const {width, height} = electron.screen.getPrimaryDisplay().workAreaSize;
+    return {
+      width: width,
+      height: height,
+      center: { x: Math.round(width/2), y: Math.round(height/2) },
+      const: { x: 0, y:0 }
+    };
+  }
+}
+
+function getActiveDisplay(activeDisplays) {
+  let currentCursor = electron.screen.getCursorScreenPoint();
+
+  for (let display of activeDisplays) {
+    if (currentCursor.x >= display.bounds.x && currentCursor.x <= display.bounds.x + display.bounds.width && currentCursor.y >= display.bounds.y && currentCursor.y <= display.bounds.y + display.bounds.height) {
+      return display;
+    }
+  }
 }
 
 function calculatePositionAndSize() {
@@ -444,11 +474,11 @@ function calculatePositionAndSize() {
   const w = 863;
   return {
     width: w,
-    height: 400,
-    x: Math.round(screen.center.x - (w / 2)),
-    y: Math.round(screen.center.y / 2),
+    height: 460,
+    x: screen.const.x + Math.round(screen.center.x - (w / 2)),
+    y: screen.const.y + Math.round(screen.center.y / 2),
     screenWidth: screen.width,
-    screenHeight: 400
+    screenHeight: 460
   }
 }
 
@@ -460,7 +490,7 @@ function createSearchWindow() {
     height: screenBounds.height,
     x: screenBounds.x,
     y: screenBounds.y,
-    transparent: true,
+    transparent: false,
     frame: false,
     show: false,
     enableLargerThanScreen: true,
@@ -483,16 +513,19 @@ function createSearchWindow() {
     resetSession();
     searchWindow.webContents.send('focus-element', '#searchBar');
     const bounds = calculatePositionAndSize();
-    if (bounds.screenWidth != screenBounds.screenWidth || bounds.screenHeight != screenBounds.screenHeight) {
+    
+    if (bounds.screenWidth != screenBounds.screenWidth || bounds.screenHeight != screenBounds.screenHeight || bounds.x != screenBounds.x) {
       // reposition, needed because of external screen(s) might be (un)plugged
       searchWindow.setPosition(bounds.x, bounds.y, false);
+      console.log(bounds.x);
       screenBounds = bounds;
     }
   });
   searchWindow.on('blur', () => {
     if (keepSearchVisible) {
       keepSearchVisible = false;
-    } else {
+    } 
+    else if (!isDevelopment()) {
       hide();
     }
   });

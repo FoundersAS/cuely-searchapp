@@ -46,7 +46,7 @@ export default class HelpscoutDocsContent extends Component {
       return null;
     }
     return (
-      <div>
+      <div className='content_section'>
         <div className="content_section_title">{title}</div>
         <div className="avatars">
             {item.metaInfo.users.map((user, i) => (
@@ -62,9 +62,9 @@ export default class HelpscoutDocsContent extends Component {
       return null;
     }
     return (
-      <div>
+      <div className='content_section'>
         <div className="content_section_title">Content</div>
-        <div id="searchSuggestionsContent" className="content_section_text" dangerouslySetInnerHTML={{ __html: content }} />
+        <div id="searchSuggestionsContent" className="content_section_text content_section_pure_text" dangerouslySetInnerHTML={{ __html: content }} />
       </div>
     );
   }

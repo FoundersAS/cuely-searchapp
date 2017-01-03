@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import ReactDOM from 'react-dom';
-import { ipcRenderer, shell, clipboard } from 'electron';
+import { ipcRenderer, shell, clipboard, remote } from 'electron';
 import { Scrollbars } from 'react-custom-scrollbars';
 import SearchBar from './components/SearchBar';
 import SideBar from './components/SideBar';
@@ -12,6 +12,7 @@ import HelpscoutDocsContent from './components/HelpscoutDocsContent';
 import JiraContent from './components/JiraContent';
 import LocalFileContent from './components/LocalFileContent';
 require('../css/style.scss');
+const notifier = require('node-notifier');
 
 const icons = [
   {
@@ -214,6 +215,7 @@ export default class App extends Component {
   }
 
   handleKeyDown(e) {
+
     if (this.isDown(e) || this.isUp(e)) {
       e.preventDefault();
       let index = this.state.selectedIndex;
@@ -341,19 +343,13 @@ export default class App extends Component {
     e.preventDefault();
 
     let index = this.state.selectedIndex;
-
+    
     if (index > -1) {
       clipboard.writeText(this.state.searchResults[index].webLink);
       const docName = this.state.searchResults[index].titleRaw;
       ipcRenderer.send('send-notification', { title: 'Copied link to clipboard ✓', body: `Cuely has copied link for ${docName} to clipboard` });
       ipcRenderer.send('track', { name: 'Copy link', props: {} });
     }
-    /*
-    index = this.state.selectedIndex;
-    const link = document.getElementById("searchItemLink_" + index);
-    if (link) {
-      link.focus();
-    }*/
   }
 
   handleLocalAppInFinder(e) {
@@ -366,7 +362,14 @@ export default class App extends Component {
   handleLocalAppPreview(e) {
     e.preventDefault();
 
-    const item = this.state.searchResults[this.state.selectedIndex];
+    const index = this.getIndex(e.target.id);
+    let item = this.state.searchResults[this.state.selectedIndex];
+
+    //this handles the case when someone presses on the actionLink within the item
+    if (index > -1) {
+      item = this.state.searchResults[index];
+    }
+
     ipcRenderer.send('previewFile', item.webLink);
   }
 
@@ -434,7 +437,9 @@ export default class App extends Component {
     return (
       <li key={i} className={liClass} ref={`searchItem_${i}`}>
         <a href="#" onClick={this.handleClick} onDoubleClick={this.handleDoubleClick} onKeyDown={this.handleKeyDown} onMouseMove={this.handleMouseMove} className="search_suggestions_card_link" id={`searchItemLink_${i}`}>
-          <div style={icon.inlineStyle} className={icon.style} />
+          <div className="search_suggestions_logo_container">
+            <div style={icon.inlineStyle} className={icon.style} />
+          </div>
           <div className="search_suggestions_data">
             <div className="heading">
               <div className="title" dangerouslySetInnerHTML={{ __html: item.title }} />
@@ -443,30 +448,29 @@ export default class App extends Component {
             {item.metaInfo ? this.renderBody(item) : null}
           </div>
         </a>
+        {item.metaInfo && item.type === 'local-file' ? this.renderActionItems(item,i) : null}
       </li>
     )
   }
 
   getIcon(item) {
     let displayIcon = {
-      'style': 'search_suggestions_logo'
+      'style' : 'search_suggestions_logo'
     };
     
     if (item.type.startsWith('local-')) {
       if (item.displayIcon) {
         displayIcon.inlineStyle = {
-          'backgroundSize': '25px 25px',
-          'backgroundRepeat': 'no-repeat',
           'backgroundImage': `url("${item.displayIcon}")`
         }
       }
     } else {
       for (let itemIcons of icons){
         if (itemIcons.type == item.mime) {
-          const verticalOffset = itemIcons.spriteOffset*(-25) + 'px';
+          const verticalOffset = itemIcons.spriteOffset*(-17) + 'px';
 
           displayIcon.inlineStyle = { 'backgroundPosition': '0 ' + verticalOffset };
-          displayIcon.style = displayIcon.style + ' ' + 'search_suggestions_logo_sprite';
+          displayIcon.style = displayIcon.style + ' search_suggestions_logo_sprite';
           return (displayIcon);
         }
       }
@@ -498,7 +502,7 @@ export default class App extends Component {
   renderActionItems(item,i) {
     if (item.metaInfo){
       return (
-        <span id={`actionIcon_${i}`} className="action_icon glyphicons glyphicons-link" onClick={this.handleActionIconLinkClick} onMouseEnter={this.handleMouseEnter}></span>
+        <span id={`actionIcon_${i}`} className="action_icon glyphicons glyphicons-search" onClick={this.handleLocalAppPreview} onMouseEnter={this.handleMouseEnter}></span>
       );
     }
   }
@@ -621,24 +625,30 @@ export default class App extends Component {
     if (item.webLink && item.type === 'local-file') {
       return (
         <div className="content_bottom_view_link">
-          <div className="action_link" onClick={this.handleLocalAppPreview}><span className="glyphicons glyphicons-search"></span>Preview</div>
-          <div className="action_link" onClick={this.handleLocalAppInFinder}><span className="glyphicons glyphicons-folder-open"></span>Open in Finder</div>
-          <div className="action_link" onClick={this.handleExternalLink}><span className="glyphicons glyphicons-new-window"></span>Open</div>
+          <div className="content_center">
+            <div className="action_link" onClick={this.handleLocalAppPreview}><span className="glyphicons glyphicons-search"></span>Preview</div>
+            <div className="action_link" onClick={this.handleLocalAppInFinder}><span className="glyphicons glyphicons-folder-open"></span>Open in Finder</div>
+            <div className="action_link" onClick={this.handleExternalLink}><span className="glyphicons glyphicons-new-window"></span>Open</div>
+          </div>
         </div>
       ); 
     }
     if (item.webLink) {
       return (
         <div className="content_bottom_view_link">
-          <div className="action_link" onClick={this.handleExternalLink}><span className="glyphicons glyphicons-new-window"></span>Open</div>
-          <div className="action_link" onClick={this.handleActionIconLinkClick}><span className="glyphicons glyphicons-more-items"></span>Share</div>
+          <div className="content_center">
+            <div className="action_link" onClick={this.handleExternalLink}><span className="glyphicons glyphicons-new-window"></span>Open</div>
+            <div className="action_link" onClick={this.handleActionIconLinkClick}><span className="glyphicons glyphicons-link"></span>Share</div>
+          </div>
         </div>
       );
     }
     else {
       return (
         <div className="content_bottom_view_link">
-        <div className="action_link" onClick={this.copyValueToClipboard}><span className="glyphicons glyphicons-more-items"></span>Copy to Clipboard</div>
+          <div className="content_center">
+            <div className="action_link" onClick={this.copyValueToClipboard}><span className="glyphicons glyphicons-more-items"></span>Copy to Clipboard</div>
+          </div>
         </div>
       );
     }
@@ -670,7 +680,7 @@ export default class App extends Component {
           id = "sideBar"
           ref = "sideBar"
           onIntegrationClick = {this.handleSidebarIntegrationClick}
-          addIntegrationsClick = {this.handleAddIntegrationsClick}
+          onSettingsClick = {this.handleSettingsClick}
           integrations = {this.state.integrations}
           icons = {icons}
         />
@@ -679,7 +689,6 @@ export default class App extends Component {
             onKeyUp = {this.handleKeyUp}
             onKeyDown = {this.handleKeyDown}
             onInput = {this.handleInput}
-            onSettingsClick = {this.handleSettingsClick}
             onDragEnd = {this.handleDragEnd}
             className = {"search_bar_open"}
             id = "searchBar"

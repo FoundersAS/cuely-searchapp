@@ -46,9 +46,9 @@ export default class JiraContent extends Component {
       return null;
     }
     return (
-      <div>
+      <div className="content_section">
         <div className="content_section_title">Description</div>
-        <div id="searchSuggestionsContent" className="content_section_text" dangerouslySetInnerHTML={{ __html: description }} />
+        <div id="searchSuggestionsContent" className="content_section_text content_section_pure_text" dangerouslySetInnerHTML={{ __html: description }} />
       </div>
     );
   }
@@ -58,7 +58,7 @@ export default class JiraContent extends Component {
       return null;
     }
     return (
-      <div>
+      <div className="content_section">
         <div className="content_section_title">Issue info</div>
         <div className="content_section_text">
           <div className="content_row">
@@ -101,7 +101,7 @@ export default class JiraContent extends Component {
       return null;
     }
     return (
-      <div>
+      <div className="content_section">
         <div className="content_section_title">{title}</div>
         <div className="avatars">
             {item.content.users.map((user, i) => (

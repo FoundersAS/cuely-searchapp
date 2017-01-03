@@ -47,7 +47,7 @@ export default class IntercomContent extends Component {
     }
 
     return (
-      <div>
+      <div className="content_section">
         <div className="content_section_title">Latest events</div>
         <div className="content_section_text">
           {events.map((e, i) => (
@@ -66,20 +66,28 @@ export default class IntercomContent extends Component {
       return null;
     }
     return (
-      <div>
+      <div className="content_section">
         <div className="content_section_title">Conversations</div>
         <div className="content_section_text content_section_conversation">
           {conversations.map((c, i) => (
-            <div className={i === 0 ? "conversation_first" : "conversation"} key={`conversation_${userId}_${i}`}>
-              <div className="status">{c.open ? "Conversation status: Open" : "Conversation status: Closed" }</div>
+            <div className="conversation_group" key={`conversation_${userId}_${i}`}>
+              <div className="status">
+                <div className="sub_status">
+                  {c.open ? "Conversation status: Open" : "Conversation status: Closed" }
+                </div>
+              </div>
+              <div className="conversation_items">
               {c.items.map((item, k) => (
                 <div className="conversation_item" key={`conversationItem_${userId}_${k}`}>
-                  <div className={userId === item.authorId ? "message message_owner" : "message"} dangerouslySetInnerHTML={{ __html: item.body }} />
-                  <div className="conversation_meta style_space_between">
-                    <div className="author" dangerouslySetInnerHTML={{ __html: item.author }} /><div className="time">&nbsp;{item.time}</div>
+                  <div className={userId == item.authorId ? "message_customer" : "message_user"} >
+                    <div className="message_body" dangerouslySetInnerHTML={{ __html: item.body }} />
+                    <div className="conversation_meta">
+                      <span dangerouslySetInnerHTML={{ __html: item.author }} />&nbsp;—&nbsp;{item.time}
+                    </div>
                   </div>
                 </div>
               ))}
+              </div>
             </div>
           ))}
         </div>
@@ -118,36 +126,38 @@ export default class IntercomContent extends Component {
     }
     return (
       <div>
-        <div className="content_section_title">User info</div>
-        <div className="content_section_text">
-          <div className="content_row">
-            <div className="content_attribute_name">Email</div>
-            <div className="content_attribute_value no_capitalize" dangerouslySetInnerHTML={{ __html: item.content.email || '/' }} />
+        <div className="content_section">
+          <div className="content_section_title">User info</div>
+          <div className="content_section_text">
+            <div className="content_row">
+              <div className="content_attribute_name">Email</div>
+              <div className="content_attribute_value no_capitalize" dangerouslySetInnerHTML={{ __html: item.content.email || '/' }} />
+            </div>
+            <div className="content_row">
+              <div className="content_attribute_name">Company</div>
+              <div className="content_attribute_value" dangerouslySetInnerHTML={{ __html: item.content.company || '/' }} />
+            </div>
+            <div className="content_row">
+              <div className="content_attribute_name">Revenue</div>
+              <div className="content_attribute_value">{this.renderAttributeSpend(item.content.monthlySpend)}</div>
+            </div>
+            <div className="content_row">
+              <div className="content_attribute_name">Plan</div>
+              <div className="content_attribute_value">{this.renderAttribute(item.content.plan)}</div>
+            </div>
+            <div className="content_row">
+              <div className="content_attribute_name">Web sessions</div>
+              <div className="content_attribute_value">{this.renderAttribute(item.content.sessions)}</div>
+            </div>
+            <div className="content_row">
+              <div className="content_attribute_name">Conversations</div>
+              <div className="content_attribute_value">{this.renderAttribute(item.content.conversationsCount)}</div>
+            </div>
+            <div className="content_row">
+              <div className="content_attribute_name">Segments</div>
+              {this.renderSegments(item.userId, item.content)}
+            </div>          
           </div>
-          <div className="content_row">
-            <div className="content_attribute_name">Company</div>
-            <div className="content_attribute_value" dangerouslySetInnerHTML={{ __html: item.content.company || '/' }} />
-          </div>
-          <div className="content_row">
-            <div className="content_attribute_name">Revenue</div>
-            <div className="content_attribute_value">{this.renderAttributeSpend(item.content.monthlySpend)}</div>
-          </div>
-          <div className="content_row">
-            <div className="content_attribute_name">Plan</div>
-            <div className="content_attribute_value">{this.renderAttribute(item.content.plan)}</div>
-          </div>
-          <div className="content_row">
-            <div className="content_attribute_name">Web sessions</div>
-            <div className="content_attribute_value">{this.renderAttribute(item.content.sessions)}</div>
-          </div>
-          <div className="content_row">
-            <div className="content_attribute_name">Conversations</div>
-            <div className="content_attribute_value">{this.renderAttribute(item.content.conversationsCount)}</div>
-          </div>
-          <div className="content_row">
-            <div className="content_attribute_name">Segments</div>
-            {this.renderSegments(item.userId, item.content)}
-          </div>          
         </div>
 
         {this.renderEvents(item.content.events)}

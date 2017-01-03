@@ -46,7 +46,7 @@ export default class HelpscoutContent extends Component {
       return null;
     }
     return (
-      <div>
+      <div className='content_section'>
         <div className="content_section_title">{title}</div>
         <div className="avatars">
             {item.metaInfo.users.map((user, i) => (
@@ -62,26 +62,29 @@ export default class HelpscoutContent extends Component {
       return null;
     }
     return (
-      <div>
+      <div className='content_section'>
         <div className="content_section_title">Conversations</div>
         <div className="content_section_text content_section_conversation">
           {conversations.map((c, i) => (
-            <div className={i === 0 ? "conversation_first" : "conversation"} key={`conversation_${userId}_${i}`}>
+            <div className="conversation_group" key={`conversation_${userId}_${i}`}>
               <div className="status">
                 <a className="content_link" href={`https://secure.helpscout.net/conversation/${c.id}`} onClick={this.handleClick}>
                   <span dangerouslySetInnerHTML={{ __html: `${c.number}: ${c.subject}` }} />
                 </a>
-                <br />
                 <span className="sub_status" dangerouslySetInnerHTML={{ __html: `${c.mailbox}:&nbsp;${this.renderAssigned(c.assigned, c.status)}${c.status}` }} />
               </div>
-              {c.items.map((item, k) => (
-                <div className="conversation_item" key={`conversationItem_${userId}_${k}`}>
-                  <div className={userId === item.authorId ? "message message_owner" : "message"} dangerouslySetInnerHTML={{ __html: item.body }} />
-                  <div className="conversation_meta style_space_between">
-                    <div className="author" dangerouslySetInnerHTML={{ __html: item.author }} /><div className="time">&nbsp;{item.time}</div>
+              <div className="conversation_items">
+                {c.items.map((item, k) => (
+                  <div className="conversation_item" key={`conversationItem_${userId}_${k}`}>
+                    <div className={userId == item.authorId ? "message_customer" : "message_user"}>
+                      <div className="message_body" dangerouslySetInnerHTML={{ __html: item.body }} />
+                      <div className="conversation_meta">
+                        <span dangerouslySetInnerHTML={{ __html: item.author }} />&nbsp;—&nbsp;{item.time}
+                      </div>
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
           ))}
         </div>
@@ -97,32 +100,34 @@ export default class HelpscoutContent extends Component {
     return (
       <div>
         {this.renderUsers(item, 'Collaborators', 1)}
-        <div className="content_section_title">User info</div>
-        <div className="content_section_text">
-          <div className="content_row">
-            <div className="content_attribute_name">Name</div>
-            <div className="content_attribute_value" dangerouslySetInnerHTML={{ __html: item.content.name || '/' }} />
-          </div>
-          <div className="content_row">
-            <div className="content_attribute_name">Email</div>
-            <div className="content_attribute_value no_capitalize" dangerouslySetInnerHTML={{ __html: item.content.emails || '/' }} />
-          </div>
-          <div className="content_row">
-            <div className="content_attribute_name">Organization</div>
-            <div className="content_attribute_value" dangerouslySetInnerHTML={{ __html: item.content.company || '/' }} />
-          </div>
-          <div className="content_row">
-            <div className="content_attribute_name">Last Mailbox</div>
-            <div className="content_attribute_value">
-              { item.content.mailbox ? (
-                <a className="content_link" href={`https://secure.helpscout.net/mailbox/${item.content.mailboxId}`} onClick={this.handleClick}>
-                  <span dangerouslySetInnerHTML={{ __html: item.content.mailbox }} />
-                </a>) : '/' }
+        <div className='content_section'>
+          <div className="content_section_title">User info</div>
+          <div className="content_section_text">
+            <div className="content_row">
+              <div className="content_attribute_name">Name</div>
+              <div className="content_attribute_value" dangerouslySetInnerHTML={{ __html: item.content.name || '/' }} />
             </div>
-          </div>
-          <div className="content_row">
-            <div className="content_attribute_name">Last Status</div>
-            <div className="content_attribute_value">{item.content.status || '/'}</div>
+            <div className="content_row">
+              <div className="content_attribute_name">Email</div>
+              <div className="content_attribute_value no_capitalize" dangerouslySetInnerHTML={{ __html: item.content.emails || '/' }} />
+            </div>
+            <div className="content_row">
+              <div className="content_attribute_name">Organization</div>
+              <div className="content_attribute_value" dangerouslySetInnerHTML={{ __html: item.content.company || '/' }} />
+            </div>
+            <div className="content_row">
+              <div className="content_attribute_name">Last Mailbox</div>
+              <div className="content_attribute_value">
+                { item.content.mailbox ? (
+                  <a className="content_link" href={`https://secure.helpscout.net/mailbox/${item.content.mailboxId}`} onClick={this.handleClick}>
+                    <span dangerouslySetInnerHTML={{ __html: item.content.mailbox }} />
+                  </a>) : '/' }
+              </div>
+            </div>
+            <div className="content_row">
+              <div className="content_attribute_name">Last Status</div>
+              <div className="content_attribute_value">{item.content.status || '/'}</div>
+            </div>
           </div>
         </div>
         {this.renderConversations(item.userId, item.content.conversations)}

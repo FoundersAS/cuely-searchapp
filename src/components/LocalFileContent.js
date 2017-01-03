@@ -16,7 +16,7 @@ export default class LocalFileContent extends Component {
       return null;
     }
     return (
-      <div>
+      <div className='content_section'>
         <div className="content_section_title">Properties</div>
         <div className="content_section_text">
           <div className="content_row">
