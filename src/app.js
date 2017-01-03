@@ -12,7 +12,6 @@ import HelpscoutDocsContent from './components/HelpscoutDocsContent';
 import JiraContent from './components/JiraContent';
 import LocalFileContent from './components/LocalFileContent';
 require('../css/style.scss');
-const notifier = require('node-notifier');
 
 const icons = [
   {
