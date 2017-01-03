@@ -1,0 +1,59 @@
+@font-face {
+  font-family: 'sf-regular';
+  src: url('../fonts/SFCompactText-Regular.otf') format("opentype");
+}
+
+@font-face {
+  font-family: 'sf-regular-italic',
+  src: url('../fonts/SFCompactText-RegularItalic.otf') format("opentype");
+}
+
+@font-face {
+  font-family: 'sf-bold';
+  src: url('../fonts/SFCompactText-Bold.otf') format("opentype");
+}
+
+@font-face {
+  font-family: 'sf-bold-italic';
+  src: url('../fonts/SFCompactText-BoldItalic.otf') format("opentype");
+}
+
+@font-face {
+  font-family: 'sf-semibold';
+  src: url('../fonts/SFCompactText-Semibold.otf') format("opentype");
+}
+
+@font-face {
+  font-family: 'sf-semibold-italic';
+  src: url('../fonts/SFCompactText-SemiboldItalic.otf') format("opentype");
+}
+
+@font-face {
+  font-family: 'sf-heavy';
+  src: url('../fonts/SFCompactText-Heavy.otf') format("opentype");
+}
+
+@font-face {
+  font-family: 'sf-heavy-italic';
+  src: url('../fonts/SFCompactText-HeavyItalic.otf') format("opentype");
+}
+
+@font-face {
+  font-family: 'sf-light';
+  src: url('../fonts/SFCompactText-Light.otf') format("opentype");
+}
+
+@font-face {
+  font-family: 'sf-light-italic';
+  src: url('../fonts/SFCompactText-LightItalic.otf') format("opentype");
+}
+
+@font-face {
+  font-family: 'sf-medium';
+  src: url('../fonts/SFCompactText-Medium.otf') format("opentype");
+}
+
+@font-face {
+  font-family: 'sf-medium-italic';
+  src: url('../fonts/SFCompactText-MediumItalic.otf') format("opentype");
+}
