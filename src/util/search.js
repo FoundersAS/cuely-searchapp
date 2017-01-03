@@ -147,17 +147,14 @@ export function searchLocalFiles(query, callback) {
 }
 
 function getLocalFileSize(itemSize) {
-  if (itemSize){
+  if (itemSize) {
     if (itemSize > 1000000000) {
       itemSize = (Math.round((itemSize / 1000000) * 10) / 10).toString() + " GB";
-    }
-    if (itemSize > 1000000) {
+    } else if (itemSize > 1000000) {
       itemSize = (Math.round((itemSize / 1000000) * 10) / 10).toString() + " MB";
-    }
-    else if (itemSize > 1000) {
+    } else if (itemSize > 1000) {
       itemSize = (Math.round((itemSize / 1000) * 10) / 10).toString() + " KB";
-    }
-    else {
+    } else {
       itemSize = itemSize.toString() + " B";  
     }
   }
@@ -242,10 +239,10 @@ function jira(hit) {
       projectName: highlightedValue('jira_project_name', hit),
       projectLink: hit.jira_project_link,
       key: highlightedValue('jira_issue_key', hit),
-      type: highlightedValue('jira_issue_type', hit),
-      status: highlightedValue('jira_issue_status', hit),
-      priority: highlightedValue('jira_issue_priority', hit),
-      labels: highlightedArray('jira_issue_labels', hit),
+      type: capitalize(highlightedValue('jira_issue_type', hit)),
+      status: capitalize(highlightedValue('jira_issue_status', hit)),
+      priority: capitalize(highlightedValue('jira_issue_priority', hit)),
+      labels: capitalizeArray(highlightedArray('jira_issue_labels', hit)),
       dueDate: hit.jira_issue_duedate ? moment(hit.jira_issue_duedate).format('DD. MMM YYYY') : null
     }
   }
@@ -267,7 +264,6 @@ function jira(hit) {
     modified: hit.last_updated,
     _algolia: hit._rankingInfo
   } 
-
 }
 
 function helpscoutDocs(hit) {
@@ -278,9 +274,9 @@ function helpscoutDocs(hit) {
     nameHighlight: highlightedValueInArray('helpscout_document_users', 'name', user.name, hit, true)
   }));
 
-  let statusLine = highlightedValue('helpscout_document_collection', hit);
+  let statusLine = capitalize(highlightedValue('helpscout_document_collection', hit));
   if (hit.helpscout_document_categories && hit.helpscout_document_categories.length > 0) {
-    statusLine = statusLine + ': ' + highlightedArray('helpscout_document_categories', hit).join(', ');
+    statusLine = statusLine + ': ' + capitalizeArray(highlightedArray('helpscout_document_categories', hit)).join(', ');
     statusLine = cutStringWithTags(statusLine, 30, 'em', '…');
   }
 
@@ -306,9 +302,9 @@ function helpscoutDocs(hit) {
 function helpscout(hit) {
   let content = {
     company: highlightedValueWithClass('helpscout_company', hit),
-    status: hit.helpscout_status || '',
+    status: capitalize(hit.helpscout_status || ''),
     assigned: hit.helpscout_assigned,
-    mailbox: highlightedValueWithClass('helpscout_mailbox', hit),
+    mailbox: capitalize(highlightedValueWithClass('helpscout_mailbox', hit)),
     mailboxId: hit.helpscout_mailbox_id,
     emails: highlightedValueWithClass('helpscout_emails', hit),
     name: highlightedValueWithClass('helpscout_name', hit)
@@ -322,10 +318,10 @@ function helpscout(hit) {
       return {
         id: c.id,
         number: c.number,
-        mailbox: c.mailbox,
+        mailbox: capitalize(c.mailbox),
         assigned: c.owner ? 'Assigned' : 'Unassigned',
         subject: c.subject,
-        status: c.status,
+        status: capitalize(c.status),
         items: c.threads.filter(item => item.body).map(item => ({
           body: item.body,
           time: moment(item.created * 1000).fromNow(),
@@ -401,8 +397,8 @@ function pipedrive(hit) {
     content: content,
     metaInfo: {
       time: moment(hit.last_updated_ts * 1000).fromNow(),
-      status: highlightedValue('pipedrive_deal_status', hit),
-      stage: highlightedValue('pipedrive_deal_stage', hit),
+      status: capitalize(highlightedValue('pipedrive_deal_status', hit)),
+      stage: capitalize(highlightedValue('pipedrive_deal_stage', hit)),
       users: users
     },
     displayIcon: hit.icon_link,
@@ -484,7 +480,7 @@ function intercom(hit) {
     content: content,
     metaInfo: {
       time: moment(hit.last_updated_ts * 1000).fromNow(),
-      status: highlightedValue('intercom_status', hit),
+      status: capitalize(highlightedValue('intercom_status', hit)),
       users: []
     },
     displayIcon: hit.icon_link,
@@ -575,6 +571,36 @@ function gdrive(hit) {
     modified: hit.last_updated,
     _algolia: hit._rankingInfo
   }
+}
+
+function capitalize(s) {
+  if (!s) {
+    return s;
+  }
+  let withClass = false;
+  if (s.startsWith('<em class="algolia_highlight">')) {
+    s = s.replace(/<em class="algolia_highlight">/g, '<em>');
+    let withClass = true;
+  }
+
+  s = s.split(' ').map(w => {
+    let prefix = '';
+    if (w.startsWith('<em>')) {
+      prefix = '<em>';
+    }
+    return prefix + w.charAt(prefix.length).toUpperCase() + w.slice(prefix.length + 1);
+  }).join(' ');
+  if (withClass) {
+    s = s.replace(/<em>/g, '<em class="algolia_highlight">');
+  }
+  return s;
+}
+
+function capitalizeArray(a) {
+  if (!a) {
+    return a;
+  }
+  return a.map(w => capitalize(w));
 }
 
 function highlightedValue(attribute, hit, emptyIfNotHighlighted=false) {
