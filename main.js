@@ -512,7 +512,7 @@ function createSearchWindow() {
       if (!auxilaryWindowVisible()) {
         keepSearchVisible = false;
       }
-    } else if(!isDevelopment()){
+    } else if(!isDevelopment()) {
       hide();
     }
   });
@@ -654,9 +654,6 @@ function loadCredentialsOrLogin() {
             settingsCache = settingsCache.slice(0, 10);
             if (settings.showTrayIcon) {
               loadTray();
-            }
-            if (!settings.showDockIcon) {
-              app.dock.hide();
             }
 
             // init segment
@@ -800,6 +797,9 @@ function endLogin() {
 
   if (!searchWindow) {
     createSearchWindow();
+    if (!prefs.getAll().showDockIcon) {
+      app.dock.hide();
+    }    
   }
   if (loginWindow) {
     loginWindow.close();
@@ -1148,8 +1148,7 @@ function setupAutoLauncher() {
     cuelyAutoLauncher.isEnabled().then(function(isEnabled){
       if(isEnabled){
         return;
-      }
-      else {
+      } else {
         cuelyAutoLauncher.enable();
       }
     });

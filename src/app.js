@@ -193,7 +193,7 @@ export default class App extends Component {
         content.scrollLeft = 0;
       }
     }
-     
+
     if (this.refs.scrollbars && this.state.selectedIndex > -1) {
       const node = ReactDOM.findDOMNode(this.refs[`searchItem_${this.state.selectedIndex}`]);
       if (node && node.children) {
