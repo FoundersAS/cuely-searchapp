@@ -20,7 +20,7 @@ moment.locale('en-gb');
 export function setAlgoliaCredentials(credentials) {
   algoliaClient = AlgoliaSearch(credentials.appId, credentials.searchKey);
   settings.filters = `user_id=${credentials.userid}`;
-  //settings.filters = `user_id=22`;
+  // settings.filters = `user_id=22`;
   index = algoliaClient.initIndex(algoliaConf.indexName);
   console.log("Updated Algolia credentials");
 }
@@ -99,7 +99,7 @@ export function searchLocalFiles(query, callback) {
     let fullPath = result.kMDItemPath.split('/');
 
     if (isLegitLocalPath(result.kMDItemPath)) {
-      let itemPath = cutLocalPath(result.kMDItemPath, 24);
+      let itemPath = cutLocalPath(result.kMDItemPath, 22);
       let itemTitle = fullPath[(fullPath.length - 1)];
       itemTitle = itemTitle.length > 0 ? itemTitle : '/';
       let itemSize = getLocalFileSize(result.kMDItemFSSize);
@@ -113,8 +113,8 @@ export function searchLocalFiles(query, callback) {
         webLink: result.kMDItemPath,
         metaInfo: {
           timestamp: ts,
-          time: moment(ts).fromNow(),
-          path: itemPath,
+          time: capitalize(moment(ts).fromNow()),
+          path: capitalize(itemPath),
           size: itemSize,
           contentTypes: result.kMDItemContentTypeTree
         }
@@ -210,7 +210,7 @@ function jira(hit) {
     if (hit.jira_issue_status) {
       statusLine = statusLine + ' / ' + highlightedValue('jira_issue_status', hit)
     }
-    statusLine = cutStringWithTags(statusLine, 30, 'em', '…');
+    statusLine = cutStringWithTags(statusLine, 28, 'em', '…');
   }
 
   let users = ['jira_issue_assignee', 'jira_issue_reporter'].map(x => {
@@ -254,9 +254,9 @@ function jira(hit) {
     titleRaw: hit.jira_issue_title,
     content: content,
     metaInfo: {
-      time: moment(hit.last_updated_ts * 1000).fromNow(),
+      time: capitalize(moment(hit.last_updated_ts * 1000).fromNow()),
       users: users[0] ? [users[0]]: [],
-      status: statusLine,
+      status: capitalize(statusLine),
     },
     displayIcon: hit.null,
     webLink: hit.webview_link,
@@ -277,7 +277,7 @@ function helpscoutDocs(hit) {
   let statusLine = capitalize(highlightedValue('helpscout_document_collection', hit));
   if (hit.helpscout_document_categories && hit.helpscout_document_categories.length > 0) {
     statusLine = statusLine + ': ' + capitalizeArray(highlightedArray('helpscout_document_categories', hit)).join(', ');
-    statusLine = cutStringWithTags(statusLine, 30, 'em', '…');
+    statusLine = cutStringWithTags(statusLine, 28, 'em', '…');
   }
 
   return {
@@ -287,9 +287,9 @@ function helpscoutDocs(hit) {
     titleRaw: hit.helpscout_document_title,
     content: content,
     metaInfo: {
-      time: moment(hit.last_updated_ts * 1000).fromNow(),
+      time: capitalize(moment(hit.last_updated_ts * 1000).fromNow()),
       users: users,
-      status: statusLine
+      status: capitalize(statusLine)
     },
     displayIcon: hit.icon_link,
     webLink: hit.helpscout_document_public_link,
@@ -324,7 +324,7 @@ function helpscout(hit) {
         status: capitalize(c.status),
         items: c.threads.filter(item => item.body).map(item => ({
           body: item.body,
-          time: moment(item.created * 1000).fromNow(),
+          time: capitalize(moment(item.created * 1000).fromNow()),
           timestamp: item.created,
           author: item.author,
           authorId: item.author_id
@@ -348,7 +348,7 @@ function helpscout(hit) {
     userId: hit.helpscout_customer_id,
     content: content,
     metaInfo: {
-      time: moment(hit.last_updated_ts * 1000).fromNow(),
+      time: capitalize(moment(hit.last_updated_ts * 1000).fromNow()),
       users: users,
       status: content.status,
       assigned: content.assigned ? 'Assigned' : 'Unassigned',
@@ -396,7 +396,7 @@ function pipedrive(hit) {
     titleRaw: hit.pipedrive_title,
     content: content,
     metaInfo: {
-      time: moment(hit.last_updated_ts * 1000).fromNow(),
+      time: capitalize(moment(hit.last_updated_ts * 1000).fromNow()),
       status: capitalize(highlightedValue('pipedrive_deal_status', hit)),
       stage: capitalize(highlightedValue('pipedrive_deal_stage', hit)),
       users: users
@@ -445,7 +445,7 @@ function intercom(hit) {
   let open = false;
   if (cleaned_content) {
     let { events, conversations } = cleaned_content;
-    content.events = events.map(e => ({ name: e.name, time: moment(e.timestamp * 1000).fromNow() }));
+    content.events = events.map(e => ({ name: capitalize(e.name), time: capitalize(moment(e.timestamp * 1000).fromNow()) }));
     content.conversations = conversations.map(c => {
       if (!open && c.open) {
         open = true;
@@ -455,7 +455,7 @@ function intercom(hit) {
         open: c.open,
         items: c.items.filter(item => item.body).map(item => ({
           body: item.body,
-          time: moment(item.timestamp * 1000).fromNow(),
+          time: capitalize(moment(item.timestamp * 1000).fromNow()),
           timestamp: item.timestamp,
           author: item.author,
           authorId: item.author_id
@@ -479,7 +479,7 @@ function intercom(hit) {
     userId: hit.intercom_user_id,
     content: content,
     metaInfo: {
-      time: moment(hit.last_updated_ts * 1000).fromNow(),
+      time: capitalize(moment(hit.last_updated_ts * 1000).fromNow()),
       status: capitalize(highlightedValue('intercom_status', hit)),
       users: []
     },
@@ -549,7 +549,7 @@ function gdrive(hit) {
     if (highlightedIndex < 0) {
       highlightedIndex = path.length - 1;
     }
-    path = cutStringWithTags(path[highlightedIndex], 27, 'em', '…');
+    path = cutStringWithTags(path[highlightedIndex], 32, 'em', '…');
   } else {
     path = '';
   }
@@ -561,9 +561,9 @@ function gdrive(hit) {
     titleRaw: hit.title,
     content: content,
     metaInfo: {
-      time: moment(hit.last_updated_ts * 1000).fromNow(),
+      time: capitalize(moment(hit.last_updated_ts * 1000).fromNow()),
       users: users,
-      path: path
+      path: capitalize(path)
     },
     displayIcon: hit.icon_link,
     webLink: hit.webview_link,

@@ -498,8 +498,10 @@ export default class App extends Component {
   renderBody(item) {
       return (
         <div className="body">
-          <span className="meta_icon glyphicons glyphicons-clock"></span>
-          <span className="meta_data">{item.metaInfo.time}</span>
+          <div className="meta_group">
+            <div className="meta_icon glyphicons glyphicons-clock"></div>
+            <div className="meta_data">{item.metaInfo.time}</div>
+          </div>
           {this.getIntegrationComponent(item).itemStatus()}
         </div>
       );
@@ -574,70 +576,70 @@ export default class App extends Component {
         content = () => (<GdriveContent openExternalLink={this.openExternalLink} item={item} />);
         if (item.metaInfo && item.metaInfo.path && item.metaInfo.path.length > 0) {
           itemStatus = () => (
-            <span>
-              <span className="meta_icon glyphicons glyphicons-folder-open"></span>
-              <span className="meta_data" dangerouslySetInnerHTML={{ __html: item.metaInfo.path }} />
-            </span>
+            <div className="meta_group">
+              <div className="meta_icon glyphicons glyphicons-folder-open"></div>
+              <div className="meta_data text_overflow" dangerouslySetInnerHTML={{ __html: item.metaInfo.path }} />
+            </div>
           );
         }
       } else if (item.type === 'local-file' || item.type === 'local-folder') {
         content = () => (<LocalFileContent item={item} />);
         if (item.metaInfo && item.metaInfo.path) {
           itemStatus = () => (
-            <span>
-              <span className="meta_icon glyphicons glyphicons-folder-open"></span>
-              <span className="meta_data" dangerouslySetInnerHTML={{ __html: item.metaInfo.path }} />
-            </span>
+            <div className="meta_group">
+              <div className="meta_icon glyphicons glyphicons-folder-open"></div>
+              <div className="meta_data text_overflow" dangerouslySetInnerHTML={{ __html: item.metaInfo.path }} />
+            </div>
           );
         }
       } else if (item.type === 'intercom') {
         content = () => (<IntercomContent openExternalLink={this.openExternalLink} item={item} />);
         if (item.metaInfo && item.content.conversationsCount > 0) {
           itemStatus = () => (
-            <span>
-              <span className="meta_icon glyphicons glyphicons-conversation"></span>
-              <span className="meta_data" dangerouslySetInnerHTML={{ __html: item.metaInfo.status }} />
-            </span>
+            <div className="meta_group">
+              <div className="meta_icon glyphicons glyphicons-conversation"></div>
+              <div className="meta_data text_overflow" dangerouslySetInnerHTML={{ __html: item.metaInfo.status }} />
+            </div>
           );
         }
       } else if (item.type === 'pipedrive') {
         content = () => (<PipedriveContent openExternalLink={this.openExternalLink} item={item} />);
         if (item.metaInfo) {
           itemStatus = () => (
-            <span>
-              <span className="meta_icon glyphicons glyphicons-flag"></span>
-              <span className="meta_data"  dangerouslySetInnerHTML={{ __html: `${item.metaInfo.status}&nbsp;/&nbsp;${item.metaInfo.stage}` }} />
-            </span>
+            <div className="meta_group">
+              <div className="meta_icon glyphicons glyphicons-flag"></div>
+              <div className="meta_data text_overflow"  dangerouslySetInnerHTML={{ __html: `${item.metaInfo.status}&nbsp;/&nbsp;${item.metaInfo.stage}` }} />
+            </div>
           );
         }
       } else if (item.type === 'helpscout') {
         content = () => (<HelpscoutContent openExternalLink={this.openExternalLink} item={item} />);
         if (item.metaInfo) {
           itemStatus = () => (
-            <span>
-              <span className="meta_icon glyphicons glyphicons-flag"></span>
-              <span className="meta_data" dangerouslySetInnerHTML={{ __html: `${item.metaInfo.mailbox}:&nbsp;${this.helpscoutRenderAssigned(item.metaInfo.assigned, item.metaInfo.status)}${item.metaInfo.status}` }} />
-            </span>
+            <div className="meta_group">
+              <div className="meta_icon glyphicons glyphicons-flag"></div>
+              <div className="meta_data text_overflow" dangerouslySetInnerHTML={{ __html: `${item.metaInfo.mailbox}:&nbsp;${this.helpscoutRenderAssigned(item.metaInfo.assigned, item.metaInfo.status)}${item.metaInfo.status}` }} />
+            </div>
           );
         }
       } else if (item.type === 'helpscout-docs') {
         content = () => (<HelpscoutDocsContent openExternalLink={this.openExternalLink} item={item} />);
         if (item.metaInfo) {
           itemStatus = () => (
-            <span>
-              <span className="meta_icon glyphicons glyphicons-folder-open"></span>
-              <span className="meta_data" dangerouslySetInnerHTML={{ __html: item.metaInfo.status }} />
-            </span>
+            <div className="meta_group">
+              <div className="meta_icon glyphicons glyphicons-folder-open"></div>
+              <div className="meta_data text_overflow" dangerouslySetInnerHTML={{ __html: item.metaInfo.status }} />
+            </div>
           );
         }        
       } else if (item.type === 'jira') {
         content = () => (<JiraContent openExternalLink={this.openExternalLink} item={item} />);
         if (item.metaInfo) {
           itemStatus = () => (
-            <span>
-              <span className="meta_icon glyphicons glyphicons-folder-open"></span>
-              <span className="meta_data" dangerouslySetInnerHTML={{ __html: item.metaInfo.status }} />
-            </span>
+            <div className="meta_group">
+              <div className="meta_icon glyphicons glyphicons-folder-open"></div>
+              <div className="meta_data text_overflow" dangerouslySetInnerHTML={{ __html: item.metaInfo.status }} />
+            </div>
           );
         }        
       }
@@ -662,7 +664,7 @@ export default class App extends Component {
       return (
         <div className="content_bottom_view_link">
           <div className="content_center">
-            <div className="action_link" onClick={this.handleExternalLink}><span className="glyphicons glyphicons-new-window"></span>Open App</div>
+            <div className="action_link" onClick={this.handleExternalLink}><span className="glyphicons glyphicons-new-window"></span>Open</div>
             <div className="action_link" onClick={this.handleActionIconLinkClick}><span className="glyphicons glyphicons-link"></span>Copy Link to Clipboard</div>
           </div>
         </div>

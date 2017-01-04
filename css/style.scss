@@ -5,31 +5,15 @@
 @charset "utf-8";
 
 /* Colors- DARK */
-$color-white: #000;
-$brand-color-a: #F35803;
-$brand-color-b: #4A2230;
-$color-white: #22191C;
-$brand-color-d: #1E191A;
-
+$color-orange: #F45C05;
+$color-dark-violet: #22191C;
 $color-yellow: #FFCF62;
 $color-dark-blue: #2E52A2;
 $color-dark: #333;
 $color-very-dark: #111;
-
 $color-white: #FDFDFD;
-$brand-color-d: #F8F8F8;
-//NEW BACKGROUND COLOR: #47343B
 
-/* Colors- BRIGHT */
-// $color-very-dark: #FFF;
-// $color-white: #000;
-// $color-dark: #333;
-// $brand-color-a: #F35803;
-// $brand-color-b: #4A2230;
-// $color-white: #22191C;
-// $brand-color-d: #1E191A;
-
-/* Font */
+/* Font size */
 $font-size-super-tiny: 1.1rem;
 $font-size-tiny: 1.2rem;
 $font-size-base: 1.3rem;
@@ -37,15 +21,14 @@ $font-size-mid: 1.4rem;
 $font-size-big: 1.55rem;
 $font-size-giant: 1.88rem;
 
+/* Font other */
+$system-font: caption;
 $letter-spacing-base: 0.015rem;
-
 $font-weight-regular: 400;
 $font-weight-medium: 500;
+$font-weight-bold: 700;
 $line-height-base: 1.4;
 $line-height-min: 1.3rem;
-
-
-$system-font: caption;
 
 /**
   * Declarations
@@ -171,29 +154,37 @@ em {
 					.title {
 						padding: .35rem 0 0;
 						text-overflow: ellipsis;
-						width: 270px;
+						width: 290px;
 						overflow: hidden;
 					}
 				}
 
 				.body {
 					color: rgba($color-very-dark, 0.6);
-					padding: 0.7rem 0 0 0;
+					padding-top: 0.7rem;
+					max-width: 290px;
+					white-space: nowrap;
+					display: flex;
 
-					div {
-						display: inline-block;
-						margin-right: 0.5em;
+					.meta_group {
+						display: flex;
+						margin-right: 1rem;
+
+						.meta_icon {
+							font-size: 11px;
+							padding: .3rem .5rem 0 0;
+							color: rgba($color-very-dark, 0.3);
+						}
+
+						.text_overflow {
+							overflow: hidden;
+							text-overflow: ellipsis;
+						}
 					}
 
-					.meta_data {
-						padding-right: 1rem;
-						display: inline-block;
-					}
-
-					.meta_icon {
-						font-size: 11px;
-						padding: .3rem .5rem 0 0;
-						color: rgba($color-very-dark, 0.3);
+					.meta_group:last-child {
+						overflow: hidden;
+						margin: 0;
 					}
 				}
 			}
@@ -216,7 +207,8 @@ em {
 			}
 
 			.action_icon:hover {
-			  background-color: rgba($color-very-dark, 0.15);;
+			  background-color: rgba($color-very-dark, 0.15);
+			  color: rgba($color-very-dark, 0.4);
 			  border-radius: 2px;
 			  cursor: pointer;
 			}
@@ -259,14 +251,14 @@ em {
 .search_suggestions_content {
 	width: 400px;
 	margin: 0;
-	background-color: rgba($color-very-dark, 0.02);
+	background-color: rgba($color-very-dark, 0.03);
 	overflow: auto;
 	height: 397px;
 	border-left: 1px solid rgba($color-very-dark,0.1);
 	outline: none;
 
 	em {
-		font-weight: 700;
+		font-weight: 800;
 		color: tomato;
 	}
 
@@ -363,7 +355,7 @@ em {
 		border: 1px solid rgba($color-very-dark, 0.1);
 		font: $system-font;
 		font-size: $font-size-mid;
-		white-space: pre-wrap;
+		white-space: normal;
 		line-height: 1.5;
 		margin: 0;
 		overflow: auto;
@@ -418,6 +410,10 @@ em {
 					margin-bottom: 0.5rem;
 					font-size: $font-size-tiny;
 					color: rgba($color-very-dark, 0.33);
+
+					.meta_icon {
+						margin: 0.2rem 0.5rem 0 0.4rem;
+					}
 				}
 
 				.message_body {
@@ -432,8 +428,16 @@ em {
 					width: 80%;
 
 					.message_body {	
-						background-color: $brand-color-a;
+						background-color: $color-orange;
 						color: $color-white;
+
+						em {
+							color: #42F5C1;
+						}
+
+						a {
+							color: #3D47A9;
+						}
 					}
 
 					.conversation_meta {
@@ -466,7 +470,8 @@ em {
 		display: block;
 
 		td {
-			border: 1px solid rgba($color-very-dark, 0.1);
+			border: 1px solid #DDD;
+			border-collapse: collapse;
 			background-color: $color-white;
 			padding: .75rem;
 			text-align: left;
@@ -474,7 +479,7 @@ em {
 
 		th {
 			background-color: rgba($color-yellow, 0.4);
-			border: 1px solid rgba($color-very-dark, 0.1);
+			border: 1px solid #DDD;
 			color: $color-dark;
 			padding: .75rem;
 			text-align: left;
@@ -621,7 +626,7 @@ em {
 	left: 0;
 	height: 460.38px;
 	width: 6.4rem;
-	background-color: #262626;
+	background-color: rgba($color-dark-violet, 0.95);
 
 	ul {
 		margin: 1.2rem auto;
@@ -637,19 +642,19 @@ em {
 			border-radius: 0.4rem;
 			opacity: 0.5;
 			cursor: pointer;
-			overflow: auto;
 
 			&:hover { opacity: 0.8; }
-
 			&.active { opacity: 1 !important; }
 
 			.sidebar_integration_logo {
 				width: 2.6rem;
 				height: 2.6rem;
+				top: 0.7rem;
+				left: 0.7rem;
+				position: relative;
 				background-size: 2.6rem;
 				background-image: url('../assets/images/other/cuely_icons_sprite@2x.png');
 				background-repeat: no-repeat;
-				margin: 0.7rem;
 			}
 		}
 
@@ -672,13 +677,11 @@ em {
     background-size: 1.6rem; 
     background-repeat: no-repeat;
     background-position: center;
+
+    &:hover { background-color: rgba(255, 255, 255, 1); }
 	}
 
-	.sidebar_bottom:hover {
-		background-color: rgba(255, 255, 255, 0.8);
-	}
-
-	.sidebar_body{
+	.sidebar_body {
 		overflow: auto;
 		height: 344.38px;
 
