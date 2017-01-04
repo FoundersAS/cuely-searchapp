@@ -1,3 +1,4 @@
+require('../css/style.scss');
 import React, {Component} from 'react';
 import ReactDOM from 'react-dom';
 import { ipcRenderer, shell, clipboard, remote } from 'electron';
@@ -11,7 +12,6 @@ import HelpscoutContent from './components/HelpscoutContent';
 import HelpscoutDocsContent from './components/HelpscoutDocsContent';
 import JiraContent from './components/JiraContent';
 import LocalFileContent from './components/LocalFileContent';
-require('../css/style.scss');
 
 const icons = [
   {
@@ -143,6 +143,9 @@ export default class App extends Component {
   }
 
   componentDidMount() {
+    // start empty search (should return 10 most recent items by signed in user name)
+    ipcRenderer.send('search', '', Date.now(), true);
+
     ipcRenderer.on('search-result', (event, arg) => {
       this.userDir = arg.userDir;
       this.setState({
@@ -169,8 +172,6 @@ export default class App extends Component {
       ipcRenderer.send('search', '', Date.now(), false);
       this.refs.sideBar.changeIcon('');
     });
-    // start empty search (should return 10 most recent items by signed in user name)
-    ipcRenderer.send('search', '', Date.now(), true);
   }
 
   componentDidUpdate() {
@@ -190,10 +191,6 @@ export default class App extends Component {
         content.scrollLeft = 0;
       }
     }
-
-    // adjust the window height to the height of the list
-    const winHeight = (this.state.searchResults.length > 0 ? 397 : 0) + this.getElementHeight("searchBar");
-    ipcRenderer.send('search-rendered', { height: winHeight });
      
     if (this.refs.scrollbars && this.state.selectedIndex > -1) {
       const node = ReactDOM.findDOMNode(this.refs[`searchItem_${this.state.selectedIndex}`]);
@@ -204,17 +201,7 @@ export default class App extends Component {
     this.refs.searchBar.setFocus();
   }
 
-  getElementHeight(id) {
-    const el = document.getElementById(id);
-    if (!el) {
-      return 0;
-    }
-    const styleHeight = window.getComputedStyle(el).getPropertyValue("height").slice(0, -2);
-    return parseInt(styleHeight);
-  }
-
   handleKeyDown(e) {
-
     if (this.isDown(e) || this.isUp(e)) {
       e.preventDefault();
       let index = this.state.selectedIndex;

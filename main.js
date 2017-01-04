@@ -234,14 +234,6 @@ function finalizeSearch(event, time, hits, query, local) {
   }
 }
 
-ipcMain.on('search-rendered', (event, arg) => {
-  // Resize the window after search results have been rendered to html/dom, due to weird GUI artifacts
-  // when resizing elements, e.g. <ul> component. Probably happens because of frameless and transparent window.
-  if (searchWindow.getSize()[1] !== arg.height) {
-    searchWindow.setSize(searchWindow.getSize()[0], 460, false);
-  }
-});
-
 ipcMain.on('close-login', () => {
   loginWindow.hide();
   loadCredentialsOrLogin();

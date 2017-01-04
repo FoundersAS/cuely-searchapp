@@ -94,6 +94,8 @@ em {
 		padding: 0;
 		background-color: $color-white;
 		height: 397px;
+		width: 400px;
+		cursor: pointer;
 
 		ul {
 			list-style: none;
@@ -107,6 +109,7 @@ em {
 			font-size: $font-size-big;
 			color: rgba($color-very-dark, 0.85);
 			position: relative;
+			cursor: pointer;
 
 			.search_suggestions_logo_container {
 				width: 2.8rem;
