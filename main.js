@@ -118,9 +118,8 @@ app.on('ready', () => {
   const appPath = app.getPath('userData');
   prefs = initPrefs(appPath);
   buildMenu();
-  deleteLegacyAutoLauncher();
   updateInterval = setInterval(checkForUpdates, 3600000);
-  //setupAutoLauncher();
+  setupAutoLauncher();
   loadCredentialsOrLogin();
 });
 
@@ -1140,37 +1139,8 @@ function toggleHideOrCreate() {
   }
 }
 
-function deleteLegacyAutoLauncher() {
-  if(!isDevelopment()) {
-
-    const cuelyLegacyLauncher = new AutoLaunch({
-      name: 'Cuely',
-      isHidden: true
-    });
-
-    let appPath = app.getPath('exe').split('.app/Content')[0] + '.app';
-    const cuelyAutoLauncher = new AutoLaunch({
-      name: 'Cuely',
-      isHidden: true,
-      path: appPath
-    });
-
-    cuelyLegacyLauncher.isEnabled().then(function(isEnabled){
-      if(isEnabled){
-        cuelyLegacyLauncher.disable().then(function(){
-          cuelyAutoLauncher.enable();
-        });
-      }
-      else {
-        cuelyAutoLauncher.enable();
-      }
-    });
-  }
-}
-
 function setupAutoLauncher() {
   if(!isDevelopment()) {
-
     // Start Cuely on computer restart
     let appPath = app.getPath('exe').split('.app/Content')[0] + '.app';
     const cuelyAutoLauncher = new AutoLaunch({
