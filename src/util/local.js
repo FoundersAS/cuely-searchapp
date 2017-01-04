@@ -44,7 +44,8 @@ class LocalApps {
       appKeys.push(appKey);
       if (appsWithIcons[appKey] === undefined
           || appsWithIcons[appKey].location !== app
-          || appsWithIcons[appKey].created === undefined) {
+          || appsWithIcons[appKey].created === undefined
+          || !this.checkIcon(appsWithIcons[appKey])) {
         const filename = `${app}/Contents/Info.plist`;
         if (existsSync(filename)) {
           this.plistCounter = this.plistCounter + 1;
@@ -150,6 +151,18 @@ class LocalApps {
       this.saveIcons(appsWithIcons);
     }
     this._loadGenericFolderIcon();
+  }
+
+  checkIcon(appData) {
+    if (!appData || !appData.cachedIcon) {
+      // has no icon
+      return false;
+    }
+    let exists = existsSync(appData.cachedIcon);
+    if (!exists) {
+      appData.cachedIcon = null;
+    }
+    return exists;
   }
 
   getApps(path, level = 0) {
