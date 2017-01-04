@@ -515,6 +515,7 @@ em {
 			height: 1.6rem;
 			display: block;
 			float:left;
+			-webkit-user-select: none;
 		}
 
 		.action_link + .action_link {
