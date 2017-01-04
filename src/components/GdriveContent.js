@@ -75,7 +75,7 @@ export default class GdriveContent extends Component {
           <div className="no_preview">No preview available.</div>
         </div>
       )
-    } else if (item.metaInfo.users.length > 1) {
+    } else if (item.metaInfo.users.length > 0) {
       return (
         <div>
           <div className='content_section'>

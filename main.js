@@ -492,6 +492,9 @@ function createSearchWindow() {
   // and load the index.html of the app.
   searchWindow.loadURL(`file://${__dirname}/index.html?route=app`);
 
+  searchWindow.once('ready-to-show', () => {
+    setTimeout(toggleHide, 1000);
+  });
   // Emitted when the window is closed.
   searchWindow.on('closed', () => {
     // Dereference the window object, usually you would store windows
@@ -503,13 +506,6 @@ function createSearchWindow() {
   searchWindow.on('show', () => {
     resetSession();
     searchWindow.webContents.send('focus-element', '#searchBar');
-    const bounds = calculatePositionAndSize();
-    
-    if (bounds.screenWidth != screenBounds.screenWidth || bounds.screenHeight != screenBounds.screenHeight || bounds.x != screenBounds.x) {
-      // reposition, needed because of external screen(s) might be (un)plugged
-      searchWindow.setPosition(bounds.x, bounds.y, false);
-      screenBounds = bounds;
-    }
   });
   searchWindow.on('blur', () => {
     if (keepSearchVisible) {
@@ -804,7 +800,6 @@ function endLogin() {
 
   if (!searchWindow) {
     createSearchWindow();
-    toggleHide();
   }
   if (loginWindow) {
     loginWindow.close();
@@ -1118,6 +1113,15 @@ function toggleHide() {
   if (searchWindow.isVisible() && searchWindow.isFocused()) {
     hide();
   } else {
+    //check where to position the searchWindow
+    const bounds = calculatePositionAndSize();  
+    if (bounds.screenWidth != screenBounds.screenWidth || bounds.screenHeight != screenBounds.screenHeight || bounds.x != screenBounds.x) {
+      // reposition, needed because of external screen(s) might be (un)plugged
+      searchWindow.setPosition(bounds.x, bounds.y, false);
+      screenBounds = bounds;
+    }
+
+    //show and focus the searchWindow
     searchWindow.show();
     searchWindow.focus();
   }

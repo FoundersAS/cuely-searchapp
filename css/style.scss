@@ -96,6 +96,7 @@ em {
 		height: 397px;
 		width: 400px;
 		cursor: pointer;
+		z-index: 50;
 
 		ul {
 			list-style: none;
@@ -109,7 +110,7 @@ em {
 			font-size: $font-size-big;
 			color: rgba($color-very-dark, 0.85);
 			position: relative;
-			cursor: pointer;
+			cursor: pointer !important;
 
 			.search_suggestions_logo_container {
 				width: 2.8rem;
@@ -229,6 +230,7 @@ em {
 
 		.search_suggestions_card_highlight {
 			background-color: rgba($color-very-dark, 0.1) !important;
+			cursor: pointer;
 		}
 
 		.search_suggestions_card + .search_suggestions_card {

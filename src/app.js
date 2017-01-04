@@ -132,6 +132,7 @@ export default class App extends Component {
     this.handleLocalAppPreview = ::this.handleLocalAppPreview;
     this.handleSidebarIntegrationClick = ::this.handleSidebarIntegrationClick;
     this.state = {
+      noResultsYet: true,
       searchResults: [],
       selectedIndex: -1,
       clearInput: false,
@@ -149,6 +150,7 @@ export default class App extends Component {
     ipcRenderer.on('search-result', (event, arg) => {
       this.userDir = arg.userDir;
       this.setState({
+        noResultsYet: false,
         searchResults: arg.items,
         clearInput: false,
         selectedIndex: arg.items.length > 0 ? 0 : -1,
@@ -541,10 +543,12 @@ export default class App extends Component {
   }
 
   renderEmptyResults() {
+    const emptyString = this.state.noResultsYet ? '' : 'Sorry, your search does not match any items.';
+
     return (
       <div className="search_suggestions" id="searchSuggestions" onKeyUp={this.handleKeyUp} onKeyDown={this.handleContentKeyDown}>
         <div className="search_suggestions_list" id="searchSuggestionsList">
-          <div className="empty_results_set">Sorry, your search does not match any items.</div>
+          <div className="empty_results_set">{emptyString}</div>
         </div>
         <div className="search_suggestions_content" id="searchSuggestionsContent" tabIndex="0">
         </div>
