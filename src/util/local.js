@@ -123,6 +123,7 @@ class LocalApps {
 
               if (this.plistCounter < 1) {
                 console.log("Done reading plist files");
+                this.checkRemoved(appsWithIcons, appKeys);
                 this.saveIcons(appsWithIcons);
               }
             })
@@ -133,24 +134,28 @@ class LocalApps {
 
     if (this.plistCounter < 1) {
       // happens on re-runs, when apps have already been synced ...
-      // check if an app was deleted
-      let removed = false;
-      for(let cachedAppKey in appsWithIcons) {
-        if (!appKeys.includes(cachedAppKey)) {
-          removed = true;
-          console.log(`Removing app ${cachedAppKey} from app cache`);
-          if (appsWithIcons[cachedAppKey].cachedIcon) {
-            unlinkSync(appsWithIcons[cachedAppKey].cachedIcon);
-          }
-          delete appsWithIcons[cachedAppKey];
-        }
-      }
-      if (removed) {
-        this.saveAll(appsWithIcons);
-      }
+      this.checkRemoved(appsWithIcons, appKeys);
       this.saveIcons(appsWithIcons);
     }
     this._loadGenericFolderIcon();
+  }
+
+  checkRemoved(cachedApps, newKeys) {
+    // check if an app was deleted
+    let removed = false;
+    for(let cachedAppKey in cachedApps) {
+      if (!newKeys.includes(cachedAppKey)) {
+        removed = true;
+        console.log(`Removing app ${cachedAppKey} from app cache`);
+        if (cachedApps[cachedAppKey].cachedIcon) {
+          unlinkSync(cachedApps[cachedAppKey].cachedIcon);
+        }
+        delete cachedApps[cachedAppKey];
+      }
+    }
+    if (removed) {
+      this.saveAll(cachedApps);
+    }
   }
 
   checkIcon(appData) {
