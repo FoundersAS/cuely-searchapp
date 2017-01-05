@@ -376,11 +376,11 @@ export default class App extends Component {
   }
 
   handleMouseEnter(e) {
-    const index = this.getIndex(e.target.id);
-    if (index > -1) {
-      const link = document.getElementById("searchItemLink_" + index);
-      link.className = "search_suggestions_card_link_action_hover";
-    }
+    // const index = this.getIndex(e.target.id);
+    // if (index > -1) {
+    //   const link = document.getElementById("searchItemLink_" + index);
+    //   link.className = "search_suggestions_card_link_action_hover";
+    // }
   }
 
   handleDragEnd(e) {
