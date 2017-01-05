@@ -404,12 +404,13 @@ function buildMenu() {
 
 function customMenuItems() {
   return [
-    { label: "About Cuely", click: () => { aboutDialog(); }},
+    { label: `Cuely v${appVersion}`, enabled: false },
     { label: "Check for Updates", accelerator: "Command+U", click: () => { manualCheckForUpdates(); }},
     { type: "separator" },
     { label: "Preferences...", accelerator: "Command+,", click: () => { createSettingsWindow(); }},
     { label: "Debug log", accelerator: "Shift+CmdOrCtrl+D", click: () => { createDebugWindow(); }},
     { type: "separator" },
+    { label: "About Cuely", click: () => { aboutDialog(); }},
     { label: "Help", click: () => { shell.openExternal('https://slack-files.com/T03V5J4DG-F33TWJJHL-542c183730'); }},
   ];
 }
@@ -771,12 +772,16 @@ function loadTray() {
 
   // init tray
   tray = new Tray(trayImage);
-  tray.setToolTip('Cuely search')
+  tray.setToolTip('Cuely search');
   tray.on('click', (event, bounds) => {
     if (searchWindow && !(loginWindow && loginWindow.isVisible())) {
       toggleHide();
     }
   });
+  tray.on('right-click', (event, bounds) => {
+    tray.popUpContextMenu(Menu.buildFromTemplate(customMenuItems()));
+  });
+
   if (isOsx()) {
     tray.setPressedImage(imageDir + '/osx/cuelyHighlight.png');
   }
