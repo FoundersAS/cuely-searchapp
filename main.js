@@ -210,9 +210,12 @@ ipcMain.on('search', (event, arg, time, afterCreate) => {
     if (searchPromise) {
       searchPromise.then(result => {
         if (time > latestSearchTime) {
-          let hits = [].concat.apply([], result.hits);
-          searchCache.unshift(result.searchInfo);
-          searchCache = searchCache.slice(0, 20);
+          let hits = [];
+          if (result) {
+            hits = [].concat.apply([], result.hits);
+            searchCache.unshift(result.searchInfo);
+            searchCache = searchCache.slice(0, 20);
+          }
           
           hits = searchLocalApps(arg).concat(hits);
           finalizeSearch(event, time, hits, arg, false);
