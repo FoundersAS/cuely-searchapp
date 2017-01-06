@@ -37,6 +37,10 @@ export function searchAfter(query, timestamp) {
 }
 
 export function searchInternal(query, search_settings) {
+  if (!index) {
+    return Promise.resolve(null);
+  }
+
   return index.search(query, search_settings).then(content => {
     let hits = content.hits.map(hit => {
       // detect item type

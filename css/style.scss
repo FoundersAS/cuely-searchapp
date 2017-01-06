@@ -591,6 +591,17 @@ em {
 		background-position: center;
 		background-repeat: no-repeat;
 	}
+
+  .search_bar_error {
+    flex: 1 1 auto;
+    font-size: smaller;
+    color: red;
+    padding: 0.5rem;
+  }
+
+  .search_bar_error > span {
+    float: right;
+  }
 }
 
 .avatars {
