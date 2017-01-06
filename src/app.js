@@ -324,6 +324,7 @@ export default class App extends Component {
       } else if (link.endsWith('Finder.app')) {
         shell.showItemInFolder(this.userDir + '/Documents');
       } else {
+        ipcRenderer.send('hide-search');
         shell.openItem(link);
       }
     } else {
