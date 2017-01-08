@@ -16,7 +16,9 @@ class LocalApps {
     this.plistCounter = 0;
     this.iconsCounter = 0;
     this.genericFolderIcon = null;
-    this._init();
+    this.loadAll();
+    let self = this;
+    this.initTimeout = setTimeout(() => { self._init() }, 10000); // run after 10s
   }
 
   _init() {
@@ -387,6 +389,9 @@ class LocalApps {
   stop() {
     if (this.timeout) {
       clearTimeout(this.timeout);
+    }
+    if (this.initTimeout) {
+      clearTimeout(this.initTimeout);
     }
   }
 }

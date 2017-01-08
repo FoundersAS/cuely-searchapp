@@ -210,9 +210,20 @@ ipcMain.on('search', (event, arg, time, afterCreate) => {
     if (searchPromise) {
       searchPromise.then(result => {
         if (time > latestSearchTime) {
-          let hits = [].concat.apply([], result.hits);
-          searchCache.unshift(result.searchInfo);
-          searchCache = searchCache.slice(0, 20);
+          let hits = [];
+          if (result) {
+            hits = [].concat.apply([], result.hits);
+            searchCache.unshift(result.searchInfo);
+            searchCache = searchCache.slice(0, 20);
+            searchWindow.webContents.send('search-error-clear');
+          } else {
+            if (searchWindow) {
+              searchWindow.webContents.send('search-error',  {
+                message: 'Could not connect to Cuely service.',
+                description: 'Please check your network connection and then try running the app again.'
+              });
+            }
+          }
           
           hits = searchLocalApps(arg).concat(hits);
           finalizeSearch(event, time, hits, arg, false);
@@ -310,7 +321,9 @@ ipcMain.on('settings-save', (event, settings) => {
 
 ipcMain.on('track', (event, arg) => {
   resetSession();
-  segment.track(arg.name, arg.props);
+  if (segment) {
+    segment.track(arg.name, arg.props);
+  }
 });
 
 ipcMain.on('previewFile', (event, arg) => {
@@ -404,12 +417,13 @@ function buildMenu() {
 
 function customMenuItems() {
   return [
-    { label: "About Cuely", click: () => { aboutDialog(); }},
+    { label: `Cuely v${appVersion}`, enabled: false },
     { label: "Check for Updates", accelerator: "Command+U", click: () => { manualCheckForUpdates(); }},
     { type: "separator" },
     { label: "Preferences...", accelerator: "Command+,", click: () => { createSettingsWindow(); }},
     { label: "Debug log", accelerator: "Shift+CmdOrCtrl+D", click: () => { createDebugWindow(); }},
     { type: "separator" },
+    { label: "About Cuely", click: () => { aboutDialog(); }},
     { label: "Help", click: () => { shell.openExternal('https://slack-files.com/T03V5J4DG-F33TWJJHL-542c183730'); }},
   ];
 }
@@ -512,7 +526,7 @@ function createSearchWindow() {
       if (!auxilaryWindowVisible()) {
         keepSearchVisible = false;
       }
-    } else if(!isDevelopment()){
+    } else if(!isDevelopment()) {
       hide();
     }
   });
@@ -650,14 +664,6 @@ function loadCredentialsOrLogin() {
             }
             
             prefs.saveAll(settings);
-            settingsCache.unshift({ time: Date(), settings: settings });
-            settingsCache = settingsCache.slice(0, 10);
-            if (settings.showTrayIcon) {
-              loadTray();
-            }
-            if (!settings.showDockIcon) {
-              app.dock.hide();
-            }
 
             // init segment
             segment = initSegment(response.segmentKey);
@@ -666,33 +672,33 @@ function loadCredentialsOrLogin() {
             if (identified) {
               setSegmentStatus(csrf, sessionId, identified);
             }
-
-            endLogin();
           } else {
             createLoginWindow();
+            return;
           }
-          return;
         }
-        // console.log(error);
-        opbeat.captureError(error);
-        dialog.showMessageBox({
-          type: 'error',
-          title: 'Cuely app',
-          message: 'Could not connect to Cuely backend.',
-          detail: 'Please check your network connection and then try running the app again.',
-          buttons: ['Ok']
-        }, () => {
-          if (!isDevelopment()) {
-            app.quit();
-          }
-        });
-      }).catch(err => {
-        console.log(err);
+        initFromSettings();
+        if (error) {
+          console.log('Failed to login to the backend');
+          setTimeout(loadCredentialsOrLogin, 15000); // try again after 15s
+          // if it's a connection issue, then opbeat also won't work, but in case it's just Cuely backend issue ...
+          opbeat.captureError(error);
+        }
       });
     } else {
       createLoginWindow();
     }
   });
+}
+
+function initFromSettings() {
+  let settings = prefs.getAll();
+  settingsCache.unshift({ time: Date(), settings: settings });
+  settingsCache = settingsCache.slice(0, 10);
+  if (settings.showTrayIcon) {
+    loadTray();
+  }
+  endLogin();
 }
 
 function useAuthCookies(callback) {
@@ -774,12 +780,16 @@ function loadTray() {
 
   // init tray
   tray = new Tray(trayImage);
-  tray.setToolTip('Cuely search')
+  tray.setToolTip('Cuely search');
   tray.on('click', (event, bounds) => {
     if (searchWindow && !(loginWindow && loginWindow.isVisible())) {
       toggleHide();
     }
   });
+  tray.on('right-click', (event, bounds) => {
+    tray.popUpContextMenu(Menu.buildFromTemplate(customMenuItems()));
+  });
+
   if (isOsx()) {
     tray.setPressedImage(imageDir + '/osx/cuelyHighlight.png');
   }
@@ -800,6 +810,9 @@ function endLogin() {
 
   if (!searchWindow) {
     createSearchWindow();
+    if (!prefs.getAll().showDockIcon) {
+      app.dock.hide();
+    }    
   }
   if (loginWindow) {
     loginWindow.close();
@@ -1148,8 +1161,7 @@ function setupAutoLauncher() {
     cuelyAutoLauncher.isEnabled().then(function(isEnabled){
       if(isEnabled){
         return;
-      }
-      else {
+      } else {
         cuelyAutoLauncher.enable();
       }
     });
@@ -1203,7 +1215,9 @@ function resetSession() {
   if (sessionInterval && !sessionInterval._called) {
     clearInterval(sessionInterval);
   } else {
-    segment.track('Session', {});
+    if (segment) {
+      segment.track('Session', {});
+    }
   }
 
   sessionInterval = setInterval(endSession, sessionLength);

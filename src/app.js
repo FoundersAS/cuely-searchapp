@@ -109,7 +109,7 @@ const icons = [
 ];
 
 export default class App extends Component {
-  constructor(props){
+  constructor(props) {
     super();
     this.handleInput = ::this.handleInput;
     this.handleKeyUp = ::this.handleKeyUp;
@@ -137,7 +137,8 @@ export default class App extends Component {
       selectedIndex: -1,
       clearInput: false,
       keyFocus: false,
-      integrations: []
+      integrations: [],
+      searchError: {}
     }
     this.hoverDisabled = false;
     this.segmentTimer = null;
@@ -156,6 +157,12 @@ export default class App extends Component {
         selectedIndex: arg.items.length > 0 ? 0 : -1,
         keyFocus: false
       });
+    });
+    ipcRenderer.on('search-error', (event, info) => {
+      this.setState({ searchError: info });
+    });
+    ipcRenderer.on('search-error-clear', event => {
+      this.setState({ searchError: {} });
     });
     ipcRenderer.on('integrations-load', (event, integrations) => {
       this.setState({ integrations });
@@ -193,7 +200,7 @@ export default class App extends Component {
         content.scrollLeft = 0;
       }
     }
-     
+
     if (this.refs.scrollbars && this.state.selectedIndex > -1) {
       const node = ReactDOM.findDOMNode(this.refs[`searchItem_${this.state.selectedIndex}`]);
       if (node && node.children) {
@@ -317,6 +324,7 @@ export default class App extends Component {
       } else if (link.endsWith('Finder.app')) {
         shell.showItemInFolder(this.userDir + '/Documents');
       } else {
+        ipcRenderer.send('hide-search');
         shell.openItem(link);
       }
     } else {
@@ -713,6 +721,7 @@ export default class App extends Component {
             ref = "searchBar"
             selectedIndex = {this.state.selectedIndex}
             clearInput = {this.state.clearInput}
+            searchError = {this.state.searchError}
           />
           {open ? this.renderSearchResults() : this.renderEmptyResults()}
         </div>
