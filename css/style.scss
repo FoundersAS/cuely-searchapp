@@ -259,7 +259,7 @@ em {
 	margin: 0;
 	background-color: rgba($color-very-dark, 0.03);
 	overflow: auto;
-	height: 397px;
+	height: 35rem;
 	border-left: 1px solid rgba($color-very-dark,0.1);
 	outline: none;
 
@@ -283,7 +283,6 @@ em {
 
 	.content_section { padding: 1.5rem 0 1.5rem 1.5rem; }
 	.content_section_right_padding { padding-right: 1.5rem; }
-	.content_section:last-child { padding-bottom: 6rem; }
 
 	.content_section_title {
 		color: rgba($color-very-dark, 0.3);
@@ -498,14 +497,16 @@ em {
 	.content_bottom_view_link {
 		position: fixed;
 		bottom: 0;
-		background-color: $color-white;
-		width: 40rem;
+		right: 0;
+		background-color: rgba($color-very-dark, 0.1);
+		width: 39.9rem;
 		height: 4.4rem;
 		font-size: $font-size-tiny;
 		font-weight: $font-weight-medium;
 		text-align: center;
-		border-top: 1px solid rgba($color-very-dark, 0.1);
-		box-shadow: 0px -1px 1px 0px rgba($color-very-dark,0.03);
+		border-top: 1px solid rgba($color-very-dark, 0.05);
+		border-left: 1px solid rgba($color-very-dark,0.05);
+		border-collapse: collapse;
 
 		.content_center {
 			display: inline-block;
@@ -593,14 +594,15 @@ em {
 	}
 
   .search_bar_error {
-    flex: 1 1 auto;
-    font-size: smaller;
+    font-size: $font-size-super-tiny;
     color: red;
     padding: 0.5rem;
-  }
+    position: absolute;
+    right: 0;
 
-  .search_bar_error > span {
-    float: right;
+    .glyphicons {
+    	margin: 0.2rem 0.3rem 0 0;
+    }
   }
 }
 

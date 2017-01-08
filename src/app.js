@@ -138,7 +138,7 @@ export default class App extends Component {
       clearInput: false,
       keyFocus: false,
       integrations: [],
-      searchError: {}
+      searchError: null
     }
     this.hoverDisabled = false;
     this.segmentTimer = null;
@@ -162,7 +162,7 @@ export default class App extends Component {
       this.setState({ searchError: info });
     });
     ipcRenderer.on('search-error-clear', event => {
-      this.setState({ searchError: {} });
+      this.setState({ searchError: null });
     });
     ipcRenderer.on('integrations-load', (event, integrations) => {
       this.setState({ integrations });

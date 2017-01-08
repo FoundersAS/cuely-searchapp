@@ -58,7 +58,7 @@ export default class SearchBar extends Component {
             onKeyDown={this.props.onKeyDown}
             onInput={this.props.onInput}
             ref='input' />
-        {this.props.searchError ? (<span className="search_bar_error"><span>{this.props.searchError.message}</span></span>) : null }
+        {this.props.searchError ? (<span className="search_bar_error"><span className="glyphicons glyphicons-alert"></span><span>{this.props.searchError.message}</span></span>) : null }
       </div>
     );
   }

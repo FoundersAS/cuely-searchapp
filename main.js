@@ -219,7 +219,7 @@ ipcMain.on('search', (event, arg, time, afterCreate) => {
           } else {
             if (searchWindow) {
               searchWindow.webContents.send('search-error',  {
-                message: 'Could not connect to Cuely service.',
+                message: 'Internet Connectivity Problems',
                 description: 'Please check your network connection and then try running the app again.'
               });
             }
