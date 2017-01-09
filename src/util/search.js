@@ -13,7 +13,8 @@ let index;
 let algoliaClient;
 let settings = {
   hitsPerPage: 15,
-  getRankingInfo: true
+  getRankingInfo: true,
+  exactOnSingleWordQuery: 'word'
 };
 moment.locale('en-gb');
 
