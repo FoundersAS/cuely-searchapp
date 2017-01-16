@@ -275,7 +275,7 @@ function helpscoutDocs(hit) {
   let users = hit.helpscout_document_users.map(user => ({
     avatar: user.avatar,
     name: user.name,
-    nameHighlight: highlightedValueInArray('helpscout_document_users', 'name', user.name, hit, true)
+    nameHighlight: highlightedValueInObjectArray('helpscout_document_users', 'name', user.name, hit, true)
   }));
 
   let statusLine = capitalize(highlightedValue('helpscout_document_collection', hit));
@@ -313,33 +313,32 @@ function helpscout(hit) {
     emails: highlightedValueWithClass('helpscout_emails', hit),
     name: highlightedValueWithClass('helpscout_name', hit)
   }
-  const cleaned_content = cleanJsonContent(highlightedValue('helpscout_content', hit), ['url', 'avatar', 'is_customer', 'author_id', 'created', 'last_updated_ts', 'id'], hit.user_id);
   let users, conversations = [];
-  if (cleaned_content) {
-    ({ users, conversations } = cleaned_content);
+  if (hit.helpscout_content) {
+    ({ users, conversations } = hit.helpscout_content);
 
-    content.conversations = conversations.map(c => {
+    content.conversations = conversations.map((c, i) => {
       return {
         id: c.id,
-        number: c.number,
-        mailbox: capitalize(c.mailbox),
+        number: c.number ? highlightWithClass(hit._highlightResult.helpscout_content.conversations[i].number.value) : null,
+        mailbox: c.mailbox ? capitalize(highlightWithClass(hit._highlightResult.helpscout_content.conversations[i].mailbox.value)) : null,
         assigned: c.owner ? 'Assigned' : 'Unassigned',
-        subject: c.subject,
-        status: capitalize(c.status),
-        items: c.threads.filter(item => item.body).map(item => ({
-          body: item.body,
+        subject: c.subject ? highlightWithClass(hit._highlightResult.helpscout_content.conversations[i].subject.value) : null,
+        status: c.status ? capitalize(highlightWithClass(hit._highlightResult.helpscout_content.conversations[i].status.value)) : null,
+        items: c.threads.map((item, j) => ({
+          body: item.body ? highlightWithClass(hit._highlightResult.helpscout_content.conversations[i].threads[j].body.value) : null,
           time: capitalize(moment(item.created * 1000).fromNow()),
           timestamp: item.created,
-          author: item.author,
+          author: item.author ? highlightWithClass(hit._highlightResult.helpscout_content.conversations[i].threads[j].author.value) : null,
           authorId: item.author_id
-        }))
+        })).filter(item => item.body)
       };
     });
 
-    users = users.map(user => ({
+    users = users.map((user, i) => ({
       avatar: user.avatar,
-      name: user.name.replace(/<em class="algolia_highlight">/g, '').replace(/<\/em>/g, ''),
-      nameHighlight: user.name.indexOf('<em class="algolia_highlight">') > -1 ? user.name : null,
+      name: user.name,
+      nameHighlight: user.name ? highlightWithClass(hit._highlightResult.helpscout_content.users[i].name.value) : null,
       email: user.email
     }));
   }
@@ -372,23 +371,26 @@ function pipedrive(hit) {
     value: hit.pipedrive_deal_value,
     currency: hit.pipedrive_deal_currency,
   }
-  const cleaned_content = cleanJsonContent(highlightedValue('pipedrive_content', hit), ['url', 'icon_url', 'done_time', 'email'], hit.user_id);
   let contacts, users, activities = [];
-  if (cleaned_content) {
-    ({ contacts, users, activities } = cleaned_content);
-    content.contacts = contacts;
-    content.activities = activities.map(a => ({
-      subject: a.subject,
-      username: a.user_name,
+  if (hit.pipedrive_content) {
+    ({ contacts, users, activities } = hit.pipedrive_content);
+    content.contacts = contacts.map((c, i) => ({
+      name: c.name ? highlightWithClass(hit._highlightResult.pipedrive_content.contacts[i].name.value) : null,
+      email: c.email ? highlightWithClass(hit._highlightResult.pipedrive_content.contacts[i].email.value) : null,
+      url: c.url
+    }));
+    content.activities = activities.map((a, i) => ({
+      subject: a.subject ? highlightWithClass(hit._highlightResult.pipedrive_content.activities[i].subject.value) : null,
+      username: a.user_name ? highlightWithClass(hit._highlightResult.pipedrive_content.activities[i].user_name.value) : null,
       doneTime: moment(a.done_time).fromNow(),
-      contact: a.contact,
+      contact: a.contact ? highlightWithClass(hit._highlightResult.pipedrive_content.activities[i].contact.value) : null,
       type: a.type
     }));
 
-    users = users.map(user => ({
+    users = users.map((user, i) => ({
       avatar: user.icon_url,
-      name: user.name.replace(/<em class="algolia_highlight">/g, '').replace(/<\/em>/g, ''),
-      nameHighlight: user.name.indexOf('<em class="algolia_highlight">') > -1 ? user.name : null,
+      name: user.name,
+      nameHighlight: user.name ? highlightWithClass(hit._highlightResult.pipedrive_content.users[i].name.value) : null,
       email: user.email
     }));
   }
@@ -445,25 +447,27 @@ function intercom(hit) {
     });
   }
 
-  const cleaned_content = cleanJsonContent(highlightedValue('intercom_content', hit), ['open', 'timestamp'], hit.user_id);
   let open = false;
-  if (cleaned_content) {
-    let { events, conversations } = cleaned_content;
-    content.events = events.map(e => ({ name: capitalize(e.name), time: capitalize(moment(e.timestamp * 1000).fromNow()) }));
-    content.conversations = conversations.map(c => {
+  if (hit.intercom_content) {
+    let { events, conversations } = hit.intercom_content;
+    content.events = events.map((e, i) => ({
+      name: highlightWithClass(capitalize(hit._highlightResult.intercom_content.events[i].name.value)),
+      time: capitalize(moment(e.timestamp * 1000).fromNow())
+    }));
+    content.conversations = conversations.map((c, i) => {
       if (!open && c.open) {
         open = true;
       }
       return {
-        subject: c.subject,
+        subject: c.subject ? highlightWithClass(hit._highlightResult.intercom_content.conversations[i].subject.value) : null,
         open: c.open,
-        items: c.items.filter(item => item.body).map(item => ({
-          body: item.body,
+        items: c.items.map((item, j) => ({
+          body: item.body ? highlightWithClass(hit._highlightResult.intercom_content.conversations[i].items[j].body.value) : null,
           time: capitalize(moment(item.timestamp * 1000).fromNow()),
           timestamp: item.timestamp,
-          author: item.author,
+          author: item.author ? highlightWithClass(hit._highlightResult.intercom_content.conversations[i].items[j].author.value) : null,
           authorId: item.author_id
-        }))
+        })).filter(item => item.body)
       };
     });
     content.conversations.sort((a, b) => {
@@ -547,7 +551,7 @@ function gdrive(hit) {
         title = '…' + title.substring(highlightedIndex - 20);
       }
   }
-  let path = JSON.parse(removeEscapedAlgoliaHighlight(highlightedValue('path', hit)));
+  let path = highlightedArray('path', hit);
   if (path.length > 0) {
     let highlightedIndex = path.findIndex(x => x.indexOf('<em>') > -1);
     if (highlightedIndex < 0) {
@@ -632,9 +636,10 @@ function highlightedValueInObject(attribute, hit, key, emptyIfNotHighlighted=fal
   return emptyIfNotHighlighted ? "" : hit[attribute][key].value;
 }
 
-// use for json arrays of objects, e.g. [{ "avatar": "http://...", "name": "Otto" }, { "avatar": "http://...", "name": "Jack" }],
+// use to get a specific highlighted object in json arrays of objects,
+// e.g. [{ "avatar": "http://...", "name": "Otto" }, { "avatar": "http://...", "name": "Jack" }],
 // because Algolia highlights exact json key -> value, e.g. [{ "name": "<em>Ott</em>o", ... }]
-function highlightedValueInArray(attribute, key, value, hit, emptyIfNotHighlighted=false) {
+function highlightedValueInObjectArray(attribute, key, value, hit, emptyIfNotHighlighted=false) {
   if(attribute in hit._highlightResult) {
     let hits = hit._highlightResult[attribute].filter(x => (key in x) && x[key].matchedWords.length > 0);
     hits = hits.reduce((acc, obj) => {
@@ -656,52 +661,4 @@ function highlightedValueWithClass(attribute, hit, emptyIfNotHighlighted) {
 
 function highlightWithClass(value) {
   return value ? value.replace(/<em>/g, '<em class="algolia_highlight">') : value;
-}
-
-function removeAlgoliaHighlight(json_text, json_keys) {
-  let result = json_text;
-  for (let json_key of json_keys) {
-    const re = new RegExp(`"${json_key}":\\s*.*?[},]`, "g");
-    const matches = (json_text.match(re) || []).filter(m => m.indexOf('<em>') > -1);
-    for (let m of matches) {
-      result = result.replace(m, m.replace(/<em>/g, '').replace(/<\/em>/g, ''));
-    }
-  }
-  result = removeEscapedAlgoliaHighlight(result);
-  return result;
-}
-
-function removeEscapedAlgoliaHighlight(text) {
-  // also remove escaped '<em>' tags which can happen when Algolia highlights a letter in an escape sequence such as unicode character: \ud83d -> \<em>u</em>d83d
-  // this is needed, because otherwise json parser will choke on it
-  if (text.indexOf('\\<em>') > -1) {
-    text = text.split('\\<em>').map(token => token.replace('</em>', '')).join('\\');
-  }
-  return text;
-}
-
-function cleanJsonContent(content_text, json_keys, user_id) {
-  if (!content_text) {
-    return null;
-  }
-  // in case of json formatted content, the parsed json object may contain highlighted (<em>...</em>) snippets
-  // as atribute names, so we must remove those before using the json later on
-  const content = removeAlgoliaHighlight(content_text, json_keys);
-  // NOTE: do not change old style function to arrow function in next line, because it won't work ('this' has different scope in arrow functions)
-  try {
-    return JSON.parse(content, function(key, value) {
-      const new_value = (typeof value  === 'string' || value instanceof String) ? highlightWithClass(value) : value;
-      if (key.indexOf('<em>') > -1) {
-        this[key.replace(/<em>/g, '').replace(/<\/em>/g, '')] = new_value;
-        return;
-      }
-      return new_value;
-    });
-  } catch(err) {
-    opbeat.captureError(err, {
-      extra: {
-        user: user_id
-      }
-    });
-  }
 }
