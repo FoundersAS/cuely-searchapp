@@ -138,7 +138,8 @@ export default class App extends Component {
       clearInput: false,
       keyFocus: false,
       integrations: [],
-      searchError: null
+      searchError: null,
+      activeIntegration: 'cuely'
     }
     this.hoverDisabled = false;
     this.segmentTimer = null;
@@ -271,6 +272,7 @@ export default class App extends Component {
 
   handleInput(e) {
     const q = e.target.value;
+    this.setActiveIntegration(q);
     ipcRenderer.send('search', q, Date.now(), false);
     this.refs.sideBar.changeIcon(q);
     if (this.segmentTimer) {
@@ -295,6 +297,28 @@ export default class App extends Component {
         this.setState({ selectedIndex: index, keyFocus: false });
         this.hideHover();
       }  
+    }
+  }
+
+  setActiveIntegration(query) {
+    let indexOfSpace = query.indexOf(' ');
+    let firstWord = '';
+    //cut query
+    if (indexOfSpace == -1){
+      firstWord = query;
+    }
+    else {
+      firstWord = query.substr(0, indexOfSpace).trim();
+    }
+
+    if (firstWord == 'gdrive') {
+      this.setState({ activeIntegration: 'gdrive' });
+    }
+    else if (firstWord == 'jira') {
+      this.setState({ activeIntegration: 'jira' });
+    }
+    else {
+      this.setState({ activeIntegration: 'cuely' });
     }
   }
 
@@ -536,6 +560,7 @@ export default class App extends Component {
     return (
       <div className="search_suggestions" id="searchSuggestions" onKeyUp={this.handleKeyUp} onKeyDown={this.handleContentKeyDown}>
         <div className="search_suggestions_list" id="searchSuggestionsList">
+          {this.getIntegrationActions()}
           <Scrollbars autoHeight autoHeightMin={0} autoHeightMax={397} style={{ border: 'none' }} ref="scrollbars">
             <ul id="searchSuggestionsList">
               {this.state.searchResults.map(this.renderItem)}
@@ -548,6 +573,17 @@ export default class App extends Component {
         </div>
       </div>
     );
+  }
+
+  getIntegrationActions() {
+    if (this.state.activeIntegration == 'gdrive'){
+
+      return (
+        <div className="search_integration_actions">
+          <button>New doc</button>
+        </div>
+      );
+    }
   }
 
   renderEmptyResults() {
