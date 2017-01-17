@@ -108,6 +108,30 @@ const icons = [
   }
 ];
 
+const integrationActionsKeywords = [
+  {
+    mime: 'application/vnd.google-apps.document',
+    type: 'gdrive',
+    keywords: ['doc','docs','documents','document','gdoc','google doc','google document'],
+    title: '<em>Create a new Google Document</em>',
+    link: 'https://docs.google.com/a/your.domain.com/document/create'
+  },
+  {
+    mime: 'application/vnd.google-apps.spreadsheet',
+    type: 'gdrive',
+    keywords: ['sheet','sheets','spreadsheet','spreadsheets','google sheet'],
+    title: '<em>Create a new Google Sheet</em>',
+    link: 'https://docs.google.com/a/your.domain.com/spreadsheet/ccc?new'
+  },
+  {
+    mime: 'application/vnd.google-apps.presentation',
+    type: 'gdrive',
+    keywords: ['slide','slides','google slide','google slides','prezo','presentation','google presentation'],
+    title: '<em>Create a new Google Presentation</em>',
+    link: 'https://docs.google.com/a/your.domain.com/presentation/create'
+  }
+];
+
 export default class App extends Component {
   constructor(props) {
     super();
@@ -131,6 +155,7 @@ export default class App extends Component {
     this.handleLocalAppInFinder = ::this.handleLocalAppInFinder;
     this.handleLocalAppPreview = ::this.handleLocalAppPreview;
     this.handleSidebarIntegrationClick = ::this.handleSidebarIntegrationClick;
+    this.handleIntegrationActionClick = ::this.handleIntegrationActionClick;
     this.state = {
       noResultsYet: true,
       searchResults: [],
@@ -139,7 +164,8 @@ export default class App extends Component {
       keyFocus: false,
       integrations: [],
       searchError: null,
-      activeIntegration: 'cuely'
+      activeIntegration: 'cuely',
+      companyDomain: ''
     }
     this.hoverDisabled = false;
     this.segmentTimer = null;
@@ -181,6 +207,9 @@ export default class App extends Component {
       this.setState({ clearInput: true });
       ipcRenderer.send('search', '', Date.now(), false);
       this.refs.sideBar.changeIcon('');
+    });
+    ipcRenderer.on('setting-domain', (event, domain) => {
+      this.setState({ companyDomain : domain });
     });
   }
 
@@ -317,6 +346,9 @@ export default class App extends Component {
     else if (firstWord == 'jira') {
       this.setState({ activeIntegration: 'jira' });
     }
+    else if (firstWord == 'pipedrive') {
+      this.setState({ activeIntegration: 'pipedrive' });
+    }
     else {
       this.setState({ activeIntegration: 'cuely' });
     }
@@ -332,13 +364,39 @@ export default class App extends Component {
     else {
       this.copyValueToClipboard();
     }
-    
   }
 
   handleExternalLink(e) {
     e.preventDefault();
     const item = this.state.searchResults[this.state.selectedIndex];
     this.openExternalLink(item.webLink, 'view in app button', item.type);
+  }
+
+  handleIntegrationActionClick(e) {
+    e.preventDefault();
+
+    if (e.target.id.indexOf('jira') != -1) {
+      //get Jira company link hack
+      let link = '';
+      for (let item of this.state.searchResults) {
+        link = item.webLink;
+        if (link.indexOf('atlassian.net') != -1){
+          link = link.split('://')[1];
+          link = link.split('.atlassian.net')[0];
+          break;
+        }
+      }
+      link = 'https://' + link + '.atlassian.net/secure/CreateIssue!default.jspa';
+      this.openExternalLink(link, 'new jira issue', 'jira');
+    }
+    else {
+      for (let item of integrationActionsKeywords){
+        if (item.keywords[0].indexOf(e.target.id) != -1){
+          const link = item.link.replace('your.domain.com', this.state.companyDomain);
+          this.openExternalLink(link, 'new google doc', 'gdrive');
+        }
+      }
+    }
   }
 
   openExternalLink(link, triggerType, itemType=null) {
@@ -560,8 +618,8 @@ export default class App extends Component {
     return (
       <div className="search_suggestions" id="searchSuggestions" onKeyUp={this.handleKeyUp} onKeyDown={this.handleContentKeyDown}>
         <div className="search_suggestions_list" id="searchSuggestionsList">
-          {this.getIntegrationActions()}
           <Scrollbars autoHeight autoHeightMin={0} autoHeightMax={397} style={{ border: 'none' }} ref="scrollbars">
+          {this.getIntegrationActions()}
             <ul id="searchSuggestionsList">
               {this.state.searchResults.map(this.renderItem)}
             </ul>
@@ -577,10 +635,18 @@ export default class App extends Component {
 
   getIntegrationActions() {
     if (this.state.activeIntegration == 'gdrive'){
-
       return (
         <div className="search_integration_actions">
-          <button>New doc</button>
+          <a className="action_link" id="doc" tabIndex="2" onClick={this.handleIntegrationActionClick}><span className="glyphicons glyphicons-plus"></span>New doc</a>
+          <a className="action_link" id="sheet" tabIndex="3" onClick={this.handleIntegrationActionClick}><span className="glyphicons glyphicons-plus"></span>New sheet</a>
+          <div className="action_link" id="slide" tabIndex="4" onClick={this.handleIntegrationActionClick}><span className="glyphicons glyphicons-plus"></span>New presentation</div>
+        </div>
+      );
+    }
+    else if (this.state.activeIntegration == 'jira'){
+      return (
+        <div className="search_integration_actions">
+          <div className="action_link" id="jira-issue" onClick={this.handleIntegrationActionClick}><span className="glyphicons glyphicons-plus"></span>New issue</div>
         </div>
       );
     }

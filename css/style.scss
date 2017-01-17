@@ -6,6 +6,7 @@
 
 /* Colors- DARK */
 $color-orange: #F45C05;
+$color-dark-orange: #E55605;
 $color-dark-violet: #22191C;
 $color-yellow: #FFCF62;
 $color-dark-blue: #2E52A2;
@@ -42,16 +43,14 @@ html {
   font-size: 62.5%;
 }
 
-a {
-	color: #3A46C3;
-}
+a { color: #3A46C3; }
 
 body {
+	font: $system-font;
+	font-size: $font-size-base;
+	font-weight: $font-weight-regular;
   padding: 0px;
   margin: 0px;
-  font: $system-font;
-  font-size: $font-size-base;
-  font-weight: $font-weight-regular;
   overflow: hidden;
 	-webkit-font-feature-settings: "kern" 1;
 	-moz-font-feature-settings: "kern" 1;
@@ -62,8 +61,8 @@ body {
 
 em {
   font-weight: $font-weight-medium;
-  font-style: inherit;
   color: $color-very-dark;
+  font-style: inherit;
 }
 
 .search_root {
@@ -81,28 +80,20 @@ em {
 
 	.no_preview, 
 	.empty_results_set {
+		font-size: $font-size-mid;
+		color: $color-very-dark;
 		text-align: center;
 		position: relative;
 		top: 13rem;
-		font-size: $font-size-mid;
-		color: $color-very-dark;
 		margin-left: -1.5rem;
 	}
 
-	.search_integration_actions {
-		box-sizing: border-box;
-		background-color: tomato;
-		width: 100%;
-		padding: 1.5rem;
-	}
-
 	.search_suggestions_list {
+		background-color: $color-white;
 		margin: 0;
 		padding: 0;
-		background-color: $color-white;
 		height: 397px;
 		width: 400px;
-		cursor: pointer;
 		z-index: 50;
 
 		ul {
@@ -110,54 +101,81 @@ em {
 			margin: 0;
 			padding: 0;
 			width: 40rem;
-		}	
+		}
+
+		.search_integration_actions {
+			background-color: $color-white;
+			border-bottom: 1px solid rgba($color-very-dark, 0.1);
+			box-sizing: border-box;
+			width: 100%;
+			padding: 1.5rem;
+			pointer: default;
+			display: flex;
+
+			.action_link {
+				background-color: $color-orange;
+
+				&:hover { background-color: $color-dark-orange; }
+			}
+		}
 
 		.search_suggestions_card {
-			border: none;
 			font-size: $font-size-big;
 			color: rgba($color-very-dark, 0.85);
+			border: none;
 			position: relative;
 			cursor: pointer !important;
 
-			.search_suggestions_logo_container {
-				width: 2.8rem;
-				height: 2.5rem;
-				pointer-events: none;
-				background-color: $color-white;
-				border: 1px solid rgba($color-very-dark, 0.1);
-				border-radius: 0.2rem;
+			& + .search_suggestions_card { border-top: 1px solid rgba($color-very-dark, 0.1); }
+			&:last-child { border-bottom: 1px solid rgba($color-very-dark, 0.1); }
+
+			& + .search_suggestions_card_highlight,
+			.search_suggestions_card_highlight + & {
+				border-top: 1px solid rgba($color-very-dark, 0.01);
 			}
 
-			.search_suggestions_logo{
+			&:hover { 
+				cursor: pointer;
+				background-color: rgba($color-very-dark, 0.03);
+			}
+
+			.search_suggestions_logo_container {
+				background-color: $color-white;
+				border: 1px solid rgba($color-very-dark, 0.1);
+				width: 2.8rem;
+				height: 2.5rem;
+				border-radius: 0.2rem;
+				pointer-events: none;
+			}
+
+			.search_suggestions_logo {
 				height: 1.7rem;
 				width: 1.7rem;
 				background-size: 1.7rem;
 				margin: 0.4rem 0 0 0.4rem;
 				background-position: center;
 				background-repeat: no-repeat;
+
+				&.glyphicons-question-sign {
+					color: rgba($color-very-dark, 0.25);
+					font-size: $font-size-big;
+					padding: 0.1rem 0 0 0.1rem;
+				}
 			}
 
-			.search_suggestions_logo.glyphicons-question-sign {
-				color: rgba($color-very-dark, 0.25);
-				font-size: $font-size-big;
-				padding: 0.1rem 0 0 0.1rem;
-			}
-
-			.search_suggestions_logo_sprite {
-				background-image: url('../assets/images/other/cuely_icons_sprite@2x.png');
-			}
+			.search_suggestions_logo_sprite { background-image: url('../assets/images/other/cuely_icons_sprite@2x.png'); }
 
 			.search_suggestions_data {
-				pointer-events: none;
 				font-size: $font-size-base;
+				pointer-events: none;
 				width: 100%;
 				padding-left: 1.5rem;
 
 				.heading {
+					font-size: $font-size-big;
 					margin: 0;
 					padding: 0;
 					height: 2.5rem;
-					font-size: $font-size-big;
 					white-space: nowrap;
 					display: flex;
 					justify-content: space-between;
@@ -191,11 +209,11 @@ em {
 							overflow: hidden;
 							text-overflow: ellipsis;
 						}
-					}
 
-					.meta_group:last-child {
-						overflow: hidden;
-						margin: 0;
+						&:last-child {
+							overflow: hidden;
+							margin: 0;
+						}
 					}
 				}
 			}
@@ -211,18 +229,16 @@ em {
 				bottom: 1.2rem;
 				padding: .5rem;
 				cursor: pointer;
+
+				&:hover {
+				  background-color: rgba($color-very-dark, 0.15);
+				  color: rgba($color-very-dark, 0.4);
+				  border-radius: 2px;
+				  cursor: pointer;
+				}
 			}
 
-			.action_icon_no_meta_info {
-				bottom: 1.7rem;
-			}
-
-			.action_icon:hover {
-			  background-color: rgba($color-very-dark, 0.15);
-			  color: rgba($color-very-dark, 0.4);
-			  border-radius: 2px;
-			  cursor: pointer;
-			}
+			.action_icon_no_meta_info { bottom: 1.7rem; }
 
 			.search_suggestions_card_link,
 			.search_suggestions_card_link_no_hover,
@@ -239,24 +255,6 @@ em {
 		.search_suggestions_card_highlight {
 			background-color: rgba($color-very-dark, 0.1) !important;
 			cursor: pointer;
-		}
-
-		.search_suggestions_card + .search_suggestions_card {
-			border-top: 1px solid rgba($color-very-dark, 0.1);
-		}
-
-		.search_suggestions_card:last-child {
-			border-bottom: 1px solid rgba($color-very-dark, 0.1);
-		}
-
-		.search_suggestions_card + .search_suggestions_card_highlight,
-		.search_suggestions_card_highlight + .search_suggestions_card  {
-			border-top: 1px solid rgba($color-very-dark, 0.01);
-		}
-
-		.search_suggestions_card:hover { 
-			cursor: pointer;
-			background-color: rgba($color-very-dark, 0.03);
 		}
 	}
 }
@@ -276,10 +274,7 @@ em {
 	}
 
 	pre {
-
-		li + li {
-		  margin-top: 0.5rem;
-		}
+		li + li { margin-top: 0.5rem; }
 	}
 
 	img {
@@ -305,8 +300,8 @@ em {
 	.content_section_text {
 		font-size: $font-size-mid;
 		font-weight: $font-weight-regular;
-		line-height: 1.5;
 		color: $color-dark;
+		line-height: 1.5;
 		overflow: auto;
 		word-wrap: break-word;
 
@@ -345,19 +340,15 @@ em {
 			.content_link {
 				color: $color-dark;
 				text-decoration: underline !important;
-			}
 
-			.content_link:hover {
-				color: rgba($color-very-dark, 0.7) !important;
+				&:hover { color: rgba($color-very-dark, 0.7) !important; }
 			}
 		}
 
 		.content_link {
 			text-decoration: none;
-		}
 
-		.content_link:hover {
-			text-decoration: underline;
+			&:hover { text-decoration: underline; }
 		}
 	}
 
@@ -381,15 +372,19 @@ em {
 
 		.conversation_group {
 			background-color: $color-white;
-			border-radius: 0.4rem;
 			border: 1px solid rgba($color-very-dark, 0.1);
+			border-radius: 0.4rem;
+
+			& + .conversation_group {
+				margin-top: 1rem;
+			}
 
 			.status {
-				padding: 1.2rem 1rem 0.8rem 1rem;
 				font-weight: $font-weight-medium;
+				padding: 1.2rem 1rem 0.8rem 1rem;
+				border-bottom: 1px solid rgba($color-dark, 0.1);
 				text-transform: capitalize;
 				display: block;
-				border-bottom: 1px solid rgba($color-dark, 0.1);
 
 				.content_link {
 					font-size: $font-size-big;
@@ -400,28 +395,28 @@ em {
 
 				.sub_status {
 					font-size: $font-size-base;
-					text-decoration: none;
 					color: rgba($color-very-dark, 0.5);
+					text-decoration: none;
 				}
 			}
 		}
 
-		.conversation_group + .conversation_group {
-			margin-top: 1rem;
-		}
-
 		.conversation_items {
-			padding: 1rem;
 			font-weight: $font-weight-medium;
+			padding: 1rem;
 
 			.conversation_item {
 				display: flex;
 
+				& + .conversation_item {
+					margin-top: 1rem;
+				}
+
 				.conversation_meta {
-					margin-top: 0.7rem;
-					margin-bottom: 0.5rem;
 					font-size: $font-size-tiny;
 					color: rgba($color-very-dark, 0.33);
+					margin-top: 0.7rem;
+					margin-bottom: 0.5rem;
 
 					.meta_icon {
 						margin: 0.2rem 0.5rem 0 0.4rem;
@@ -429,10 +424,10 @@ em {
 				}
 
 				.message_body {
-					border-radius: 0.6rem;
-					padding: 1rem;
 					line-height: $line-height-base;
 					font-size: $font-size-base;
+					border-radius: 0.6rem;
+					padding: 1rem;
 				}
 
 				.message_customer {
@@ -466,10 +461,6 @@ em {
 					}
 				}
 			}
-
-			.conversation_item + .conversation_item {
-				margin-top: 1rem;
-			}
 		}
 	}
 
@@ -482,67 +473,40 @@ em {
 		display: block;
 
 		td {
+			background-color: $color-white;
 			border: 1px solid #DDD;
 			border-collapse: collapse;
-			background-color: $color-white;
 			padding: .75rem;
 			text-align: left;
 		}
 
 		th {
+			font-weight: $font-weight-medium;
+			color: $color-dark;
 			background-color: rgba($color-yellow, 0.4);
 			border: 1px solid #DDD;
-			color: $color-dark;
 			padding: .75rem;
 			text-align: left;
 			min-width: 120px;
-			font-weight: 500;
 		}
-		
 	}
 
 	.content_bottom_view_link {
+		font-size: $font-size-tiny;
+		font-weight: $font-weight-medium;
+		background-color: rgba($color-very-dark, 0.1);
+		border-top: 1px solid rgba($color-very-dark, 0.05);
+		border-left: 1px solid rgba($color-very-dark,0.05);
 		position: fixed;
 		bottom: 0;
 		right: 0;
-		background-color: rgba($color-very-dark, 0.1);
 		width: 39.9rem;
-		height: 4.4rem;
-		font-size: $font-size-tiny;
-		font-weight: $font-weight-medium;
+		height: 3.4rem;
 		text-align: center;
-		border-top: 1px solid rgba($color-very-dark, 0.05);
-		border-left: 1px solid rgba($color-very-dark,0.05);
 		border-collapse: collapse;
+		padding-top: 1rem;
 
-		.content_center {
-			display: inline-block;
-		}
-
-		.action_link {
-			margin-top: 1rem;
-			color: $color-white;
-			background-color: rgba($color-dark-blue, 0.9);
-			padding: 0.4rem 0.75rem;
-			border-radius: 0.2rem;
-			cursor: pointer;
-			height: 1.6rem;
-			display: block;
-			float:left;
-			-webkit-user-select: none;
-		}
-
-		.action_link + .action_link {
-			margin-left: 1rem;
-		}
-
-		.action_link:hover {
-			background-color: rgba($color-dark-blue, 1);
-		}
-		
-		.glyphicons {
-			padding: 0.05rem 0.3rem 0 0;
-		}
+		.content_center { display: inline-block; }
 	}
 }
 
@@ -550,22 +514,41 @@ em {
 	cursor: pointer;
 }
 
-.style_space_between {
-  justify-content: space-between !important;
+.action_link {
+	color: $color-white;
+	background-color: rgba($color-dark-blue, 0.9);
+	font-size: $font-size-tiny;
+	font-weight: $font-weight-medium;
+	padding: 0.4rem 0.75rem;
+	border-radius: 0.2rem;
+	cursor: pointer;
+	height: 1.6rem;
+	display: block;
+	float:left;
+	-webkit-user-select: none;
+	text-transform: capitalize;
+
+	.glyphicons {
+		color: rgba($color-white, 0.8);
+		font-size: $font-size-super-tiny;
+		padding: 0.05rem 0.3rem 0 0;
+	}
+
+	& + .action_link { margin-left: 1rem; }
+
+	&:hover { background-color: rgba($color-dark-blue, 1); }
 }
 
-.style_flex_start {
-  justify-content: flex-start !important;
-}
+.style_space_between { justify-content: space-between !important; }
+
+.style_flex_start { justify-content: flex-start !important; }
 
 .padding-top-bottom-075 {
 	padding-top: .75rem;
 	padding-bottom: .75rem
 }
 
-.no_capitalize:first-letter {
-	text-transform: lowercase !important;
-}
+.no_capitalize:first-letter { text-transform: lowercase !important; }
 
 .search_bar_open {
 	width: 100%;
@@ -576,11 +559,11 @@ em {
 	-webkit-app-region: drag;
 
 	.search_bar_input {
-		border: none;
 		font-size: $font-size-giant;
 		font-weight: $font-weight-regular;
 		letter-spacing: $letter-spacing-base;
 		color: $color-very-dark;
+		border: none;
 		outline: none;
 		-webkit-app-region: no-drag;
 		position: relative;
@@ -624,19 +607,17 @@ em {
 		background-position: center center;
 		background-size: 2.5rem 2.5rem;
 		display: inline-block;
-	}
 
-	.avatar + .avatar {
-	  margin-left: 1rem;
+		& + .avatar { margin-left: 1rem; }
 	}
 
 	.no_avatar {
+		color: $color-white;
+		background-color: rgba($color-very-dark, 0.35);
+		font-weight: $font-weight-regular;
+		font-size: $font-size-super-tiny;
+		font-weight: $font-weight-medium;
 	  line-height: 2.4rem;
-	  color: $color-white;
-	  background-color: rgba($color-very-dark, 0.35);
-	  font-weight: $font-weight-regular;
-	  font-size: $font-size-super-tiny;
-	  font-weight: $font-weight-medium;
 	  text-transform: uppercase;
 	  text-align: center;
 	  box-shadow:none;
@@ -644,20 +625,16 @@ em {
 }
  
 /* Glyphicons reset */
-.glyphicons:before {
-  padding: 0;
-}
+.glyphicons:before { padding: 0; }
 
-.glyphicons-folder-open {
-	margin-right: 0.15rem;
-}
+.glyphicons-folder-open { margin-right: 0.15rem; }
 
 .sidebar {
+	background-color: rgba($color-dark-violet, 0.95);
 	top: 0;
 	left: 0;
 	height: 460.38px;
 	width: 6.4rem;
-	background-color: rgba($color-dark-violet, 0.95);
 
 	ul {
 		margin: 1.2rem auto;
@@ -726,6 +703,4 @@ em {
 	}
 }
 
-.main_app {
-	display: flex;
-}
+.main_app { display: flex; }

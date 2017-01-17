@@ -13,7 +13,7 @@ const sessionLength = 900000; //900000 15 minutes = 1000 * 60 * 15
 const { app, dialog, shell, BrowserWindow, Menu, MenuItem, Tray, globalShortcut } = electron;
 const winHeight = 460;
 
-let newKeywords = [
+let integrationActionsKeywords = [
   {
     mime: 'application/vnd.google-apps.document',
     type: 'gdrive',
@@ -508,6 +508,7 @@ function createSearchWindow() {
 
   searchWindow.once('ready-to-show', () => {
     setTimeout(toggleHide, 1000);
+    searchWindow.webContents.send('setting-domain', prefs.settings.account.email.split('@')[1]);
   });
   // Emitted when the window is closed.
   searchWindow.on('closed', () => {
@@ -971,13 +972,13 @@ function getNewItems(query) {
 
   if(query === ''){
     //give all the options
-    for (let item of newKeywords){
+    for (let item of integrationActionsKeywords){
       items.push(getNewItem(replaceGenericDomain(item)));
     }
   }
   else {
     //give specific options
-    for (let item of newKeywords){
+    for (let item of integrationActionsKeywords){
       for (let keyword of item.keywords){
         if (keyword.indexOf(query) != -1){
           items.push(getNewItem(replaceGenericDomain(item)));
