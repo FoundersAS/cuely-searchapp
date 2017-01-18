@@ -637,9 +637,9 @@ export default class App extends Component {
     if (this.state.activeIntegration == 'gdrive'){
       return (
         <div className="search_integration_actions">
-          <a className="action_link" id="doc" tabIndex="2" onClick={this.handleIntegrationActionClick}><span className="glyphicons glyphicons-plus"></span>New doc</a>
-          <a className="action_link" id="sheet" tabIndex="3" onClick={this.handleIntegrationActionClick}><span className="glyphicons glyphicons-plus"></span>New sheet</a>
-          <div className="action_link" id="slide" tabIndex="4" onClick={this.handleIntegrationActionClick}><span className="glyphicons glyphicons-plus"></span>New presentation</div>
+          <div className="action_link" id="doc" onClick={this.handleIntegrationActionClick}><span className="glyphicons glyphicons-plus"></span>New doc</div>
+          <div className="action_link" id="sheet" onClick={this.handleIntegrationActionClick}><span className="glyphicons glyphicons-plus"></span>New sheet</div>
+          <div className="action_link" id="slide" onClick={this.handleIntegrationActionClick}><span className="glyphicons glyphicons-plus"></span>New presentation</div>
         </div>
       );
     }

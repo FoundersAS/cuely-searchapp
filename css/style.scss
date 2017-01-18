@@ -36,33 +36,33 @@ $line-height-min: 1.3rem;
 */
 
 html {
-  -webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
   -moz-box-sizing: border-box; /* Firefox, other Gecko */
-  box-sizing: border-box; /* Opera/IE 8+ */
   -webkit-app-region: drag;
+  -webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
+  box-sizing: border-box; /* Opera/IE 8+ */
   font-size: 62.5%;
 }
 
 a { color: #3A46C3; }
 
 body {
-	font: $system-font;
-	font-size: $font-size-base;
-	font-weight: $font-weight-regular;
-  padding: 0px;
-  margin: 0px;
-  overflow: hidden;
-	-webkit-font-feature-settings: "kern" 1;
 	-moz-font-feature-settings: "kern" 1;
+	-webkit-font-feature-settings: "kern" 1;
+	-webkit-font-smoothing: antialiased;
 	font-feature-settings: "kern" 1;
 	font-kerning: normal;
-	-webkit-font-smoothing: antialiased;
+	font-size: $font-size-base;
+	font-weight: $font-weight-regular;
+	font: $system-font;
+  margin: 0px;
+  overflow: hidden;
+  padding: 0px;
 }
 
 em {
-  font-weight: $font-weight-medium;
   color: $color-very-dark;
   font-style: inherit;
+  font-weight: $font-weight-medium;
 }
 
 .search_root {
@@ -71,28 +71,28 @@ em {
 }
 
 .search_suggestions {
-	display: flex;
-	width: 100%;
-	padding: 0;
-	margin: 0;
-	border-top: 0;
 	-webkit-app-region: no-drag;
+	border-top: 0;
+	display: flex;
+	margin: 0;
+	padding: 0;
+	width: 100%;
 
 	.no_preview, 
 	.empty_results_set {
-		font-size: $font-size-mid;
 		color: $color-very-dark;
-		text-align: center;
-		position: relative;
-		top: 13rem;
+		font-size: $font-size-mid;
 		margin-left: -1.5rem;
+		position: relative;
+		text-align: center;
+		top: 13rem;
 	}
 
 	.search_suggestions_list {
 		background-color: $color-white;
+		height: 397px;
 		margin: 0;
 		padding: 0;
-		height: 397px;
 		width: 400px;
 		z-index: 50;
 
@@ -107,10 +107,10 @@ em {
 			background-color: $color-white;
 			border-bottom: 1px solid rgba($color-very-dark, 0.1);
 			box-sizing: border-box;
-			width: 100%;
+			display: flex;
 			padding: 1.5rem;
 			pointer: default;
-			display: flex;
+			width: 100%;
 
 			.action_link {
 				background-color: $color-orange;
@@ -120,11 +120,11 @@ em {
 		}
 
 		.search_suggestions_card {
-			font-size: $font-size-big;
-			color: rgba($color-very-dark, 0.85);
 			border: none;
-			position: relative;
+			color: rgba($color-very-dark, 0.85);
 			cursor: pointer !important;
+			font-size: $font-size-big;
+			position: relative;
 
 			& + .search_suggestions_card { border-top: 1px solid rgba($color-very-dark, 0.1); }
 			&:last-child { border-bottom: 1px solid rgba($color-very-dark, 0.1); }
@@ -141,20 +141,20 @@ em {
 
 			.search_suggestions_logo_container {
 				background-color: $color-white;
-				border: 1px solid rgba($color-very-dark, 0.1);
-				width: 2.8rem;
-				height: 2.5rem;
 				border-radius: 0.2rem;
+				border: 1px solid rgba($color-very-dark, 0.1);
+				height: 2.5rem;
 				pointer-events: none;
+				width: 2.8rem;
 			}
 
 			.search_suggestions_logo {
-				height: 1.7rem;
-				width: 1.7rem;
-				background-size: 1.7rem;
-				margin: 0.4rem 0 0 0.4rem;
 				background-position: center;
 				background-repeat: no-repeat;
+				background-size: 1.7rem;
+				height: 1.7rem;
+				margin: 0.4rem 0 0 0.4rem;
+				width: 1.7rem;
 
 				&.glyphicons-question-sign {
 					color: rgba($color-very-dark, 0.25);
@@ -167,42 +167,42 @@ em {
 
 			.search_suggestions_data {
 				font-size: $font-size-base;
+				padding-left: 1.5rem;
 				pointer-events: none;
 				width: 100%;
-				padding-left: 1.5rem;
 
 				.heading {
+					display: flex;
 					font-size: $font-size-big;
+					height: 2.5rem;
+					justify-content: space-between;
 					margin: 0;
 					padding: 0;
-					height: 2.5rem;
 					white-space: nowrap;
-					display: flex;
-					justify-content: space-between;
 
 					.title {
+						overflow: hidden;
 						padding: .35rem 0 0;
 						text-overflow: ellipsis;
 						width: 290px;
-						overflow: hidden;
 					}
 				}
 
 				.body {
 					color: rgba($color-very-dark, 0.6);
-					padding-top: 0.7rem;
-					max-width: 290px;
-					white-space: nowrap;
 					display: flex;
+					max-width: 290px;
+					padding-top: 0.7rem;
+					white-space: nowrap;
 
 					.meta_group {
 						display: flex;
 						margin-right: 1rem;
 
 						.meta_icon {
+							color: rgba($color-very-dark, 0.3);
 							font-size: 11px;
 							padding: .3rem .5rem 0 0;
-							color: rgba($color-very-dark, 0.3);
 						}
 
 						.text_overflow {
@@ -211,29 +211,29 @@ em {
 						}
 
 						&:last-child {
-							overflow: hidden;
 							margin: 0;
+							overflow: hidden;
 						}
 					}
 				}
 			}
 
 			.action_icon {
+				bottom: 1.2rem;
 				color: rgba($color-very-dark, 0.3);
+				cursor: pointer;
+				display: inline-block;
 				font-size: 1.1rem;
 				font-weight: 300;
-				display: inline-block;
-				position: absolute;
-				z-index: 100;
-				right: 1.7rem;
-				bottom: 1.2rem;
 				padding: .5rem;
-				cursor: pointer;
+				position: absolute;
+				right: 1.7rem;
+				z-index: 100;
 
 				&:hover {
 				  background-color: rgba($color-very-dark, 0.15);
-				  color: rgba($color-very-dark, 0.4);
 				  border-radius: 2px;
+				  color: rgba($color-very-dark, 0.4);
 				  cursor: pointer;
 				}
 			}
@@ -243,12 +243,12 @@ em {
 			.search_suggestions_card_link,
 			.search_suggestions_card_link_no_hover,
 			.search_suggestions_card_link_action_hover {
-				display: flex;
-				text-decoration: none;
 				color: inherit;
+				cursor: pointer;
+				display: flex;
 				outline: none;
 				padding: 1.5rem 1.5rem;
-				cursor: pointer;
+				text-decoration: none;
 			}
 		}
 
@@ -260,17 +260,17 @@ em {
 }
 
 .search_suggestions_content {
-	width: 400px;
-	margin: 0;
 	background-color: rgba($color-very-dark, 0.03);
-	overflow: auto;
-	height: 35rem;
 	border-left: 1px solid rgba($color-very-dark,0.1);
+	height: 35rem;
+	margin: 0;
 	outline: none;
+	overflow: auto;
+	width: 400px;
 
 	em {
-		font-weight: 800;
 		color: tomato;
+		font-weight: 800;
 	}
 
 	pre {
@@ -287,20 +287,19 @@ em {
 	.content_section_right_padding { padding-right: 1.5rem; }
 
 	.content_section_title {
+		border-bottom: 1px solid rgba($color-very-dark, 0.1);
 		color: rgba($color-very-dark, 0.3);
 		font-size: $font-size-mid;
-		border-bottom: 1px solid rgba($color-very-dark, 0.1);
 		font-weight: $font-weight-regular;
 		line-height: $line-height-min;
-		padding-bottom: 0.7rem;
 		margin-bottom: 1rem;
-		
+		padding-bottom: 0.7rem;
 	}
 
 	.content_section_text {
+		color: $color-dark;
 		font-size: $font-size-mid;
 		font-weight: $font-weight-regular;
-		color: $color-dark;
 		line-height: 1.5;
 		overflow: auto;
 		word-wrap: break-word;
@@ -353,18 +352,18 @@ em {
 	}
 
 	.content_section_pure_text {
-		color: $color-dark;
 		background-color: $color-white;
+		border-radius: 0.4rem;
 		border: 1px solid rgba($color-very-dark, 0.1);
-		font: $system-font;
+		color: $color-dark;
 		font-size: $font-size-mid;
-		white-space: normal;
+		font: $system-font;
 		line-height: 1.5;
+		margin-right: 1.5rem;
 		margin: 0;
 		overflow: auto;
-		border-radius: 0.4rem;
 		padding: 1rem;
-		margin-right: 1.5rem;
+		white-space: normal;
 	}
 
 	.content_section_conversation {
@@ -372,30 +371,30 @@ em {
 
 		.conversation_group {
 			background-color: $color-white;
-			border: 1px solid rgba($color-very-dark, 0.1);
 			border-radius: 0.4rem;
+			border: 1px solid rgba($color-very-dark, 0.1);
 
 			& + .conversation_group {
 				margin-top: 1rem;
 			}
 
 			.status {
+				border-bottom: 1px solid rgba($color-dark, 0.1);
+				display: block;
 				font-weight: $font-weight-medium;
 				padding: 1.2rem 1rem 0.8rem 1rem;
-				border-bottom: 1px solid rgba($color-dark, 0.1);
 				text-transform: capitalize;
-				display: block;
 
 				.content_link {
-					font-size: $font-size-big;
 					color: $color-dark;
 					display: block;
+					font-size: $font-size-big;
 					text-decoration: underline;
 				}
 
 				.sub_status {
-					font-size: $font-size-base;
 					color: rgba($color-very-dark, 0.5);
+					font-size: $font-size-base;
 					text-decoration: none;
 				}
 			}
@@ -413,10 +412,10 @@ em {
 				}
 
 				.conversation_meta {
-					font-size: $font-size-tiny;
 					color: rgba($color-very-dark, 0.33);
-					margin-top: 0.7rem;
+					font-size: $font-size-tiny;
 					margin-bottom: 0.5rem;
+					margin-top: 0.7rem;
 
 					.meta_icon {
 						margin: 0.2rem 0.5rem 0 0.4rem;
@@ -424,9 +423,9 @@ em {
 				}
 
 				.message_body {
-					line-height: $line-height-base;
-					font-size: $font-size-base;
 					border-radius: 0.6rem;
+					font-size: $font-size-base;
+					line-height: $line-height-base;
 					padding: 1rem;
 				}
 
@@ -465,46 +464,46 @@ em {
 	}
 
 	table {
+		border-collapse: collapse;
 		color: $color-dark;
+		display: block;
 		font-size: $font-size-base;
 		font-weight: $font-weight-regular;
 		overflow: scroll;
-		border-collapse: collapse;
-		display: block;
 
 		td {
 			background-color: $color-white;
-			border: 1px solid #DDD;
 			border-collapse: collapse;
+			border: 1px solid #DDD;
 			padding: .75rem;
 			text-align: left;
 		}
 
 		th {
-			font-weight: $font-weight-medium;
-			color: $color-dark;
 			background-color: rgba($color-yellow, 0.4);
 			border: 1px solid #DDD;
+			color: $color-dark;
+			font-weight: $font-weight-medium;
+			min-width: 120px;
 			padding: .75rem;
 			text-align: left;
-			min-width: 120px;
 		}
 	}
 
 	.content_bottom_view_link {
+		background-color: rgba($color-very-dark, 0.1);
+		border-collapse: collapse;
+		border-left: 1px solid rgba($color-very-dark,0.05);
+		border-top: 1px solid rgba($color-very-dark, 0.05);
+		bottom: 0;
 		font-size: $font-size-tiny;
 		font-weight: $font-weight-medium;
-		background-color: rgba($color-very-dark, 0.1);
-		border-top: 1px solid rgba($color-very-dark, 0.05);
-		border-left: 1px solid rgba($color-very-dark,0.05);
-		position: fixed;
-		bottom: 0;
-		right: 0;
-		width: 39.9rem;
 		height: 3.4rem;
-		text-align: center;
-		border-collapse: collapse;
 		padding-top: 1rem;
+		position: fixed;
+		right: 0;
+		text-align: center;
+		width: 39.9rem;
 
 		.content_center { display: inline-block; }
 	}
@@ -515,17 +514,17 @@ em {
 }
 
 .action_link {
-	color: $color-white;
+	-webkit-user-select: none;
 	background-color: rgba($color-dark-blue, 0.9);
-	font-size: $font-size-tiny;
-	font-weight: $font-weight-medium;
-	padding: 0.4rem 0.75rem;
 	border-radius: 0.2rem;
+	color: $color-white;
 	cursor: pointer;
-	height: 1.6rem;
 	display: block;
 	float:left;
-	-webkit-user-select: none;
+	font-size: $font-size-tiny;
+	font-weight: $font-weight-medium;
+	height: 1.6rem;
+	padding: 0.4rem 0.75rem;
 	text-transform: capitalize;
 
 	.glyphicons {
@@ -545,47 +544,47 @@ em {
 
 .padding-top-bottom-075 {
 	padding-top: .75rem;
-	padding-bottom: .75rem
+	padding-bottom: .75rem;
 }
 
 .no_capitalize:first-letter { text-transform: lowercase !important; }
 
 .search_bar_open {
-	width: 100%;
-	height: 6.4rem;
+	-webkit-app-region: drag;
 	border-bottom: 1px solid rgba($color-very-dark, 0.1);
 	display: flex;
 	flex-wrap: nowrap;
-	-webkit-app-region: drag;
+	height: 6.4rem;
+	width: 100%;
 
 	.search_bar_input {
+		-webkit-app-region: no-drag;
+		border: none;
+		color: $color-very-dark;
 		font-size: $font-size-giant;
 		font-weight: $font-weight-regular;
 		letter-spacing: $letter-spacing-base;
-		color: $color-very-dark;
-		border: none;
+		max-width: 99.99% !important;
+		min-width: 300px !important;
 		outline: none;
-		-webkit-app-region: no-drag;
-		position: relative;
-		min-width: 300px!important;
-		max-width: 99.99%!important;
-		transition: width 0.25s;
 		padding: 0;
+		position: relative;
+		transition: width 0.25s;
 	}
 
 	.search_bar_icon {
-		width: 2.5rem;
-		height: 100%;
-		margin: 0 1.5rem 0 1.5rem;
-		background: url('../assets/images/other/cuely_icons_searchbar_search@2x.png');
-		background-size: 2.5rem;
 		background-position: center;
 		background-repeat: no-repeat;
+		background-size: 2.5rem;
+		background-image: url('../assets/images/other/cuely_icons_searchbar_search@2x.png');
+		height: 100%;
+		margin: 0 1.5rem 0 1.5rem;
+		width: 2.5rem;
 	}
 
   .search_bar_error {
-    font-size: $font-size-super-tiny;
     color: red;
+    font-size: $font-size-super-tiny;
     padding: 0.5rem;
     position: absolute;
     right: 0;
@@ -600,27 +599,27 @@ em {
 	display: flex;
 
 	.avatar {
-		width: 2.5rem;
-		height: 2.5rem;
-		border-radius: 1.25rem;
-		background-repeat: no-repeat;
 		background-position: center center;
+		background-repeat: no-repeat;
 		background-size: 2.5rem 2.5rem;
+		border-radius: 1.25rem;
 		display: inline-block;
+		height: 2.5rem;
+		width: 2.5rem;
 
 		& + .avatar { margin-left: 1rem; }
 	}
 
 	.no_avatar {
-		color: $color-white;
 		background-color: rgba($color-very-dark, 0.35);
-		font-weight: $font-weight-regular;
+		color: $color-white;
 		font-size: $font-size-super-tiny;
 		font-weight: $font-weight-medium;
-	  line-height: 2.4rem;
-	  text-transform: uppercase;
-	  text-align: center;
+		font-weight: $font-weight-regular;
 	  box-shadow:none;
+	  line-height: 2.4rem;
+	  text-align: center;
+	  text-transform: uppercase;
 	}
 }
  
@@ -631,9 +630,9 @@ em {
 
 .sidebar {
 	background-color: rgba($color-dark-violet, 0.95);
-	top: 0;
-	left: 0;
 	height: 460.38px;
+	left: 0;
+	top: 0;
 	width: 6.4rem;
 
 	ul {
@@ -642,56 +641,54 @@ em {
 		width: 4rem;
 
 		li {
-			display: block;
-			list-style-type: none;
 			background-color: #fff;
-			width: 4rem;
-			height: 4rem;
 			border-radius: 0.4rem;
-			opacity: 0.5;
 			cursor: pointer;
+			display: block;
+			height: 4rem;
+			list-style-type: none;
+			opacity: 0.5;
+			width: 4rem;
 
 			&:hover { opacity: 0.8; }
 			&.active { opacity: 1 !important; }
 
 			.sidebar_integration_logo {
-				width: 2.6rem;
-				height: 2.6rem;
-				top: 0.7rem;
-				left: 0.7rem;
-				position: relative;
-				background-size: 2.6rem;
 				background-image: url('../assets/images/other/cuely_icons_sprite@2x.png');
 				background-repeat: no-repeat;
+				background-size: 2.6rem;
 				cursor: pointer;
+				height: 2.6rem;
+				left: 0.7rem;
+				position: relative;
+				top: 0.7rem;
+				width: 2.6rem;
 			}
-		}
 
-		li + li {
-			margin-top: 1.2rem;
+			& + li {
+				margin-top: 1.2rem;
+			}
 		}
 	}
 
 	.sidebar_bottom {
+		cursor: pointer;
 		height: 2.8rem;
 		width: 4rem;
-		cursor: pointer;
-    background-color: white;
-    margin: 0 auto;
-    border-radius: 0.4rem;
-    margin-top: 1.2rem;
     background-color: rgba(255, 255, 255, 0.5);
     background-image: url('../assets/images/other/cuely_icons_sidebar_cog@2x.png');
-    background-size: 1.6rem; 
-    background-repeat: no-repeat;
     background-position: center;
+    background-repeat: no-repeat;
+    background-size: 1.6rem; 
+    border-radius: 0.4rem;
+    margin: 1.2rem auto;
 
     &:hover { background-color: rgba(255, 255, 255, 1); }
 	}
 
 	.sidebar_body {
-		overflow: auto;
 		height: 344.38px;
+		overflow: auto;
 
 		ul {
 			padding: 0 1rem;
