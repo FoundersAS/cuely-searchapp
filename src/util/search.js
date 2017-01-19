@@ -317,7 +317,7 @@ function helpscout(hit) {
   if (hit.helpscout_content) {
     ({ users, conversations } = hit.helpscout_content);
 
-    content.conversations = conversations.map((c, i) => {
+    content.conversations = (conversations || []).map((c, i) => {
       return {
         id: c.id,
         number: c.number ? highlightWithClass(hit._highlightResult.helpscout_content.conversations[i].number.value) : null,
@@ -335,7 +335,7 @@ function helpscout(hit) {
       };
     });
 
-    users = users.map((user, i) => ({
+    users = (users || []).map((user, i) => ({
       avatar: user.avatar,
       name: user.name,
       nameHighlight: user.name ? highlightWithClass(hit._highlightResult.helpscout_content.users[i].name.value) : null,
@@ -374,12 +374,12 @@ function pipedrive(hit) {
   let contacts, users, activities = [];
   if (hit.pipedrive_content) {
     ({ contacts, users, activities } = hit.pipedrive_content);
-    content.contacts = contacts.map((c, i) => ({
+    content.contacts = (contacts || []).map((c, i) => ({
       name: c.name ? highlightWithClass(hit._highlightResult.pipedrive_content.contacts[i].name.value) : null,
       email: c.email ? highlightWithClass(hit._highlightResult.pipedrive_content.contacts[i].email.value) : null,
       url: c.url
     }));
-    content.activities = activities.map((a, i) => ({
+    content.activities = (activities || []).map((a, i) => ({
       subject: a.subject ? highlightWithClass(hit._highlightResult.pipedrive_content.activities[i].subject.value) : null,
       username: a.user_name ? highlightWithClass(hit._highlightResult.pipedrive_content.activities[i].user_name.value) : null,
       doneTime: moment(a.done_time).fromNow(),
@@ -387,7 +387,7 @@ function pipedrive(hit) {
       type: a.type
     }));
 
-    users = users.map((user, i) => ({
+    users = (users || []).map((user, i) => ({
       avatar: user.icon_url,
       name: user.name,
       nameHighlight: user.name ? highlightWithClass(hit._highlightResult.pipedrive_content.users[i].name.value) : null,
