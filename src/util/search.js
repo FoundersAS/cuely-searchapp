@@ -448,13 +448,14 @@ function intercom(hit) {
   }
 
   let open = false;
+  let events, conversations = [];
   if (hit.intercom_content) {
-    let { events, conversations } = hit.intercom_content;
-    content.events = events.map((e, i) => ({
+    ({ events, conversations } = hit.intercom_content);
+    content.events = (events || []).map((e, i) => ({
       name: highlightWithClass(capitalize(hit._highlightResult.intercom_content.events[i].name.value)),
       time: capitalize(moment(e.timestamp * 1000).fromNow())
     }));
-    content.conversations = conversations.map((c, i) => {
+    content.conversations = (conversations || []).map((c, i) => {
       if (!open && c.open) {
         open = true;
       }

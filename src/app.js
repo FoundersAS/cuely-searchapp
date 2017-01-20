@@ -241,18 +241,23 @@ export default class App extends Component {
   }
 
   handleKeyDown(e) {
+    let index = this.state.selectedIndex;
     if (this.isDown(e) || this.isUp(e)) {
       e.preventDefault();
-      let index = this.state.selectedIndex;
 
       if (this.isDown(e)) {
         index = (index >= this.state.searchResults.length - 1) ? index : index + 1;
         this.setState({ selectedIndex: index, keyFocus: true });
-      } 
-      else if (this.isUp(e)) {
+      } else if (this.isUp(e)) {
         index = (index < 1) ? index : index - 1;
         this.setState({ selectedIndex: index, keyFocus: true });
       }
+    } else if (e.key === 'PageUp') {
+        index = (index < 5) ? 0 : index - 4;
+        this.setState({ selectedIndex: index, keyFocus: true });
+    } else if (e.key === 'PageDown') {
+        index = (index >= this.state.searchResults.length - 4) ? this.state.searchResults.length - 1 : index + 4;
+        this.setState({ selectedIndex: index, keyFocus: true });
     }
   }
 
