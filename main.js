@@ -106,6 +106,7 @@ let sessionInterval;
 let updateManual = false;
 let latestSearchTime = 0;
 let eNotify;
+let accountEdit = false;
 
 // debugging stuff
 let settingsCache = [];
@@ -219,7 +220,7 @@ ipcMain.on('search', (event, arg, time, afterCreate) => {
           } else {
             if (searchWindow) {
               searchWindow.webContents.send('search-error',  {
-                message: 'Internet Connectivity Problems',
+                message: 'Could not connect to Cuely service.',
                 description: 'Please check your network connection and then try running the app again.'
               });
             }
@@ -264,14 +265,23 @@ ipcMain.on('send-notification', (event, arg) => {
 
 ipcMain.on('logout', (event, arg) => {
   session.defaultSession.clearStorageData({origin: API_ROOT});
+  accountEdit = false;
   createLoginWindow();
   settingsWindow.close();
 });
 
 ipcMain.on('account', (event, arg) => {
   createLoginWindow();
+  accountEdit = true;
+  loginWindow.setSize(760, 680, false);
   if(settingsWindow){
     settingsWindow.close(); 
+  }
+});
+
+ipcMain.on('login-load', (event, arg) => {
+  if (accountEdit) {
+    event.sender.send('login-edit');
   }
 });
 
@@ -542,8 +552,8 @@ function createLoginWindow() {
 
   // Create the browser window.
   loginWindow = new BrowserWindow({
-    width: 800,
-    height: 730,
+    width: 500,
+    height: 500,
     center: true
   });
 
@@ -557,7 +567,7 @@ function createLoginWindow() {
     }
 
     const urlNoParams = details.url.split('?')[0];
-    let integration = integrationsAuth.filter(x => urlNoParams.indexOf(`complete/${x.id}/`) > -1)[0];
+    let integration = integrationsAuth.filter(x => urlNoParams.indexOf(`auth_complete/${x.id}`) > -1)[0];
     if (details.url.indexOf('in_auth_flow') < 0 && integration) {
       startSyncPoller(integration.id, `${integration.name} account`);
     }
@@ -748,16 +758,16 @@ function startSyncPoller(type, integrationName) {
       startSync(csrf, sessionId, type);
     }
   });
-  loadCredentialsOrLogin();
-
   if (loginWindow) {
     loginWindow.hide();
   }
+  loadCredentialsOrLogin();
+
   dialog.showMessageBox({
     type: 'info',
     title: 'Cuely app',
     message: `Cuely has started to sync with your ${integrationName}. You will receive a notification once it's done.`,
-    detail: "You may start searching already now using Cmd + Backspace. The results will depend on how much data has been synced so far.",
+    detail: "You may start searching already now. The results will depend on how much data has been synced so far.",
     buttons: ['Ok']
   }, () => {
     endLogin();
@@ -862,8 +872,7 @@ function checkKeywords(query, hits) {
   //cut query
   if (indexOfSpace == -1){
     firstWord = query;
-  }
-  else {
+  } else {
     firstWord = query.substr(0, indexOfSpace).trim();
     restOfQuery = query.substr(indexOfSpace + 1, query.length);
   }
@@ -875,8 +884,7 @@ function checkKeywords(query, hits) {
       let items = KEYWORDS[firstWord](restOfQuery);
 
       itemsStart = itemsStart.concat(items);
-    }
-    else {
+    } else {
       try {
         let mathResult = math.eval(query);  
         if (mathResult && typeof(mathResult) !== 'function' && String(mathResult) !== query && ('"' + String(mathResult) + '"' !== query)) {
@@ -970,17 +978,16 @@ function getGmailItems(query) {
 function getNewItems(query) {
   let items = [];
 
-  if(query === ''){
+  if(query === '') {
     //give all the options
     for (let item of integrationActionsKeywords){
       items.push(getNewItem(replaceGenericDomain(item)));
     }
-  }
-  else {
+  } else {
     //give specific options
-    for (let item of integrationActionsKeywords){
-      for (let keyword of item.keywords){
-        if (keyword.indexOf(query) != -1){
+    for (let item of integrationActionsKeywords) {
+      for (let keyword of item.keywords) {
+        if (keyword.indexOf(query) != -1) {
           items.push(getNewItem(replaceGenericDomain(item)));
           break;
         }

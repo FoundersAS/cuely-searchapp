@@ -108,14 +108,6 @@ export default class Settings extends Component {
             <div className="options">
               <div className="row">
                 <div className="left">
-                  Username:
-                </div>
-                <div className="right">
-                  {this.state.settings.account.username}
-                </div>
-              </div>
-              <div className="row">
-                <div className="left">
                   Email:
                 </div>
                 <div className="right">

@@ -98,15 +98,17 @@ body {
 
   iframe {
     width: 100%;
-    height: 650px;
+    height: 600px;
     border: none;
   }
 }
 
 .login_actions {
   width: 100%;
-  height: 50px;
+  height: 52px;
   border-top: 1px solid rgb(221, 221, 221);
+  position: fixed;
+  bottom: 0;
 
   a {
     float: right;
