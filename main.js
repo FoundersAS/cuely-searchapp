@@ -214,8 +214,11 @@ ipcMain.on('search', (event, arg, time, afterCreate) => {
           let hits = [];
           if (result) {
             hits = [].concat.apply([], result.hits);
-            searchCache.unshift(result.searchInfo);
-            searchCache = searchCache.slice(0, 20);
+            searchCache.unshift({
+              time: result.searchInfo.time,
+              query: result.searchInfo.query,
+            });
+            searchCache = searchCache.slice(0, 500);
             searchWindow.webContents.send('search-error-clear');
           } else {
             if (searchWindow) {
