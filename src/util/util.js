@@ -38,7 +38,6 @@ function callApi(endpoint, csrfToken, sessionId, params = {}, method = 'GET', ac
       return [response.body, null];
     }).catch(err => {
       console.log(err);
-      // return [null, err.response ? err.response.error : err];
       return [null, err];
     });
 }

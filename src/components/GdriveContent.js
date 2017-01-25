@@ -92,8 +92,7 @@ export default class GdriveContent extends Component {
           </div>
         </div>
       )
-    }
-    else {
+    } else {
       return (
         <div>
           <div className='content_section'>

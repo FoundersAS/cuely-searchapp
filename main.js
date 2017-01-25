@@ -2,6 +2,7 @@ import electron, { ipcMain, session, autoUpdater } from 'electron';
 import opbeat from 'opbeat';
 import { search, searchAfter, setAlgoliaCredentials, searchLocalFiles } from './src/util/search';
 import { getAlgoliaCredentials, getSyncStatus, startSync, setSegmentStatus } from './src/util/util.js';
+import { initCurrency } from './src/util/currency.js';
 import { API_ROOT, isDevelopment, UPDATE_FEED_URL } from './src/util/const.js';
 import { initPrefs } from './src/util/prefs.js';
 import { initLocal, PREFERENCE_PREFIX } from './src/util/local.js';
@@ -100,6 +101,7 @@ let screenBounds;
 let syncPollerTimeouts = {};
 let prefs;
 let segment;
+let currency;
 let local;
 let updateInterval;
 let sessionInterval;
@@ -118,6 +120,7 @@ let searchCache = [];
 app.on('ready', () => {
   const appPath = app.getPath('userData');
   prefs = initPrefs(appPath);
+  currency = initCurrency();
   buildMenu();
   updateInterval = setInterval(checkForUpdates, 3600000);
   setupAutoLauncher();
@@ -235,7 +238,6 @@ ipcMain.on('search', (event, arg, time, afterCreate) => {
       });
     }
   }
-
 });
 
 function finalizeSearch(event, time, hits, query, local) {
@@ -312,7 +314,7 @@ ipcMain.on('settings-save', (event, settings) => {
   prefs.saveAll(settings);
   settingsCache.unshift({ time: Date(), settings: settings });
   settingsCache = settingsCache.slice(0, 10);
-  sendDesktopNotification('Settings saved ✓', 'Cuely has successfully saved new settings');
+  sendDesktopNotification('Settings saved', 'Cuely has successfully saved new settings');
   updateGlobalShortcut();
   if (settings.showTrayIcon) {
     loadTray();
@@ -381,13 +383,12 @@ ipcMain.on('renderer-error', (event, arg) => {
 
 //----------- UTILITY FUNCTIONS
 function sendSyncDone(integrationName) {
-  sendDesktopNotification('Synchronization complete ✓', 'Cuely has finished indexing your ' + integrationName);
+  sendDesktopNotification('Synchronization complete', 'Cuely has finished indexing your ' + integrationName);
 }
 
 function sendDesktopNotification(title, body) {
   const target = searchWindow || loginWindow;
   if (target) {
-//    new Notification(title, body);
     target.webContents.send('notification', { title, body });
   } else {
     console.log("Could not send desktop notification -> no window available");
@@ -881,22 +882,30 @@ function checkKeywords(query, hits) {
   }
 
   if (firstWord.length > 2) {
-
     //insert special keywords
     if (firstWord in KEYWORDS) {
       let items = KEYWORDS[firstWord](restOfQuery);
 
       itemsStart = itemsStart.concat(items);
     } else {
+      let added = false;
       try {
         let mathResult = math.eval(query);  
         if (mathResult && typeof(mathResult) !== 'function' && String(mathResult) !== query && ('"' + String(mathResult) + '"' !== query)) {
           itemsStart.unshift(getMathExpression(mathResult));
+          added = true;
         }
       } catch(err) {}
+      if (!added) {
+        // check currency
+        let rates = currency.parseQuery(query);
+        if (rates) {
+          itemsStart.unshift(getCurrencyItem(rates));
+        }
+      }
     }
     
-    if (restOfQuery === '' && itemsStart.length == 0){
+    if (restOfQuery === '' && itemsStart.length == 0) {
       let item = checkWebsiteKeyword(firstWord);
       
       if (item) {
@@ -1125,6 +1134,24 @@ function getMathExpression(expression) {
   }
 }
 
+function getCurrencyItem(rates) {
+  let titleRaw = `${rates[0].value} ${rates[0].currency}`;
+
+  return {
+    type: 'currency',
+    mime: 'currency',
+    title: `<em>= ${titleRaw}</em>`,
+    titleRaw: `${titleRaw}`,
+    content: rates,
+    metaInfo: null,
+    displayIcon: null,
+    webLink: null,
+    thumbnailLink: null,
+    modified: null,
+    _algolia: null
+  }
+}
+
 function hide() {
   if (isOsx() && prefs.settings.showDockIcon) {
     app.hide();
@@ -1206,7 +1233,7 @@ autoUpdater.on('update-not-available', () => {
 });
 
 autoUpdater.on('update-available', () => {
-  sendDesktopNotification('New Cuely update available ✓', 'A new version of Cuely app is being downloaded');
+  sendDesktopNotification('New Cuely update available', 'A new version of Cuely app is being downloaded');
 });
 
 function manualCheckForUpdates() {

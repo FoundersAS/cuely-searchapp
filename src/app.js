@@ -11,6 +11,7 @@ import PipedriveContent from './components/PipedriveContent';
 import HelpscoutContent from './components/HelpscoutContent';
 import HelpscoutDocsContent from './components/HelpscoutDocsContent';
 import JiraContent from './components/JiraContent';
+import CurrencyContent from './components/CurrencyContent';
 import LocalFileContent from './components/LocalFileContent';
 
 const icons = [
@@ -84,6 +85,10 @@ const icons = [
   },
   {
     type: 'math',
+    spriteOffset: 17
+  },
+  {
+    type: 'currency',
     spriteOffset: 17
   },
   {
@@ -274,7 +279,7 @@ export default class App extends Component {
   copyValueToClipboard(){
     const item = this.state.searchResults[this.state.selectedIndex];
     clipboard.writeText(item.titleRaw);
-    ipcRenderer.send('send-notification', { title: 'Value Copied ✓', body: `${item.titleRaw} has been copied to your clipboard.` });
+    ipcRenderer.send('send-notification', { title: 'Value Copied', body: `${item.titleRaw} has been copied to your clipboard.` });
     ipcRenderer.send('track', { name: 'Copy value', props: {} });
   }
 
@@ -526,12 +531,11 @@ export default class App extends Component {
       }      
     }
     else {
-      if (item.type === 'math') {
+      if (item.type === 'math' || item.type === 'currency') {
         return (
           <span id={`actionIcon_${i}`} className="action_icon action_icon_no_meta_info glyphicons glyphicons-more-items" onClick={this.copyValueToClipboard} onMouseEnter={this.handleMouseEnter}></span>
         );
-      }
-      else {
+      } else {
         return (
           <span id={`actionIcon_${i}`} className="action_icon action_icon_no_meta_info glyphicons glyphicons-arrow-right" onClick={this.handleDoubleClick} onMouseEnter={this.handleMouseEnter}></span>
         );
@@ -669,6 +673,8 @@ export default class App extends Component {
             </div>
           );
         }        
+      } else if (item.type === 'currency') {
+        content = () => (<CurrencyContent item={item} />);
       }
     }
 
