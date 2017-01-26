@@ -81,7 +81,7 @@ class CurrencyConverter {
 
     return currency_symbols.filter(x => x !== curr).map(key => ({
       currency: key,
-      value: parseFloat((this.rates[key] * euro_value).toFixed(2)).toLocaleString()
+      value: parseFloat((this.rates[key] * euro_value).toFixed(2)).toLocaleString(undefined, { minimumFractionDigits: 2 })
     }));
   }
 
