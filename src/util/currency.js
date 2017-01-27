@@ -3,7 +3,6 @@ import request from 'superagent';
 const currency_symbols = [
   'EUR',
   'USD',
-  'JPY',
   'GBP',
   'CHF',
   'DKK',
@@ -11,6 +10,7 @@ const currency_symbols = [
   'NOK',
   'HUF',
   'CAD',
+  'JPY',
   'AUD',
   'CNY',
   'BGN',
@@ -68,18 +68,34 @@ class CurrencyConverter {
     if (isNaN(value)) {
       return null;
     }
-    let curr = q.replace(/[^a-zA-Z]/g, '').toUpperCase();
-    if (this.rates[curr] === undefined) {
+    // check if second part is 'dkk' or 'dkk to cad'
+    q = q.replace(/[^a-zA-Z]/g, '').toUpperCase();
+    let from_curr = q.substr(0, 3);
+    if (this.rates[from_curr] === undefined) {
       return null;
+    }
+    let to_curr = null;
+    if (q.indexOf('TO') > -1 || q.indexOf('IN') > -1) {
+      to_curr = q.slice(-3);
+      if (this.rates[to_curr] === undefined) {
+        to_curr = null;
+      }
     }
 
     let rate = 1.0;
-    if (curr !== 'EUR') {
-      rate = this.rates[curr];
+    if (from_curr !== 'EUR') {
+      rate = this.rates[from_curr];
     }
     let euro_value = value / rate;
 
-    return currency_symbols.filter(x => x !== curr).map(key => ({
+    let result = currency_symbols.filter(x => x !== from_curr);
+    if (to_curr !== null) {
+      // move target currency to first position
+      result.splice(result.indexOf(to_curr), 1);
+      result.unshift(to_curr);
+    }
+
+    return result.map(key => ({
       currency: key,
       value: parseFloat((this.rates[key] * euro_value).toFixed(2)).toLocaleString(undefined, { minimumFractionDigits: 2 })
     }));
