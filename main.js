@@ -565,7 +565,7 @@ function createLoginWindow() {
   // also, capture possible redirects for completing various oauth flows
   loginWindow.webContents.session.webRequest.onHeadersReceived({}, (details, callback) => {
     for (let header in details.responseHeaders) {
-      if (header.toLowerCase() === 'x-frame-options') {
+      if (header.toLowerCase() === 'x-frame-options' || header.toLowerCase() === 'content-security-policy') {
         delete details.responseHeaders[header];
       }
     }
