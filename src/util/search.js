@@ -60,6 +60,8 @@ export function searchInternal(query, search_settings) {
         }
       } else if (keywords.indexOf('jira') > -1) {
         return jira(hit);
+      } else if (keywords.indexOf('github') > -1) {
+        return github(hit);
       } else {
         return null;
       }
@@ -204,6 +206,36 @@ function cutLocalPath(fullPath, maxLen) {
     else {
       return '...' + path;
     }
+  }
+}
+
+function github(hit) {
+  let content = {
+    readmeContent: highlightWithClass(highlightedValue('github_repo_content', hit)),
+    readmeName: hit.github_repo_readme,
+    description: highlightWithClass(highlightedValue('github_repo_description', hit)),
+    users: hit.github_repo_contributors.map(user => ({
+      avatar: user.avatar,
+      name: user.name,
+      nameHighlight: highlightedValueInObjectArray('github_repo_contributors', 'name', user.name, hit, true)
+    }))
+  }
+  return {
+    type: 'github-repo',
+    mime: 'github',
+    title: highlightedValue('github_repo_title', hit),
+    titleRaw: hit.github_repo_title,
+    content: content,
+    metaInfo: {
+      time: capitalize(moment(hit.last_updated_ts * 1000).fromNow()),
+      users: content.users[0] ? [content.users[0]]: [],
+      status: highlightedValue('github_repo_owner', hit)
+    },
+    displayIcon: hit.null,
+    webLink: hit.webview_link,
+    thumbnailLink: null,
+    modified: hit.last_updated,
+    _algolia: hit._rankingInfo
   }
 }
 
