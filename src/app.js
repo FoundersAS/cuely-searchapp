@@ -12,6 +12,7 @@ import HelpscoutContent from './components/HelpscoutContent';
 import HelpscoutDocsContent from './components/HelpscoutDocsContent';
 import JiraContent from './components/JiraContent';
 import GithubRepoContent from './components/GithubRepoContent';
+import GithubCommitContent from './components/GithubCommitContent';
 import CurrencyContent from './components/CurrencyContent';
 import LocalFileContent from './components/LocalFileContent';
 
@@ -675,15 +676,25 @@ export default class App extends Component {
           );
         }
       } else if (item.type === 'github-repo') {
+        content = () => (<GithubRepoContent openExternalLink={this.openExternalLink} item={item} />);
         if (item.metaInfo) {
-          content = () => (<GithubRepoContent openExternalLink={this.openExternalLink} item={item} />);
           itemStatus = () => (
             <div className="meta_group">
               <div className="meta_icon glyphicons glyphicons-folder-open"></div>
               <div className="meta_data text_overflow" dangerouslySetInnerHTML={{ __html: item.metaInfo.status }} />
             </div>
           );
-        }        
+        }
+      } else if (item.type === 'github-commit') {
+        content = () => (<GithubCommitContent openExternalLink={this.openExternalLink} item={item} />);
+        if (item.metaInfo) {
+          itemStatus = () => (
+            <div className="meta_group">
+              <div className="meta_icon glyphicons glyphicons-folder-open"></div>
+              <div className="meta_data text_overflow" dangerouslySetInnerHTML={{ __html: item.metaInfo.status }} />
+            </div>
+          );
+        }
       } else if (item.type === 'currency') {
         content = () => (<CurrencyContent item={item} />);
       }

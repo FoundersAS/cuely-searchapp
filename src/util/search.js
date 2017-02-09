@@ -61,7 +61,13 @@ export function searchInternal(query, search_settings) {
       } else if (keywords.indexOf('jira') > -1) {
         return jira(hit);
       } else if (keywords.indexOf('github') > -1) {
-        return github(hit);
+        if (hit.secondary_keywords.toLowerCase().indexOf('commit') > -1) {
+          return githubCommit(hit);
+        } else if (hit.secondary_keywords.toLowerCase().indexOf('file') > -1) {
+          return null;
+        } else {
+          return githubRepo(hit);
+        }
       } else {
         return null;
       }
@@ -209,7 +215,7 @@ function cutLocalPath(fullPath, maxLen) {
   }
 }
 
-function github(hit) {
+function githubRepo(hit) {
   let content = {
     readmeContent: highlightWithClass(highlightedValue('github_repo_content', hit)),
     readmeName: hit.github_repo_readme,
@@ -223,13 +229,74 @@ function github(hit) {
   return {
     type: 'github-repo',
     mime: 'github',
-    title: highlightedValue('github_repo_title', hit),
-    titleRaw: hit.github_repo_title,
+    title: highlightedValue('github_title', hit),
+    titleRaw: hit.github_title,
     content: content,
     metaInfo: {
       time: capitalize(moment(hit.last_updated_ts * 1000).fromNow()),
       users: content.users[0] ? [content.users[0]]: [],
       status: highlightedValue('github_repo_owner', hit)
+    },
+    displayIcon: hit.null,
+    webLink: hit.webview_link,
+    thumbnailLink: null,
+    modified: hit.last_updated,
+    _algolia: hit._rankingInfo
+  }
+}
+
+function githubFile(hit) {
+  let content = {
+    readmeContent: highlightWithClass(highlightedValue('github_repo_content', hit)),
+    readmeName: hit.github_repo_readme,
+    description: highlightWithClass(highlightedValue('github_repo_description', hit)),
+    users: hit.github_repo_contributors.map(user => ({
+      avatar: user.avatar,
+      name: user.name,
+      nameHighlight: highlightedValueInObjectArray('github_repo_contributors', 'name', user.name, hit, true)
+    }))
+  }
+  return {
+    type: 'github-repo',
+    mime: 'github',
+    title: highlightedValue('github_title', hit),
+    titleRaw: hit.github_title,
+    content: content,
+    metaInfo: {
+      time: capitalize(moment(hit.last_updated_ts * 1000).fromNow()),
+      users: content.users[0] ? [content.users[0]]: [],
+      status: highlightedValue('github_repo_owner', hit)
+    },
+    displayIcon: hit.null,
+    webLink: hit.webview_link,
+    thumbnailLink: null,
+    modified: hit.last_updated,
+    _algolia: hit._rankingInfo
+  }
+}
+
+function githubCommit(hit) {
+  let content = {
+    files: hit.github_commit_files,
+    message: highlightWithClass(highlightedValue('github_commit_content', hit)),
+    sha: highlightedValue('github_commit_id', hit),
+    users: [{
+      avatar: hit.github_commit_committer.avatar,
+      name: hit.github_commit_committer.name,
+      nameHighlight: highlightedValueInObject('github_commit_committer', hit, 'name', false)
+    }]
+  }
+  return {
+    type: 'github-commit',
+    mime: 'github',
+    title: highlightedValue('github_title', hit),
+    titleRaw: hit.github_title,
+    content: content,
+    metaInfo: {
+      time: capitalize(moment(hit.last_updated_ts * 1000).fromNow()),
+      timeFormatted: moment.utc(hit.last_updated_ts * 1000).format('DD. MMM YYYY HH:mm:ss') + ' UTC',
+      users: content.users[0] ? [content.users[0]]: [],
+      status: highlightedValue('github_repo_full_name', hit)
     },
     displayIcon: hit.null,
     webLink: hit.webview_link,
