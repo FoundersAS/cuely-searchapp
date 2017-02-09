@@ -64,7 +64,7 @@ export function searchInternal(query, search_settings) {
         if (hit.secondary_keywords.toLowerCase().indexOf('commit') > -1) {
           return githubCommit(hit);
         } else if (hit.secondary_keywords.toLowerCase().indexOf('file') > -1) {
-          return null;
+          return githubFile(hit);
         } else {
           return githubRepo(hit);
         }
@@ -247,25 +247,23 @@ function githubRepo(hit) {
 
 function githubFile(hit) {
   let content = {
-    readmeContent: highlightWithClass(highlightedValue('github_repo_content', hit)),
-    readmeName: hit.github_repo_readme,
-    description: highlightWithClass(highlightedValue('github_repo_description', hit)),
-    users: hit.github_repo_contributors.map(user => ({
+    path: highlightedValue('github_file_path', hit),
+    users: hit.github_file_committers.map(user => ({
       avatar: user.avatar,
       name: user.name,
-      nameHighlight: highlightedValueInObjectArray('github_repo_contributors', 'name', user.name, hit, true)
+      nameHighlight: highlightedValueInObjectArray('github_file_committers', 'name', user.name, hit, true)
     }))
   }
   return {
-    type: 'github-repo',
+    type: 'github-file',
     mime: 'github',
     title: highlightedValue('github_title', hit),
     titleRaw: hit.github_title,
     content: content,
     metaInfo: {
-      time: capitalize(moment(hit.last_updated_ts * 1000).fromNow()),
+      time: hit.last_updated_ts > 0 ? capitalize(moment(hit.last_updated_ts * 1000).fromNow()) : null,
       users: content.users[0] ? [content.users[0]]: [],
-      status: highlightedValue('github_repo_owner', hit)
+      status: highlightedValue('github_repo_full_name', hit)
     },
     displayIcon: hit.null,
     webLink: hit.webview_link,

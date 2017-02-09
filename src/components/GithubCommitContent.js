@@ -38,7 +38,7 @@ export default class GithubCommitContent extends Component {
         return;
       }
     }
-    this.props.openExternalLink(el.href, 'Github commit file link', 'github_commit');
+    this.props.openExternalLink(el.href, 'Github commit link', 'github_commit');
   }
 
   renderInfo(item) {

@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import ReactDOM from 'react-dom';
 
-export default class GithubRepoContent extends Component {
+export default class GithubFileContent extends Component {
   constructor(props) {
     super();
     this.handleClick = ::this.handleClick;
@@ -38,7 +38,27 @@ export default class GithubRepoContent extends Component {
         return;
       }
     }
-    this.props.openExternalLink(el.href, 'Github readme link', 'github_readme');
+    this.props.openExternalLink(el.href, 'Github file link', 'github_file');
+  }
+
+  renderInfo(item) {
+    let committerName = item.content.users[0] ? item.content.users[0].nameHighlight || item.content.users[0].name : '/';
+
+    return (
+      <div className='content_section'>
+        <div className="content_section_title">Info</div>
+        <div className="content_section_text">
+          <div className="content_row">
+            <div className="content_attribute_name_narrow">Repo</div>
+            <div className="content_attribute_value_wide" dangerouslySetInnerHTML={{ __html: item.metaInfo.status }} />
+          </div>
+          <div className="content_row">
+            <div className="content_attribute_name_narrow">Full path</div>
+            <div className="content_attribute_value_wide" dangerouslySetInnerHTML={{ __html: item.content.path }} />
+          </div>
+        </div>
+      </div>
+    );
   }
 
   renderUsers(users, title, groupIndex) {
@@ -58,35 +78,6 @@ export default class GithubRepoContent extends Component {
     )
   }
 
-  renderDescription(content) {
-    if (!content || !content.description) {
-      content = {
-        description: "<i>Description not available.</i>",
-      }
-    }
-    return (
-      <div className='content_section'>
-        <div className="content_section_title">Description</div>
-        <div id="searchSuggestionsContent" className="content_section_text content_section_pure_text" dangerouslySetInnerHTML={{ __html: content.description }} />
-      </div>
-    );
-  }
-
-  renderReadme(content) {
-    if (!content || !content.readmeContent) {
-      content = {
-        readmeContent: "<i>Readme file not available.</i>",
-        readmeName: "Readme file"
-      }
-    }
-    return (
-      <div className='content_section'>
-        <div className="content_section_title">{content.readmeName}</div>
-        <div id="searchSuggestionsContent" className="content_section_text content_section_pure_text" dangerouslySetInnerHTML={{ __html: content.readmeContent }} />
-      </div>
-    );
-  }
-
   render() {
     const item = this.props.item;
     if (!item) {
@@ -94,9 +85,8 @@ export default class GithubRepoContent extends Component {
     }
     return (
       <div>
-        {this.renderUsers(item.content.users, 'Contributors', 1)}
-        {this.renderDescription(item.content)}
-        {this.renderReadme(item.content)}
+        {this.renderUsers(item.content.users, 'Committers', 1)}
+        {this.renderInfo(item)}
       </div>
     )
   }
