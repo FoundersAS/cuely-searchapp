@@ -75,7 +75,6 @@ export default class GithubCommitContent extends Component {
   }
 
   renderFiles(files) {
-    console.log(files);
     return (
       <div className='content_section'>
         <div className="content_section_title">Files</div>

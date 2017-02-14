@@ -466,6 +466,11 @@ em {
           .meta_icon {
             margin: 0.2rem 0.5rem 0 0.4rem;
           }
+
+          .time {
+            padding-left: 0.5rem;
+            padding-top: 0.2rem;
+          }
         }
 
         .message_body {
@@ -652,6 +657,18 @@ em {
     display: inline-block;
     height: 2.5rem;
     width: 2.5rem;
+
+    & + .avatar { margin-left: 1rem; }
+  }
+
+  .avatar_small {
+    background-position: center center;
+    background-repeat: no-repeat;
+    background-size: 2rem 2rem;
+    border-radius: 1.25rem;
+    display: inline-block;
+    height: 2rem;
+    width: 2rem;
 
     & + .avatar { margin-left: 1rem; }
   }

@@ -14,6 +14,7 @@ import JiraContent from './components/JiraContent';
 import GithubRepoContent from './components/GithubRepoContent';
 import GithubCommitContent from './components/GithubCommitContent';
 import GithubFileContent from './components/GithubFileContent';
+import GithubIssueContent from './components/GithubIssueContent';
 import CurrencyContent from './components/CurrencyContent';
 import LocalFileContent from './components/LocalFileContent';
 
@@ -699,6 +700,16 @@ export default class App extends Component {
         }
       } else if (item.type === 'github-file') {
         content = () => (<GithubFileContent openExternalLink={this.openExternalLink} item={item} />);
+        if (item.metaInfo) {
+          itemStatus = () => (
+            <div className="meta_group">
+              <div className="meta_icon glyphicons glyphicons-folder-open"></div>
+              <div className="meta_data text_overflow" dangerouslySetInnerHTML={{ __html: item.metaInfo.status }} />
+            </div>
+          );
+        }
+      } else if (item.type === 'github-issue') {
+        content = () => (<GithubIssueContent openExternalLink={this.openExternalLink} item={item} />);
         if (item.metaInfo) {
           itemStatus = () => (
             <div className="meta_group">
