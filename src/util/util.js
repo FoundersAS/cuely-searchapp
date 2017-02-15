@@ -20,6 +20,10 @@ export function setSegmentStatus(csrfToken, sessionId, identified) {
   return callApi('/home/update_segment', csrfToken, sessionId, { identified }, 'POST');
 }
 
+export function deleteAccount(csrfToken, sessionId) {
+  return callApi('/home/delete_user', csrfToken, sessionId, {}, 'POST');
+}
+
 export function getUserInitials(username) {
   return username.split(' ').map(x => x[0]).slice(0, 2).join('');
 }

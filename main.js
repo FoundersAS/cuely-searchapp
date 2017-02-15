@@ -1,7 +1,7 @@
 import electron, { ipcMain, session, autoUpdater } from 'electron';
 import opbeat from 'opbeat';
 import { search, searchAfter, setAlgoliaCredentials, searchLocalFiles } from './src/util/search';
-import { getAlgoliaCredentials, getSyncStatus, startSync, setSegmentStatus } from './src/util/util.js';
+import { getAlgoliaCredentials, getSyncStatus, startSync, setSegmentStatus, deleteAccount } from './src/util/util.js';
 import { initCurrency } from './src/util/currency.js';
 import { API_ROOT, isDevelopment, UPDATE_FEED_URL } from './src/util/const.js';
 import { initPrefs } from './src/util/prefs.js';
@@ -283,6 +283,33 @@ ipcMain.on('account', (event, arg) => {
   if(settingsWindow){
     settingsWindow.close(); 
   }
+});
+
+ipcMain.on('account-delete', (event, arg) => {
+  dialog.showMessageBox({
+    type: 'warning',
+    title: 'Cuely app',
+    message: 'Are you sure?',
+    detail: 'This action will remove the account and wipe all its data from the Cuely service.',
+    buttons: ['Yes', 'No'],
+    defaultId: 1 // select 'No' by default
+  }, (response) => {
+    if (response == 0) {
+      // delete the account
+      useAuthCookies((csrf, sessionId) => {
+        if (csrf && sessionId) {
+          deleteAccount(csrf, sessionId).then(([response, error]) => {
+            // remove the session state and exit the app
+            session.defaultSession.clearStorageData([], () => {
+              console.log("Cleared session data");
+              app.quit();
+            });
+          });
+        }
+      });
+      
+    }
+  });
 });
 
 ipcMain.on('login-load', (event, arg) => {

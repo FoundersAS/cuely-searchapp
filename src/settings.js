@@ -53,6 +53,11 @@ export default class Settings extends Component {
     ipcRenderer.send('account');
   }
 
+  handleDeleteAccount(e) {
+    e.preventDefault();
+    ipcRenderer.send('account-delete');
+  }
+
   handleSave(e) {
     e.preventDefault();
     let settings = Object.assign({}, this.state.settings);
@@ -118,6 +123,7 @@ export default class Settings extends Component {
                 <div className="actions">
                   <a href="#" onClick={this.handleAccount}>Integrations</a>
                   <a href="#" onClick={this.handleLogout}>Logout</a>
+                  <a href="#" className="danger" onClick={this.handleDeleteAccount}>Delete account</a>
                 </div>
               </div>
             </div>
