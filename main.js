@@ -84,6 +84,7 @@ const integrationsAuth = [
   { name: 'Helpscout', id: 'helpscout-apikeys'},
   { name: 'Helpscout Docs', id: 'helpscout-docs-apikeys'},
   { name: 'Jira', id: 'jira-oauth'},
+  { name: 'Github', id: 'github'},
 ];
 
 // Keep a global reference of the window object, if you don't, the window will
@@ -572,6 +573,10 @@ function createLoginWindow() {
 
     const urlNoParams = details.url.split('?')[0];
     let integration = integrationsAuth.filter(x => urlNoParams.indexOf(`auth_complete/${x.id}`) > -1)[0];
+    if (details.url.indexOf('github.com') > -1) {
+      loginWindow.setSize(500, 700, false);
+    }
+
     if (details.url.indexOf('in_auth_flow') < 0 && integration) {
       startSyncPoller(integration.id, `${integration.name} account`);
     }
@@ -755,7 +760,7 @@ function startSyncPoller(type, integrationName) {
         syncPollerTimeouts[type] = null;
       }
     });
-  }, 10000);
+  }, 30000);
 
   useAuthCookies((csrf, sessionId) => {
     if (csrf && sessionId) {
