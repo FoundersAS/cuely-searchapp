@@ -100,6 +100,7 @@ let credentials;
 let keepSearchVisible = false;
 let screenBounds;
 let syncPollerTimeouts = {};
+let credentialsTimeout;
 let prefs;
 let segment;
 let currency;
@@ -138,6 +139,9 @@ app.on('will-quit', () => {
   }
   if (updateInterval) {
     clearInterval(updateInterval);
+  }
+  if (credentialsTimeout) {
+    clearTimeout(credentialsTimeout);
   }
   globalShortcut.unregisterAll();
 });
@@ -692,7 +696,11 @@ function auxilaryWindowVisible() {
   return false;
 }
 
-function loadCredentialsOrLogin() {
+function loadCredentialsOrLogin(runSegment=true) {
+  if (credentialsTimeout) {
+    clearTimeout(credentialsTimeout);
+  }
+
   useAuthCookies((csrf, sessionId) => {
     if (csrf && sessionId) {
       getAlgoliaCredentials(csrf, sessionId).then(([response, error]) => {
@@ -712,13 +720,17 @@ function loadCredentialsOrLogin() {
             
             prefs.saveAll(settings);
 
-            // init segment
-            segment = initSegment(response.segmentKey);
-            resetSession();
-            const identified = segment.identify();
-            if (identified) {
-              setSegmentStatus(csrf, sessionId, identified);
+            if (runSegment) {
+              // init segment
+              segment = initSegment(response.segmentKey);
+              resetSession();
+              const identified = segment.identify();
+              if (identified) {
+                setSegmentStatus(csrf, sessionId, identified);
+              }
             }
+            // refresh settings/credentials every hour
+            credentialsTimeout = setTimeout(() => { loadCredentialsOrLogin(false) }, 3600000);
           } else {
             createLoginWindow();
             return;
@@ -727,7 +739,7 @@ function loadCredentialsOrLogin() {
         initFromSettings();
         if (error) {
           console.log('Failed to login to the backend');
-          setTimeout(loadCredentialsOrLogin, 15000); // try again after 15s
+          setTimeout(() => { loadCredentialsOrLogin(runSegment) }, 15000); // try again after 15s
           // if it's a connection issue, then opbeat also won't work, but in case it's just Cuely backend issue ...
           opbeat.captureError(error);
         }
