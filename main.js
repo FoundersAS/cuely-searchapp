@@ -464,6 +464,7 @@ function buildMenu() {
 function customMenuItems() {
   return [
     { label: `Cuely v${appVersion}`, enabled: false },
+    { label: "What's new", click: () => { shell.openExternal('https://cuely.co/whats_new.html'); }},
     { label: "Check for Updates", accelerator: "Command+U", click: () => { manualCheckForUpdates(); }},
     { type: "separator" },
     { label: "Preferences...", accelerator: "Command+,", click: () => { createSettingsWindow(); }},
