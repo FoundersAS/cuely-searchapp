@@ -1,6 +1,6 @@
 {
   "name": "cuely-search",
-  "version": "1.6.1",
+  "version": "1.7.0",
   "description": "A desktop app for searching via Cuely",
   "main": "index.js",
   "productName": "Cuely",
