@@ -85,6 +85,7 @@ const integrationsAuth = [
   { name: 'Helpscout Docs', id: 'helpscout-docs-apikeys'},
   { name: 'Jira', id: 'jira-oauth'},
   { name: 'Github', id: 'github'},
+  { name: 'Trello', id: 'trello'}
 ];
 
 // Keep a global reference of the window object, if you don't, the window will
@@ -151,6 +152,16 @@ app.on('activate', () => {
     searchWindow.show();
   }
 });
+
+app.on('certificate-error', (event, webContents, url, error, certificate, callback) => {
+  if (url.indexOf('cloudfront.net') > -1) {
+    // Verification logic.
+    event.preventDefault();
+    callback(true);
+  } else {
+    callback(false);
+  }
+})
 
 // ipc communication
 ipcMain.on('hide-search', () => {
@@ -311,7 +322,6 @@ ipcMain.on('account-delete', (event, arg) => {
           });
         }
       });
-      
     }
   });
 });
@@ -607,6 +617,14 @@ function createLoginWindow() {
     let integration = integrationsAuth.filter(x => urlNoParams.indexOf(`auth_complete/${x.id}`) > -1)[0];
     if (details.url.indexOf('github.com') > -1) {
       loginWindow.setSize(500, 700, false);
+    }
+    if (details.url.indexOf('trello.com') > -1) {
+      // different sizes of window for different forms ...
+      if (details.url.indexOf('1/OAuthAuthorizeToken') > -1) {
+        loginWindow.setSize(500, 550, false);
+      } else if (details.url.indexOf('login?returnUrl') > -1) {
+        loginWindow.setSize(500, 370, false);
+      }
     }
 
     if (details.url.indexOf('in_auth_flow') < 0 && integration) {

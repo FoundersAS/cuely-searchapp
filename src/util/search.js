@@ -70,6 +70,12 @@ export function searchInternal(query, search_settings) {
         } else {
           return githubRepo(hit);
         }
+      } else if (keywords.indexOf('trello') > -1) {
+        if (hit.secondary_keywords.toLowerCase().indexOf('board') > -1) {
+          return trelloBoard(hit);
+        } else {
+          return trelloCard(hit);
+        }
       } else {
         return null;
       }
@@ -214,6 +220,90 @@ function cutLocalPath(fullPath, maxLen) {
     else {
       return '...' + path;
     }
+  }
+}
+
+function trelloBoard(hit) {
+  let content = {
+    description: hit.trello_content.description ? highlightWithClass(highlightedValueInObject('trello_content', hit, 'description', false)) : null,
+    lists: hit.trello_content.lists.map((x, i) => {
+      x.name = highlightWithClass(hit._highlightResult.trello_content.lists[i].name.value);
+      x.cards.map((c, j) => {
+        c.name = highlightWithClass(hit._highlightResult.trello_content.lists[i].cards[j].name.value);
+        return c;
+      });
+      return x;
+    }),
+    users: hit.trello_board_members.map(user => ({
+      avatar: user.avatar,
+      name: user.name,
+      nameHighlight: highlightedValueInObjectArray('trello_board_members', 'name', user.name, hit, true)
+    }))
+  }
+  return {
+    type: 'trello-board',
+    mime: 'trello',
+    title: highlightedValue('trello_title', hit),
+    titleRaw: hit.trello_title,
+    content: content,
+    metaInfo: {
+      time: capitalize(moment(hit.last_updated_ts * 1000).fromNow()),
+      users: content.users[0] ? [content.users[0]]: [],
+      status: hit.trello_board_org ? highlightedValueInObject('trello_board_org', hit, 'name', false) : null
+    },
+    displayIcon: hit.null,
+    webLink: hit.webview_link,
+    thumbnailLink: null,
+    modified: hit.last_updated,
+    _algolia: hit._rankingInfo
+  }
+}
+
+function trelloCard(hit) {
+  let content = {
+    description: hit.trello_content.description ? highlightWithClass(highlightedValueInObject('trello_content', hit, 'description', false)) : null,
+    checklists: hit.trello_content.checklists ? hit.trello_content.checklists.map((x, i) => {
+      x.name = highlightWithClass(hit._highlightResult.trello_content.checklists[i].name.value);
+      x.items_done = x.items.filter(y => y.checked).length,
+      x.items.map((c, j) => {
+        c.name = highlightWithClass(hit._highlightResult.trello_content.checklists[i].items[j].name.value);
+        return c;
+      });
+      return x;
+    }) : null,
+    users: hit.trello_card_members ? hit.trello_card_members.map(user => ({
+      avatar: user.avatar,
+      name: user.name,
+      nameHighlight: highlightedValueInObjectArray('trello_card_members', 'name', user.name, hit, true)
+    })) : null,
+    closed: (hit.trello_card_status === 'Archived'),
+    listClosed: (hit.trello_list.closed === true)
+  }
+
+  let statusLine = null;
+  if (hit.trello_board_name) {
+    statusLine = highlightedValue('trello_board_name', hit);
+    if (hit.trello_list) {
+      statusLine = statusLine + ' / ' + highlightedValueInObject('trello_list', hit, 'name', false)
+    }
+    statusLine = cutStringWithTags(statusLine, 28, 'em', '…');
+  }
+  return {
+    type: 'trello-card',
+    mime: (content.closed || content.listClosed) ? 'trelloarchive' : 'trello',
+    title: highlightedValue('trello_title', hit),
+    titleRaw: hit.trello_title,
+    content: content,
+    metaInfo: {
+      time: capitalize(moment(hit.last_updated_ts * 1000).fromNow()),
+      users: content.users[0] ? [content.users[0]]: [],
+      status: statusLine
+    },
+    displayIcon: hit.null,
+    webLink: hit.webview_link,
+    thumbnailLink: null,
+    modified: hit.last_updated,
+    _algolia: hit._rankingInfo
   }
 }
 

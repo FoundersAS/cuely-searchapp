@@ -15,6 +15,8 @@ import GithubRepoContent from './components/GithubRepoContent';
 import GithubCommitContent from './components/GithubCommitContent';
 import GithubFileContent from './components/GithubFileContent';
 import GithubIssueContent from './components/GithubIssueContent';
+import TrelloBoardContent from './components/TrelloBoardContent';
+import TrelloCardContent from './components/TrelloCardContent';
 import CurrencyContent from './components/CurrencyContent';
 import LocalFileContent from './components/LocalFileContent';
 
@@ -114,7 +116,11 @@ const icons = [
   {
     type: 'gdrive',
     spriteOffset: 22
-  }
+  },
+  {
+    type: 'trelloarchive',
+    spriteOffset: 23
+  },
 ];
 
 export default class App extends Component {
@@ -567,26 +573,6 @@ export default class App extends Component {
     );
   }
 
-  /*
-  getIntegrationActions() {
-    if (this.state.activeIntegration == 'gdrive'){
-      return (
-        <div className="search_integration_actions">
-          <div className="action_link" id="doc" onClick={this.handleIntegrationActionClick}><span className="glyphicons glyphicons-plus"></span>New doc</div>
-          <div className="action_link" id="sheet" onClick={this.handleIntegrationActionClick}><span className="glyphicons glyphicons-plus"></span>New sheet</div>
-          <div className="action_link" id="slide" onClick={this.handleIntegrationActionClick}><span className="glyphicons glyphicons-plus"></span>New presentation</div>
-        </div>
-      );
-    }
-    else if (this.state.activeIntegration == 'jira'){
-      return (
-        <div className="search_integration_actions">
-          <div className="action_link" id="jira-issue" onClick={this.handleIntegrationActionClick}><span className="glyphicons glyphicons-plus"></span>New issue</div>
-        </div>
-      );
-    }
-  }
-*/
   renderEmptyResults() {
     const emptyString = this.state.noResultsYet ? '' : 'Sorry, your search does not match any items.';
 
@@ -603,7 +589,7 @@ export default class App extends Component {
 
   getIntegrationComponent(item) {
     // This function is meant to be used anytime there is integration dependent rendering
-    // (to avoid if statements every time we need to do something gdrive/intercom/etc specific).
+    // (to avoid 'if' statements every time we need to do something gdrive/intercom/etc specific).
     let content = () => null;
     let itemStatus = () => null;
 
@@ -711,6 +697,26 @@ export default class App extends Component {
       } else if (item.type === 'github-issue') {
         content = () => (<GithubIssueContent openExternalLink={this.openExternalLink} item={item} />);
         if (item.metaInfo) {
+          itemStatus = () => (
+            <div className="meta_group">
+              <div className="meta_icon glyphicons glyphicons-folder-open"></div>
+              <div className="meta_data text_overflow" dangerouslySetInnerHTML={{ __html: item.metaInfo.status }} />
+            </div>
+          );
+        }
+      } else if (item.type === 'trello-board') {
+        content = () => (<TrelloBoardContent openExternalLink={this.openExternalLink} item={item} />);
+        if (item.metaInfo && item.metaInfo.status) {
+          itemStatus = () => (
+            <div className="meta_group">
+              <div className="meta_icon glyphicons glyphicons-folder-open"></div>
+              <div className="meta_data text_overflow" dangerouslySetInnerHTML={{ __html: item.metaInfo.status }} />
+            </div>
+          );
+        }
+      } else if (item.type === 'trello-card') {
+        content = () => (<TrelloCardContent openExternalLink={this.openExternalLink} item={item} />);
+        if (item.metaInfo && item.metaInfo.status) {
           itemStatus = () => (
             <div className="meta_group">
               <div className="meta_icon glyphicons glyphicons-folder-open"></div>

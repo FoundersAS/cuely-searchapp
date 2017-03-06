@@ -283,6 +283,27 @@ em {
     padding-top: 1em;
   }
 
+  .content_warning {
+    width: 100%;
+    height: 30px;
+    padding-bottom: 2rem;
+
+    .background {
+      content: ' ';
+      width: 100%;
+      height: 30px;
+      background-image: url('../assets/images/other/warning_pattern.png');
+      opacity: 0.25;
+    }
+
+    .message {
+      color: rgba($color-very-dark, 0.5);
+      font-size: $font-size-mid;
+      font-weight: $font-weight-bold;
+      text-align: center;
+    }
+  }
+
   .content_section { padding: 1.5rem 0 1.5rem 1.5rem; }
   .content_section_right_padding { padding-right: 1.5rem; }
 
@@ -310,6 +331,29 @@ em {
     h3 { font-size: $font-size-mid; }
     p:first-child { margin-top: 0; }
     p:last-child { margin-bottom: 0; }
+    .content_list_title {
+      font-size: $font-size-mid;
+      font-weight: $font-weight-bold;
+      color: $color-dark;
+      word-wrap: normal;
+      overflow-x: hidden;
+      text-overflow: ellipsis;
+      margin-top: 1rem;
+    }
+    .content_list_card {
+      overflow-x: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      width: 90%;
+    }
+
+    .checked {
+      text-decoration: line-through;
+    }
+
+    .content_list_card a, .content_list_card div {
+      font-size: $font-size-base;
+    }
 
     .content_row {
       display: flex;
