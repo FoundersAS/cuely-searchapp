@@ -569,7 +569,6 @@ function createSearchWindow() {
 
   searchWindow.once('ready-to-show', () => {
     setTimeout(toggleHide, 1000);
-    searchWindow.webContents.send('setting-domain', prefs.settings.account.email.split('@')[1]);
   });
   // Emitted when the window is closed.
   searchWindow.on('closed', () => {
@@ -581,7 +580,7 @@ function createSearchWindow() {
   });
   searchWindow.on('show', () => {
     resetSession();
-    searchWindow.webContents.send('focus-element', '#searchBar');
+    searchWindow.webContents.send('focus-element', true); // todo: change 'true' constant to app setting
   });
   searchWindow.on('blur', () => {
     if (keepSearchVisible) {
@@ -1332,7 +1331,6 @@ function endSession() {
   const target = searchWindow || loginWindow;
   
   if (target) {
-    target.webContents.send('end-session');
     clearInterval(sessionInterval);
   }
 }

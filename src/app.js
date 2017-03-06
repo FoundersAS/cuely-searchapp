@@ -154,7 +154,6 @@ export default class App extends Component {
       keyFocus: false,
       integrations: [],
       searchError: null,
-      companyDomain: ''
     }
     this.hoverDisabled = false;
     this.segmentTimer = null;
@@ -187,18 +186,9 @@ export default class App extends Component {
       // show desktop notification
       new Notification(arg.title, arg);
     });
-    ipcRenderer.on('focus-element', (event, selector) => {
+    ipcRenderer.on('focus-element', (event, shouldSelect) => {
       //set focus on searchbar after window comes into foreground
-      this.refs.searchBar.setFocus();
-    });
-    ipcRenderer.on('end-session', (event, selector) => {
-      //empty search result box
-      this.setState({ clearInput: true });
-      ipcRenderer.send('search', '', Date.now(), false);
-      this.refs.sideBar.changeIcon('');
-    });
-    ipcRenderer.on('setting-domain', (event, domain) => {
-      this.setState({ companyDomain : domain });
+      this.refs.searchBar.setFocus(shouldSelect);
     });
   }
 

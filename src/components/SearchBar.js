@@ -33,8 +33,12 @@ export default class SearchBar extends Component {
     }
   }
 
-  setFocus() {
-    ReactDOM.findDOMNode(this.refs.input).focus();
+  setFocus(select) {
+    let input = ReactDOM.findDOMNode(this.refs.input);
+    if (select) {
+      input.select();
+    }
+    input.focus();
   }
 
   setText(text) {
