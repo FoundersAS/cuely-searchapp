@@ -25,6 +25,12 @@ export function setAlgoliaCredentials(credentials) {
   console.log("Updated Algolia credentials");
 }
 
+export function clearAlgoliaCredentials() {
+  algoliaClient = null;
+  index = null;
+  console.log("Cleared Algolia credentials");
+}
+
 export function search(query) {
   return searchInternal(query, settings);
 }
@@ -228,10 +234,12 @@ function trelloBoard(hit) {
     description: hit.trello_content.description ? highlightWithClass(highlightedValueInObject('trello_content', hit, 'description', false)) : null,
     lists: hit.trello_content.lists.map((x, i) => {
       x.name = highlightWithClass(hit._highlightResult.trello_content.lists[i].name.value);
-      x.cards.map((c, j) => {
-        c.name = highlightWithClass(hit._highlightResult.trello_content.lists[i].cards[j].name.value);
-        return c;
-      });
+      if (x.cards && x.cards.length > 0) {
+        x.cards.map((c, j) => {
+          c.name = highlightWithClass(hit._highlightResult.trello_content.lists[i].cards[j].name.value);
+          return c;
+        });
+      }
       return x;
     }),
     users: hit.trello_board_members.map(user => ({

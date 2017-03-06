@@ -1,6 +1,6 @@
 import electron, { ipcMain, session, autoUpdater } from 'electron';
 import opbeat from 'opbeat';
-import { search, searchAfter, setAlgoliaCredentials, searchLocalFiles } from './src/util/search';
+import { search, searchAfter, setAlgoliaCredentials, clearAlgoliaCredentials, searchLocalFiles } from './src/util/search';
 import { getAlgoliaCredentials, getSyncStatus, startSync, setSegmentStatus, deleteAccount } from './src/util/util.js';
 import { initCurrency } from './src/util/currency.js';
 import { API_ROOT, isDevelopment, UPDATE_FEED_URL } from './src/util/const.js';
@@ -287,6 +287,10 @@ ipcMain.on('send-notification', (event, arg) => {
 ipcMain.on('logout', (event, arg) => {
   session.defaultSession.clearStorageData({origin: API_ROOT});
   accountEdit = false;
+  if (searchWindow) {
+    searchWindow.close();
+  }
+  clearAlgoliaCredentials();
   createLoginWindow();
   settingsWindow.close();
 });
