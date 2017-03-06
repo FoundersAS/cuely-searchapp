@@ -5,7 +5,9 @@ const settingsDefaults = {
   account: {},
   globalShortcut: 'Cmd+Backspace',
   showTrayIcon: true,
-  showDockIcon: true
+  showDockIcon: true,
+  queryTypos: true,
+  autoSelect: true
 }
 
 class Preferences {

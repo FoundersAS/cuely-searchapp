@@ -1,6 +1,6 @@
 import electron, { ipcMain, session, autoUpdater } from 'electron';
 import opbeat from 'opbeat';
-import { search, searchAfter, setAlgoliaCredentials, clearAlgoliaCredentials, searchLocalFiles } from './src/util/search';
+import { search, searchAfter, setAlgoliaCredentials, clearAlgoliaCredentials, setQuerySettings, searchLocalFiles } from './src/util/search';
 import { getAlgoliaCredentials, getSyncStatus, startSync, setSegmentStatus, deleteAccount } from './src/util/util.js';
 import { initCurrency } from './src/util/currency.js';
 import { API_ROOT, isDevelopment, UPDATE_FEED_URL } from './src/util/const.js';
@@ -278,6 +278,10 @@ ipcMain.on('close-debug', () => {
 
 ipcMain.on('close-settings', () => {
   settingsWindow.close();
+  if (searchWindow) {
+    searchWindow.focus();
+    searchWindow.webContents.send('focus-element', prefs.getAll().autoSelect);
+  }
 });
 
 ipcMain.on('send-notification', (event, arg) => {
@@ -358,6 +362,7 @@ ipcMain.on('settings-save', (event, settings) => {
   }
 
   prefs.saveAll(settings);
+  setQuerySettings({ typoTolerance: settings.queryTypos });
   settingsCache.unshift({ time: Date(), settings: settings });
   settingsCache = settingsCache.slice(0, 10);
   sendDesktopNotification('Settings saved', 'Cuely has successfully saved new settings');
@@ -579,8 +584,8 @@ function createSearchWindow() {
     searchWindow = null;
   });
   searchWindow.on('show', () => {
+    searchWindow.webContents.send('focus-element', prefs.getAll().autoSelect);
     resetSession();
-    searchWindow.webContents.send('focus-element', true); // todo: change 'true' constant to app setting
   });
   searchWindow.on('blur', () => {
     if (keepSearchVisible) {
@@ -741,6 +746,7 @@ function loadCredentialsOrLogin(runSegment=true) {
             }
             
             prefs.saveAll(settings);
+            setQuerySettings({ typoTolerance: settings.queryTypos });
 
             if (runSegment) {
               // init segment

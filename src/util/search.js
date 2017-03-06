@@ -31,6 +31,10 @@ export function clearAlgoliaCredentials() {
   console.log("Cleared Algolia credentials");
 }
 
+export function setQuerySettings(querySettings) {
+  Object.assign(settings, querySettings);
+}
+
 export function search(query) {
   return searchInternal(query, settings);
 }

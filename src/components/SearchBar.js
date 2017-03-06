@@ -37,6 +37,8 @@ export default class SearchBar extends Component {
     let input = ReactDOM.findDOMNode(this.refs.input);
     if (select) {
       input.select();
+    } else {
+      input.selectionEnd = input.selectionStart;
     }
     input.focus();
   }

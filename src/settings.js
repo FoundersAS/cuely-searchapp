@@ -14,11 +14,15 @@ export default class Settings extends Component {
         account: {},
         globalShortcut: 'Cmd+Backspace',
         showTrayIcon: true,
-        showDockIcon: true
+        showDockIcon: true,
+        autoSelect: true,
+        queryTypos: true
       },
       newShortcut: '',
       newTrayIcon: false,
       newDockIcon: false,
+      newAutoSelect: false,
+      newQueryTypos: false,
       errorMessage: ''
     }
     this.keyCombo = [];
@@ -29,13 +33,21 @@ export default class Settings extends Component {
       this.setState({
         settings: arg,
         newTrayIcon: arg.showTrayIcon,
-        newDockIcon: arg.showDockIcon
+        newDockIcon: arg.showDockIcon,
+        newAutoSelect: arg.autoSelect,
+        newQueryTypos: arg.queryTypos
       });
     });
     ipcRenderer.on('settings-save-failed', (event, msg) => {
       this.setState({ errorMessage: msg });
     });
     ipcRenderer.send('settings-load');
+    document.addEventListener('keyup', (e) => {
+      console.log(e);
+      if (e.key === 'Escape') {
+        ipcRenderer.send('close-settings');
+      }
+    }, false);
   }
 
   handleClose(e) {
@@ -63,6 +75,8 @@ export default class Settings extends Component {
     let settings = Object.assign({}, this.state.settings);
     settings.showTrayIcon = this.state.newTrayIcon;
     settings.showDockIcon = this.state.newDockIcon;
+    settings.autoSelect = this.state.newAutoSelect;
+    settings.queryTypos = this.state.newQueryTypos;
     if (this.state.newShortcut) {
       settings.globalShortcut = this.state.newShortcut;
     }
@@ -76,6 +90,10 @@ export default class Settings extends Component {
   handleChange(e) {
     if (e.target.id === 'checkTray') {
       this.setState({ newTrayIcon: e.target.checked });
+    } else if (e.target.id === 'checkAutoSelect') {
+      this.setState({ newAutoSelect: e.target.checked });
+    } else if (e.target.id === 'checkTypos') {
+      this.setState({ newQueryTypos: e.target.checked });
     } else if (e.target.id === 'checkDock') {
       this.setState({ newDockIcon: e.target.checked });
     }
@@ -168,10 +186,16 @@ export default class Settings extends Component {
             <div className="title">Miscellaneous</div>
             <div className="options">
               <div className="both">
+                <label><input type="checkbox" id="checkAutoSelect" value="autoSelect" onChange={this.handleChange} checked={this.state.newAutoSelect} /><span>Auto select text after Cuely window is shown</span></label>
+              </div>
+              <div className="both">
+                <label><input type="checkbox" id="checkTypos" value="queryTypos" onChange={this.handleChange} checked={this.state.newQueryTypos} /><span>Allow typos in search queries</span></label>
+              </div>
+              <div className="both">
                 <label><input type="checkbox" id="checkTray" value="showTrayIcon" onChange={this.handleChange} checked={this.state.newTrayIcon} /><span>Show Cuely icon in tray</span></label>
               </div>
               <div className="both">
-                <label><input type="checkbox" id="checkDock" value="showDockIcon" onChange={this.handleChange} checked={this.state.newDockIcon} /><span>Show Cuely icon in dock</span></label>
+                <label><input type="checkbox" id="checkdock" value="showDockIcon" onChange={this.handleChange} checked={this.state.newDockIcon} /><span>Show Cuely icon in dock</span></label>
               </div>
             </div>            
           </div>
