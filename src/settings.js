@@ -43,7 +43,6 @@ export default class Settings extends Component {
     });
     ipcRenderer.send('settings-load');
     document.addEventListener('keyup', (e) => {
-      console.log(e);
       if (e.key === 'Escape') {
         ipcRenderer.send('close-settings');
       }
@@ -126,7 +125,7 @@ export default class Settings extends Component {
     return (
       <div>
         <div className="settings_body">
-          <div>
+          <div className="section">
             <div className="title">Account</div>
             <div className="options">
               <div className="row">
@@ -147,7 +146,7 @@ export default class Settings extends Component {
             </div>
           </div>
           <hr />
-          <div>
+          <div className="section">
             <div className="title">Set Global Shortcut</div>
             <div className="options">
               <div className="row">
@@ -182,11 +181,11 @@ export default class Settings extends Component {
             </div>
           </div>
           <hr />
-          <div>
+          <div className="section">
             <div className="title">Miscellaneous</div>
             <div className="options">
               <div className="both">
-                <label><input type="checkbox" id="checkAutoSelect" value="autoSelect" onChange={this.handleChange} checked={this.state.newAutoSelect} /><span>Auto select text after Cuely window is shown</span></label>
+                <label><input type="checkbox" id="checkAutoSelect" value="autoSelect" onChange={this.handleChange} checked={this.state.newAutoSelect} /><span>Auto select query text after Cuely window is shown</span></label>
               </div>
               <div className="both">
                 <label><input type="checkbox" id="checkTypos" value="queryTypos" onChange={this.handleChange} checked={this.state.newQueryTypos} /><span>Allow typos in search queries</span></label>
@@ -201,8 +200,10 @@ export default class Settings extends Component {
           </div>
         </div>
         <div className="login_actions">
-          <a href="#" onClick={this.handleSave}>Save</a>
-          <a href="#" className="cancel" onClick={this.handleClose}>Cancel</a>
+          <div className="button_section">
+            <a href="#" onClick={this.handleClose}>Cancel</a>
+            <a href="#" onClick={this.handleSave}>Save</a>
+          </div>
         </div>
       </div>
     );

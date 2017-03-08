@@ -34,7 +34,9 @@ export default class Login extends Component {
         </div>
         {this.state.edit ? (
         <div className="login_actions">
-          <a href="#" onClick={this.handleClick}>Close</a>
+          <div className="button_section">
+            <a href="#" onClick={this.handleClick}>Close</a>
+          </div>
         </div>) : null}
       </div>
     );

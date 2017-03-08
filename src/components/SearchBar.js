@@ -58,7 +58,7 @@ export default class SearchBar extends Component {
         <span className="search_bar_icon"/>
           <input
             type="text"
-            placeholder="Search your company items"
+            placeholder="Search your items"
             className="search_bar_input"
             onKeyUp={this.props.onKeyUp}
             onKeyDown={this.props.onKeyDown}

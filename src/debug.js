@@ -14,10 +14,14 @@ export default class DebugLog extends Component {
 
   componentDidMount() {
     ipcRenderer.on('debug-result', (event, arg) => {
-      console.log('new state is:', arg);
       this.setState(arg);
     });
     ipcRenderer.send('debug-load');
+    document.addEventListener('keyup', (e) => {
+      if (e.key === 'Escape') {
+        ipcRenderer.send('close-debug');
+      }
+    }, false);
   }
 
   handleClose(e) {

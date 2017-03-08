@@ -1,3 +1,12 @@
+$color-dark-violet: #22191C;
+$color-very-dark: #111;
+
+$font-size-big: 1.5rem;
+$letter-spacing-base: 0.015rem;
+$font-weight-light: 200;
+$font-weight-regular: 400;
+$font-weight-bold: 700;
+
 body {
   padding: 0px;
   margin: 0px;
@@ -6,16 +15,26 @@ body {
 }
 
 .settings_body {
-  height: 385px;
-  padding: 20px;
+  padding: 10px 0px 0px 0px;
   margin: 0;
+
+  hr {
+    background-color: rgba($color-dark-violet, 0.95);
+    border: none;
+    height: 1px;
+  }
 
   .title {
     font-weight: 600;
   }
 
+  .section {
+    padding-left: 20px;
+    padding-top: 10px;
+  }
+
   .options {
-    padding: 15px 15px 0  15px;
+    padding: 5px 15px 0 15px;
     margin-bottom: 20px;
 
     .row {
@@ -44,7 +63,7 @@ body {
     }
 
     .actions {
-      margin-top: 15px;
+      margin-top: 10px;
 
       a {
         padding: 6px;
@@ -81,8 +100,9 @@ body {
     font-size: 14px;
     font-weight: 300;
     color: black;
-    outline: none;
     padding: .3em;
+    border: black 1px solid;
+    border-radius: 3px;
   }
 
   input[type=checkbox] {
@@ -114,41 +134,147 @@ body {
 }
 
 .login_actions {
-  width: 100%;
-  height: 52px;
-  border-top: 1px solid rgb(221, 221, 221);
-  position: fixed;
+  background-color: rgba($color-dark-violet, 0.95);
+  position: absolute;
+  right: 0;
   bottom: 0;
+  left: 0;
+  padding: 1rem;
+  text-align: right;
+  width: 100%;
+  height: 1.3rem;
+
+  .button_section {
+    margin-right: 1rem;
+  }
 
   a {
-    float: right;
     padding: 10px;
     border-radius: 6px;
     width: 100px;
     line-height: 1.3em;
-    color: rgb(255, 255, 255);
-    background-color: rgb(76, 174, 76);
-    margin-right: 10px;
-    margin-top: 6px;
+    color: white;
     text-decoration: none;
     text-align: center;
+    margin-right: 1rem;
   }
 
   a:hover {
-    background-color: rgb(57, 132, 57);
-  }
-
-  .cancel {
-    background-color: transparent;
-    text-decoration: none;
-    text-align: center;
-    border-radius: 6px;
-    color: black;
-  }
-
-  .cancel:hover {
-    background-color: rgb(200, 200, 200);
+    text-decoration: underline;
   }
 }
 
+.welcome {
+  .title {
+    color: $color-very-dark;
+    font-size: $font-size-big;
+    font-weight: $font-weight-regular;
+    letter-spacing: $letter-spacing-base;
+    padding: 2rem;
+    background-color: white;
+    text-align: center;
+  }
 
+  .settings {
+    padding: 2rem; 
+    margin: 0;
+    font-weight: $font-weight-regular;
+
+    .row {
+      display: flex;
+      flex-flow: row wrap;
+      line-height: 2em;
+      padding-bottom: 0.5rem;
+    }
+
+    .both {
+      flex: 2;
+    }
+
+    .left {
+      width: 22%;
+    }
+
+    .right {
+      width: 78%;
+    }
+
+    .error {
+      width: 75%;
+      font-size: 11px;
+      color: red;
+      line-height: 1.3em;
+    }
+
+    input {
+      line-height: 1.5em;
+      background: none;
+      width: 200px;
+      font-size: 14px;
+      font-weight: 300;
+      color: black;
+      padding: .3em;
+      border: black 1px solid;
+      border-radius: 3px;
+    }
+  }
+
+  .info {
+    padding: 0;
+    margin: 0;
+    background-color: rgba($color-very-dark, 0.06);
+    color: #333;
+  }
+
+  hr {
+    background-color: rgba($color-dark-violet, 0.95);
+    border: none;
+    height: 1px;
+    margin: 0;
+  }
+
+  .paragraph {
+    padding-top: 1rem;
+    margin: 0;
+    padding-left: 2rem;
+    padding-right: 2rem;
+    font-size: 1rem;
+    font-weight: $font-weight-light;
+
+    code {
+      font-size: 0.9rem;
+      font-family: system-ui;
+      background-color: #CCC;
+      padding-left: 0.3rem;
+      padding-right: 0.3rem;
+    }
+
+    ul {
+      padding-top: 0;
+      margin-top: 0.5rem;
+      margin-bottom: 1.2rem;
+    }
+  }
+
+  .actions {
+    background-color: rgba($color-dark-violet, 0.95);
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    padding: 1rem;
+    text-align: right;
+    width: 100%;
+    height: 1.3rem;
+
+    a {
+      margin-right: 2.5rem;
+      text-decoration: none;
+      color: white;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+  }
+}

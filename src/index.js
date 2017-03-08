@@ -22,6 +22,8 @@ const render = () => {
     Component = require('./settings.js').default;
   } else if (route === 'debug') {
     Component = require('./debug.js').default;
+  } else if (route === 'welcome') {
+    Component = require('./welcome.js').default;
   }
   ReactDOM.render(<Component />, document.getElementById('app'));
 };

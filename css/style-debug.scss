@@ -1,3 +1,5 @@
+$color-dark-violet: #22191C;
+
 body {
   padding: 0px;
   margin: 0px;
@@ -23,39 +25,28 @@ body {
 }
 
 .login_actions {
+  background-color: rgba($color-dark-violet, 0.95);
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  padding: 1rem;
+  text-align: right;
   width: 100%;
-  height: 50px;
-  border-top: 1px solid rgb(221, 221, 221);
+  height: 1.3rem;
 
   a {
-    float: right;
     padding: 10px;
     border-radius: 6px;
     width: 100px;
     line-height: 1.3em;
-    color: rgb(255, 255, 255);
-    background-color: rgb(76, 174, 76);
-    margin-right: 10px;
-    margin-top: 6px;
+    color: white;
     text-decoration: none;
     text-align: center;
+    margin-right: 2rem;
   }
 
   a:hover {
-    background-color: rgb(57, 132, 57);
-  }
-
-  .cancel {
-    background-color: transparent;
-    text-decoration: none;
-    text-align: center;
-    border-radius: 6px;
-    color: black;
-  }
-
-  .cancel:hover {
-    background-color: rgb(200, 200, 200);
+    text-decoration: underline;
   }
 }
-
-

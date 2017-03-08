@@ -95,6 +95,7 @@ let previewWindow;
 let loginWindow;
 let settingsWindow;
 let debugWindow;
+let welcomeWindow;
 let tray;
 
 let credentials;
@@ -112,6 +113,7 @@ let updateManual = false;
 let latestSearchTime = 0;
 let eNotify;
 let accountEdit = false;
+let syncingIntegration;
 
 // debugging stuff
 let settingsCache = [];
@@ -289,18 +291,18 @@ ipcMain.on('send-notification', (event, arg) => {
 });
 
 ipcMain.on('logout', (event, arg) => {
-  session.defaultSession.clearStorageData({origin: API_ROOT});
   accountEdit = false;
   if (searchWindow) {
     searchWindow.close();
   }
+  session.defaultSession.clearStorageData({origin: API_ROOT});
   clearAlgoliaCredentials();
   createLoginWindow();
   settingsWindow.close();
 });
 
 ipcMain.on('account', (event, arg) => {
-  createLoginWindow();
+  createLoginWindow(true);
   accountEdit = true;
   loginWindow.setSize(760, 680, false);
   if(settingsWindow){
@@ -350,6 +352,25 @@ ipcMain.on('debug-load', (event, arg) => {
     settingsLocation: prefs.file,
     search: JSON.stringify(searchCache, null, 2)
   });
+});
+
+ipcMain.on('welcome-load', (event) => {
+  welcomeWindow.webContents.send('welcome-load-result', syncingIntegration);
+});
+
+ipcMain.on('welcome-save', (event, shortcut) => {
+  if(!checkGlobalShortcut(shortcut)) {
+    event.sender.send(
+      'welcome-save-failed',
+      'Could not set the global shortcut. Please try again without using national characters.'
+    );
+    return;
+  }
+  let settings = prefs.getAll();
+  settings.globalShortcut = shortcut;
+  prefs.saveAll(settings);
+  welcomeWindow.close();
+  loadCredentialsOrLogin();
 });
 
 ipcMain.on('settings-save', (event, settings) => {
@@ -598,7 +619,29 @@ function createSearchWindow() {
   });
 };
 
-function createLoginWindow() {
+function createWelcomeWindow() {
+  if (welcomeWindow) {
+    welcomeWindow.show();
+    return;
+  }
+
+  // Create the browser window.
+  welcomeWindow = new BrowserWindow({
+    width: 700,
+    height: 565,
+    center: true,
+    transparent: false,
+    shadow: true,
+    resizable: false
+  });
+
+  welcomeWindow.loadURL(`file://${__dirname}/index.html?route=welcome`);
+  welcomeWindow.on('closed', () => {
+    welcomeWindow = null;
+  });
+}
+
+function createLoginWindow(manageAccount = false) {
   keepSearchVisible = true;
   if (loginWindow) {
     loginWindow.show();
@@ -636,7 +679,7 @@ function createLoginWindow() {
     }
 
     if (details.url.indexOf('in_auth_flow') < 0 && integration) {
-      startSyncPoller(integration.id, `${integration.name} account`);
+      startSyncPoller(integration.id, `${integration.name} account`, manageAccount);
     }
     callback({ cancel: false, responseHeaders: details.responseHeaders });
   });
@@ -696,7 +739,10 @@ function createSettingsWindow() {
   settingsWindow = new BrowserWindow({
     width: 500,
     height: 500,
-    center: true
+    center: true,
+    transparent: false,
+    shadow: true,
+    resizable: false
   });
 
   settingsWindow.loadURL(`file://${__dirname}/index.html?route=settings`);
@@ -764,12 +810,20 @@ function loadCredentialsOrLogin(runSegment=true) {
             return;
           }
         }
-        initFromSettings();
         if (error) {
           console.log('Failed to login to the backend');
-          setTimeout(() => { loadCredentialsOrLogin(runSegment) }, 15000); // try again after 15s
-          // if it's a connection issue, then opbeat also won't work, but in case it's just Cuely backend issue ...
-          opbeat.captureError(error);
+          if (error.status === 403) {
+            // if it's forbidden response (e.g. error while logging in), then assume user isn't active/registered anymore and bring up login dialog
+            session.defaultSession.clearStorageData({origin: API_ROOT});
+            clearAlgoliaCredentials();
+            createLoginWindow();
+          } else {
+            setTimeout(() => { loadCredentialsOrLogin(runSegment) }, 15000); // try again after 15s
+            // if it's a connection issue, then opbeat also won't work, but in case it's just Cuely backend issue ...
+            opbeat.captureError(error);
+          }
+        } else {
+          initFromSettings();
         }
       });
     } else {
@@ -800,7 +854,7 @@ function useAuthCookies(callback) {
   });
 }
 
-function startSyncPoller(type, integrationName) {
+function startSyncPoller(type, integrationName, manageAccount) {
   if (syncPollerTimeouts[type]) {
     // already running
     return;
@@ -837,17 +891,22 @@ function startSyncPoller(type, integrationName) {
   if (loginWindow) {
     loginWindow.hide();
   }
-  loadCredentialsOrLogin();
 
-  dialog.showMessageBox({
-    type: 'info',
-    title: 'Cuely app',
-    message: `Cuely has started to sync with your ${integrationName}. You will receive a notification once it's done.`,
-    detail: "You may start searching already now. The results will depend on how much data has been synced so far.",
-    buttons: ['Ok']
-  }, () => {
-    endLogin();
-  });
+  syncingIntegration = integrationName;
+  if (manageAccount) {
+    loadCredentialsOrLogin();
+    dialog.showMessageBox({
+      type: 'info',
+      title: 'Cuely app',
+      message: `Cuely has started to sync with your ${integrationName}. You will receive a notification once it's done.`,
+      detail: "You may start searching already now. The results will depend on how much data has been synced so far.",
+      buttons: ['Ok']
+    }, () => {
+      endLogin();
+    });
+  } else {
+    createWelcomeWindow();
+  }
 }
 
 function loadTray() {
