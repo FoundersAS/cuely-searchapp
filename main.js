@@ -114,6 +114,7 @@ let latestSearchTime = 0;
 let eNotify;
 let accountEdit = false;
 let syncingIntegration;
+let runningCredentials = false;
 
 // debugging stuff
 let settingsCache = [];
@@ -130,6 +131,10 @@ app.on('ready', () => {
   updateInterval = setInterval(checkForUpdates, 3600000);
   setupAutoLauncher();
   loadCredentialsOrLogin();
+  electron.powerMonitor.on('resume', () => {
+    // try to refresh credentials
+    setTimeout(() => { loadCredentialsOrLogin(false) }, 8000);
+  });
 });
 
 app.on('window-all-closed', () => {
@@ -770,6 +775,10 @@ function auxilaryWindowVisible() {
 }
 
 function loadCredentialsOrLogin(runSegment=true) {
+  if (runningCredentials === true) {
+    return;
+  }
+  runningCredentials = true;
   if (credentialsTimeout) {
     clearTimeout(credentialsTimeout);
   }
@@ -777,6 +786,7 @@ function loadCredentialsOrLogin(runSegment=true) {
   useAuthCookies((csrf, sessionId) => {
     if (csrf && sessionId) {
       getAlgoliaCredentials(csrf, sessionId).then(([response, error]) => {
+        runningCredentials = false;
         if (response) {
           if (response.appId) {
             setAlgoliaCredentials(response);
@@ -827,6 +837,7 @@ function loadCredentialsOrLogin(runSegment=true) {
         }
       });
     } else {
+      runningCredentials = false;
       createLoginWindow();
     }
   });
