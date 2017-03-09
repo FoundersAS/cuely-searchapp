@@ -677,9 +677,9 @@ function createLoginWindow(manageAccount = false) {
     if (details.url.indexOf('trello.com') > -1) {
       // different sizes of window for different forms ...
       if (details.url.indexOf('1/OAuthAuthorizeToken') > -1) {
-        loginWindow.setSize(500, 550, false);
+        loginWindow.setSize(500, 530, false);
       } else if (details.url.indexOf('login?returnUrl') > -1) {
-        loginWindow.setSize(500, 370, false);
+        loginWindow.setSize(500, 580, false);
       }
     }
 
