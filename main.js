@@ -124,6 +124,11 @@ let searchCache = [];
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.on('ready', () => {
+  if (!isDevelopment()) {
+    // this hack is needed, because Github oauth screen disables authorization button if NODE_ENV is not production
+    // (looks like a clash between electron variables and the variables in github's oauth javascript)
+    process.env.NODE_ENV = 'production';
+  }
   const appPath = app.getPath('userData');
   prefs = initPrefs(appPath);
   currency = initCurrency();
