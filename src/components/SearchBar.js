@@ -55,15 +55,15 @@ export default class SearchBar extends Component {
   render() {
     return (
       <div className={this.props.className} id={this.props.id} onMouseUp={this.props.onDragEnd}>
-        <span className="search_bar_icon"/>
-          <input
-            type="text"
-            placeholder="Search your items"
-            className="search_bar_input"
-            onKeyUp={this.props.onKeyUp}
-            onKeyDown={this.props.onKeyDown}
-            onInput={this.props.onInput}
-            ref='input' />
+        <span className="search_bar_icon" />
+        <input
+          type="text"
+          placeholder="Search your items"
+          className="search_bar_input"
+          onKeyUp={this.props.onKeyUp}
+          onKeyDown={this.props.onKeyDown}
+          onInput={this.props.onInput}
+          ref='input' />
         {this.props.searchError ? (<span className="search_bar_error"><span className="glyphicons glyphicons-alert"></span><span>{this.props.searchError.message}</span></span>) : null }
       </div>
     );

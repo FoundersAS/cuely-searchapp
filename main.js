@@ -88,7 +88,7 @@ const integrationsAuth = [
   { name: 'Trello', id: 'trello'}
 ];
 
-// Keep a global reference of the window object, if you don't, the window will
+// Keep a global reference of the window objects, because if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let searchWindow;
 let previewWindow;
@@ -96,8 +96,8 @@ let loginWindow;
 let settingsWindow;
 let debugWindow;
 let welcomeWindow;
-let tray;
 
+let tray;
 let credentials;
 let keepSearchVisible = false;
 let screenBounds;
@@ -119,6 +119,10 @@ let runningCredentials = false;
 // debugging stuff
 let settingsCache = [];
 let searchCache = [];
+
+// -------------------------------------------------------------
+// APP EVENTS
+// -------------------------------------------------------------
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
@@ -175,7 +179,9 @@ app.on('certificate-error', (event, webContents, url, error, certificate, callba
   }
 })
 
-// ipc communication
+// -------------------------------------------------------------
+// IPC communication
+// -------------------------------------------------------------
 ipcMain.on('hide-search', () => {
   hide();
 });
@@ -267,17 +273,6 @@ ipcMain.on('search', (event, arg, time, afterCreate) => {
     }
   }
 });
-
-function finalizeSearch(event, time, hits, query, local) {
-  if (!local) {
-    hits = checkKeywords(query, hits);
-  }
-
-  if (time > latestSearchTime){
-    latestSearchTime = time;
-    event.sender.send('search-result', { items: hits, userDir: app.getPath('home') });
-  }
-}
 
 ipcMain.on('close-login', () => {
   loginWindow.hide();
@@ -463,127 +458,9 @@ ipcMain.on('renderer-error', (event, arg) => {
   });
 });
 
-//----------- UTILITY FUNCTIONS
-function sendSyncDone(integrationName) {
-  sendDesktopNotification('Synchronization complete', 'Cuely has finished indexing your ' + integrationName);
-}
-
-function sendDesktopNotification(title, body) {
-  const target = searchWindow || loginWindow;
-  if (target) {
-    target.webContents.send('notification', { title, body });
-  } else {
-    console.log("Could not send desktop notification -> no window available");
-  }
-}
-
-function buildMenu() {
-  let menu;
-  if (isDevelopment()) {
-    menu = Menu.getApplicationMenu();
-    menu.append(new MenuItem({
-      type: 'submenu',
-      label: 'Dev',
-      submenu: customMenuItems(),
-    }));
-  } else {
-    // set application menu to enable common key bindings, i.e. copy/paste/cut
-    var template = [{
-      label: "Cuely",
-      submenu: customMenuItems().concat([
-        { type: "separator" },
-        { label: "Quit", accelerator: "Command+Q", click: () => { app.quit(); }}
-      ])}, {
-      label: "Edit",
-      submenu: [
-        { label: "Undo", accelerator: "CmdOrCtrl+Z", selector: "undo:" },
-        { label: "Redo", accelerator: "Shift+CmdOrCtrl+Z", selector: "redo:" },
-        { type: "separator" },
-        { label: "Cut", accelerator: "CmdOrCtrl+X", selector: "cut:" },
-        { label: "Copy", accelerator: "CmdOrCtrl+C", selector: "copy:" },
-        { label: "Paste", accelerator: "CmdOrCtrl+V", selector: "paste:" },
-        { label: "Select All", accelerator: "CmdOrCtrl+A", selector: "selectAll:" },
-        { label: "Hide", accelerator: "Cmd+H", click: () => { toggleHide(); }}
-      ]}
-    ];
-    menu = Menu.buildFromTemplate(template);
-  }
-  Menu.setApplicationMenu(menu);
-}
-
-function customMenuItems() {
-  return [
-    { label: `Cuely v${appVersion}`, enabled: false },
-    { label: "What's new", click: () => { shell.openExternal('https://cuely.co/whats_new.html'); }},
-    { label: "Check for Updates", accelerator: "Command+U", click: () => { manualCheckForUpdates(); }},
-    { type: "separator" },
-    { label: "Preferences...", accelerator: "Command+,", click: () => { createSettingsWindow(); }},
-    { label: "Debug log", accelerator: "Shift+CmdOrCtrl+D", click: () => { createDebugWindow(); }},
-    { type: "separator" },
-    { label: "About Cuely", click: () => { aboutDialog(); }},
-    { label: "Help", click: () => { shell.openExternal('https://slack-files.com/T03V5J4DG-F33TWJJHL-542c183730'); }},
-  ];
-}
-
-function aboutDialog() {
-  dialog.showMessageBox({
-    type: 'info',
-    title: 'Cuely app',
-    message: 'Cuely search app for macOS',
-    detail: `Version ${appVersion}`,
-    buttons: ['Ok']
-  });
-}
-
-function getScreenProps() {
-  let activeDisplays = electron.screen.getAllDisplays();
-
-  if (activeDisplays.length > 1) {
-    let display = getActiveDisplay(activeDisplays);
-
-    return {
-      width: display.workAreaSize.width,
-      height: display.workAreaSize.height,
-      center: { x: Math.round(display.workAreaSize.width/2), y: Math.round(display.workAreaSize.height/2) },
-      const: { x: display.bounds.x, y: display.bounds.y }
-    };
-  }
-  else {
-    const {width, height} = electron.screen.getPrimaryDisplay().workAreaSize;
-    return {
-      width: width,
-      height: height,
-      center: { x: Math.round(width/2), y: Math.round(height/2) },
-      const: { x: 0, y:0 }
-    };
-  }
-}
-
-function getActiveDisplay(activeDisplays) {
-  let currentCursor = electron.screen.getCursorScreenPoint();
-
-  for (let display of activeDisplays) {
-    if (currentCursor.x >= display.bounds.x && currentCursor.x <= display.bounds.x + display.bounds.width && currentCursor.y >= display.bounds.y && currentCursor.y <= display.bounds.y + display.bounds.height) {
-      return display;
-    }
-  }
-}
-
-function calculatePositionAndSize() {
-  const screen = getScreenProps();
-  // try to account for small and big screens
-  // const w = Math.round(Math.max(800, Math.min(1000, screen.width / 3)));
-  const w = 863;
-  return {
-    width: w,
-    height: 460,
-    x: screen.const.x + Math.round(screen.center.x - (w / 2)),
-    y: screen.const.y + Math.round(screen.center.y / 2),
-    screenWidth: screen.width,
-    screenHeight: 460
-  }
-}
-
+// -------------------------------------------------------------
+// WINDOW HANDLING
+// -------------------------------------------------------------
 function createSearchWindow() {
   // Create the browser window.
   screenBounds = calculatePositionAndSize();
@@ -770,6 +647,65 @@ function createSettingsWindow() {
   });
 }
 
+function aboutDialog() {
+  dialog.showMessageBox({
+    type: 'info',
+    title: 'Cuely app',
+    message: 'Cuely search app for macOS',
+    detail: `Version ${appVersion}`,
+    buttons: ['Ok']
+  });
+}
+
+function getScreenProps() {
+  let activeDisplays = electron.screen.getAllDisplays();
+
+  if (activeDisplays.length > 1) {
+    let display = getActiveDisplay(activeDisplays);
+
+    return {
+      width: display.workAreaSize.width,
+      height: display.workAreaSize.height,
+      center: { x: Math.round(display.workAreaSize.width/2), y: Math.round(display.workAreaSize.height/2) },
+      const: { x: display.bounds.x, y: display.bounds.y }
+    };
+  }
+  else {
+    const {width, height} = electron.screen.getPrimaryDisplay().workAreaSize;
+    return {
+      width: width,
+      height: height,
+      center: { x: Math.round(width/2), y: Math.round(height/2) },
+      const: { x: 0, y:0 }
+    };
+  }
+}
+
+function getActiveDisplay(activeDisplays) {
+  let currentCursor = electron.screen.getCursorScreenPoint();
+
+  for (let display of activeDisplays) {
+    if (currentCursor.x >= display.bounds.x && currentCursor.x <= display.bounds.x + display.bounds.width && currentCursor.y >= display.bounds.y && currentCursor.y <= display.bounds.y + display.bounds.height) {
+      return display;
+    }
+  }
+}
+
+function calculatePositionAndSize() {
+  const screen = getScreenProps();
+  // try to account for small and big screens
+  // const w = Math.round(Math.max(800, Math.min(1000, screen.width / 3)));
+  const w = 863;
+  return {
+    width: w,
+    height: 460,
+    x: screen.const.x + Math.round(screen.center.x - (w / 2)),
+    y: screen.const.y + Math.round(screen.center.y / 2),
+    screenWidth: screen.width,
+    screenHeight: 460
+  }
+}
+
 function auxilaryWindowVisible() {
   for (let win of [loginWindow, debugWindow, settingsWindow]) {
     if (win && win.isVisible()) {
@@ -777,6 +713,160 @@ function auxilaryWindowVisible() {
     }
   }
   return false;
+}
+
+function hide() {
+  if (isOsx() && prefs.settings.showDockIcon) {
+    app.hide();
+  } else {
+    searchWindow.hide();
+  }
+}
+
+function toggleHide() {
+  if (searchWindow.isVisible() && searchWindow.isFocused()) {
+    hide();
+  } else {
+    //check where to position the searchWindow
+    const bounds = calculatePositionAndSize();  
+    if (bounds.screenWidth != screenBounds.screenWidth || bounds.screenHeight != screenBounds.screenHeight || bounds.x != screenBounds.x) {
+      // reposition, needed because of external screen(s) might be (un)plugged
+      searchWindow.setPosition(bounds.x, bounds.y, false);
+      screenBounds = bounds;
+    }
+
+    //show and focus the searchWindow
+    searchWindow.show();
+    searchWindow.focus();
+  }
+}
+
+function toggleHideOrCreate() {
+  if (searchWindow) {
+    toggleHide();
+  } else {
+    createSearchWindow();
+  }
+}
+
+// -------------------------------------------------------------
+// AUTO UPDATER
+// -------------------------------------------------------------
+autoUpdater.on('update-downloaded', () => {
+  dialog.showMessageBox({
+    type: 'info',
+    title: 'Cuely Update',
+    message: 'New Cuely Update is now available.',
+    detail: 'New version has been successfully downloaded. The app will now close, install the new version and reopen.',
+    buttons: ['Ok']
+  });
+  autoUpdater.quitAndInstall();
+});
+
+autoUpdater.on('update-not-available', () => {
+  if (updateManual) {
+    updateManual = false;
+    dialog.showMessageBox({
+      type: 'info',
+      title: 'Cuely Update',
+      message: 'There are no new updates',
+      detail: 'You have the latest Cuely app installed.',
+      buttons: ['Ok']
+    });
+  } else {
+    console.log('There are no new updates.');
+  }
+});
+
+autoUpdater.on('update-available', () => {
+  sendDesktopNotification('New Cuely update available', 'A new version of Cuely app is being downloaded');
+});
+
+function manualCheckForUpdates() {
+  updateManual = true;
+  checkForUpdates();
+}
+
+function checkForUpdates() {
+  if (!isDevelopment()) {
+    autoUpdater.setFeedURL(UPDATE_FEED_URL + '/?v=' + appVersion);
+    autoUpdater.checkForUpdates();
+  }
+}
+
+// -------------------------------------------------------------
+// UTILITY FUNCTIONS
+// -------------------------------------------------------------
+function finalizeSearch(event, time, hits, query, local) {
+  if (!local) {
+    hits = checkKeywords(query, hits);
+  }
+
+  if (time > latestSearchTime) {
+    latestSearchTime = time;
+    event.sender.send('search-result', { items: hits, userDir: app.getPath('home') });
+  }
+}
+
+function sendSyncDone(integrationName) {
+  sendDesktopNotification('Synchronization complete', 'Cuely has finished indexing your ' + integrationName);
+}
+
+function sendDesktopNotification(title, body) {
+  const target = searchWindow || loginWindow;
+  if (target) {
+    target.webContents.send('notification', { title, body });
+  } else {
+    console.log("Could not send desktop notification -> no window available");
+  }
+}
+
+function buildMenu() {
+  let menu;
+  if (isDevelopment()) {
+    menu = Menu.getApplicationMenu();
+    menu.append(new MenuItem({
+      type: 'submenu',
+      label: 'Dev',
+      submenu: customMenuItems(),
+    }));
+  } else {
+    // set application menu to enable common key bindings, i.e. copy/paste/cut
+    var template = [{
+      label: "Cuely",
+      submenu: customMenuItems().concat([
+        { type: "separator" },
+        { label: "Quit", accelerator: "Command+Q", click: () => { app.quit(); }}
+      ])}, {
+      label: "Edit",
+      submenu: [
+        { label: "Undo", accelerator: "CmdOrCtrl+Z", selector: "undo:" },
+        { label: "Redo", accelerator: "Shift+CmdOrCtrl+Z", selector: "redo:" },
+        { type: "separator" },
+        { label: "Cut", accelerator: "CmdOrCtrl+X", selector: "cut:" },
+        { label: "Copy", accelerator: "CmdOrCtrl+C", selector: "copy:" },
+        { label: "Paste", accelerator: "CmdOrCtrl+V", selector: "paste:" },
+        { label: "Select All", accelerator: "CmdOrCtrl+A", selector: "selectAll:" },
+        { label: "Hide", accelerator: "Cmd+H", click: () => { toggleHide(); }}
+      ]}
+    ];
+    menu = Menu.buildFromTemplate(template);
+  }
+  Menu.setApplicationMenu(menu);
+}
+
+function customMenuItems() {
+  return [
+    { label: `Cuely v${appVersion}`, enabled: false },
+    { label: "What's new", click: () => { shell.openExternal('https://cuely.co/whats_new.html'); }},
+    { label: "Check for Updates", accelerator: "Command+U", click: () => { manualCheckForUpdates(); }},
+    { type: "separator" },
+    { label: "Preferences...", accelerator: "Command+,", click: () => { createSettingsWindow(); }},
+    { label: "Debug log", accelerator: "Shift+CmdOrCtrl+D", click: () => { createDebugWindow(); }},
+    { type: "separator" },
+    { label: "About Cuely", click: () => { aboutDialog(); }},
+    { label: "Help", click: () => { shell.openExternal('https://slack-files.com/T03V5J4DG-F33TWJJHL-542c183730'); }},
+  ];
 }
 
 function loadCredentialsOrLogin(runSegment=true) {
@@ -1299,40 +1389,6 @@ function getCurrencyItem(rates) {
   }
 }
 
-function hide() {
-  if (isOsx() && prefs.settings.showDockIcon) {
-    app.hide();
-  } else {
-    searchWindow.hide();
-  }
-}
-
-function toggleHide() {
-  if (searchWindow.isVisible() && searchWindow.isFocused()) {
-    hide();
-  } else {
-    //check where to position the searchWindow
-    const bounds = calculatePositionAndSize();  
-    if (bounds.screenWidth != screenBounds.screenWidth || bounds.screenHeight != screenBounds.screenHeight || bounds.x != screenBounds.x) {
-      // reposition, needed because of external screen(s) might be (un)plugged
-      searchWindow.setPosition(bounds.x, bounds.y, false);
-      screenBounds = bounds;
-    }
-
-    //show and focus the searchWindow
-    searchWindow.show();
-    searchWindow.focus();
-  }
-}
-
-function toggleHideOrCreate() {
-  if (searchWindow) {
-    toggleHide();
-  } else {
-    createSearchWindow();
-  }
-}
-
 function setupAutoLauncher() {
   if(!isDevelopment()) {
     // Start Cuely on computer restart
@@ -1350,48 +1406,6 @@ function setupAutoLauncher() {
         cuelyAutoLauncher.enable();
       }
     });
-  }
-}
-
-autoUpdater.on('update-downloaded', () => {
-  dialog.showMessageBox({
-    type: 'info',
-    title: 'Cuely Update',
-    message: 'New Cuely Update is now available.',
-    detail: 'New version has been successfully downloaded. The app will now close, install the new version and reopen.',
-    buttons: ['Ok']
-  });
-  autoUpdater.quitAndInstall();
-});
-
-autoUpdater.on('update-not-available', () => {
-  if (updateManual) {
-    updateManual = false;
-    dialog.showMessageBox({
-      type: 'info',
-      title: 'Cuely Update',
-      message: 'There are no new updates',
-      detail: 'You have the latest Cuely app installed.',
-      buttons: ['Ok']
-    });
-  } else {
-    console.log('There are no new updates.');
-  }
-});
-
-autoUpdater.on('update-available', () => {
-  sendDesktopNotification('New Cuely update available', 'A new version of Cuely app is being downloaded');
-});
-
-function manualCheckForUpdates() {
-  updateManual = true;
-  checkForUpdates();
-}
-
-function checkForUpdates() {
-  if (!isDevelopment()) {
-    autoUpdater.setFeedURL(UPDATE_FEED_URL + '/?v=' + appVersion);
-    autoUpdater.checkForUpdates();
   }
 }
 

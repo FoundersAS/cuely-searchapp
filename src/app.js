@@ -139,7 +139,6 @@ export default class App extends Component {
     this.handleMouseMove = ::this.handleMouseMove;
     this.handleExternalLink = ::this.handleExternalLink;
     this.handleActionIconLinkClick = ::this.handleActionIconLinkClick;
-    this.handleMouseEnter = ::this.handleMouseEnter;
     this.openExternalLink = ::this.openExternalLink;
     this.getIntegrationComponent = ::this.getIntegrationComponent;
     this.copyValueToClipboard = ::this.copyValueToClipboard;
@@ -304,8 +303,7 @@ export default class App extends Component {
     if (index > -1) {
       if (index == this.state.selectedIndex){
         this.handleDoubleClick(e);
-      }
-      else {
+      } else {
         this.setState({ selectedIndex: index, keyFocus: false });
         this.hideHover();
       }  
@@ -318,8 +316,7 @@ export default class App extends Component {
 
     if (item.webLink){
       this.openExternalLink(item.webLink, 'double click', item.type);  
-    }
-    else {
+    } else {
       this.copyValueToClipboard();
     }
   }
@@ -394,14 +391,6 @@ export default class App extends Component {
       this.showHover();
     }
     this.hoverDisabled = false;
-  }
-
-  handleMouseEnter(e) {
-    // const index = this.getIndex(e.target.id);
-    // if (index > -1) {
-    //   const link = document.getElementById("searchItemLink_" + index);
-    //   link.className = "search_suggestions_card_link_action_hover";
-    // }
   }
 
   handleDragEnd(e) {
@@ -506,39 +495,37 @@ export default class App extends Component {
   }
 
   renderBody(item) {
-      return (
-        <div className="body">
-          {item.metaInfo.time ? (
-            <div className="meta_group">
-              <div className="meta_icon glyphicons glyphicons-clock"></div>
-              <div className="meta_data">{item.metaInfo.time}</div>
-            </div>) : null}
-          {this.getIntegrationComponent(item).itemStatus()}
-        </div>
-      );
+    return (
+      <div className="body">
+        {item.metaInfo.time ? (
+          <div className="meta_group">
+            <div className="meta_icon glyphicons glyphicons-clock"></div>
+            <div className="meta_data">{item.metaInfo.time}</div>
+          </div>) : null}
+        {this.getIntegrationComponent(item).itemStatus()}
+      </div>
+    );
   }
 
   renderActionItems(item, i) {
     if (item.metaInfo) {
       if (item.type === 'local-file') {
         return (
-          <span id={`actionIcon_${i}`} className="action_icon glyphicons glyphicons-search" onClick={this.handleLocalAppPreview} onMouseEnter={this.handleMouseEnter}></span>
-        );
-      }
-      else {
-        return (
-          <span id={`actionIcon_${i}`} className="action_icon glyphicons glyphicons-arrow-right" onClick={this.handleDoubleClick} onMouseEnter={this.handleMouseEnter}></span>
-        );
-      }      
-    }
-    else {
-      if (item.type === 'math' || item.type === 'currency') {
-        return (
-          <span id={`actionIcon_${i}`} className="action_icon action_icon_no_meta_info glyphicons glyphicons-more-items" onClick={this.copyValueToClipboard} onMouseEnter={this.handleMouseEnter}></span>
+          <span id={`actionIcon_${i}`} className="action_icon glyphicons glyphicons-search" onClick={this.handleLocalAppPreview}></span>
         );
       } else {
         return (
-          <span id={`actionIcon_${i}`} className="action_icon action_icon_no_meta_info glyphicons glyphicons-arrow-right" onClick={this.handleDoubleClick} onMouseEnter={this.handleMouseEnter}></span>
+          <span id={`actionIcon_${i}`} className="action_icon glyphicons glyphicons-arrow-right" onClick={this.handleDoubleClick}></span>
+        );
+      }      
+    } else {
+      if (item.type === 'math' || item.type === 'currency') {
+        return (
+          <span id={`actionIcon_${i}`} className="action_icon action_icon_no_meta_info glyphicons glyphicons-more-items" onClick={this.copyValueToClipboard}></span>
+        );
+      } else {
+        return (
+          <span id={`actionIcon_${i}`} className="action_icon action_icon_no_meta_info glyphicons glyphicons-arrow-right" onClick={this.handleDoubleClick}></span>
         );
       }
     }
@@ -723,18 +710,18 @@ export default class App extends Component {
   }
 
   getActionButtons(item) {
-    if (item.webLink && item.type === 'local-file') {
-      return (
-        <div className="content_bottom_view_link">
-          <div className="content_center">
-            <div className="action_link" onClick={this.handleLocalAppPreview}><span className="glyphicons glyphicons-search"></span>Preview</div>
-            <div className="action_link" onClick={this.handleLocalAppInFinder}><span className="glyphicons glyphicons-folder-open"></span>Open in Finder</div>
-            <div className="action_link" onClick={this.handleExternalLink}><span className="glyphicons glyphicons-new-window"></span>Open</div>
-          </div>
-        </div>
-      ); 
-    }
     if (item.webLink) {
+      if (item.type === 'local-file') {
+        return (
+          <div className="content_bottom_view_link">
+            <div className="content_center">
+              <div className="action_link" onClick={this.handleLocalAppPreview}><span className="glyphicons glyphicons-search"></span>Preview</div>
+              <div className="action_link" onClick={this.handleLocalAppInFinder}><span className="glyphicons glyphicons-folder-open"></span>Open in Finder</div>
+              <div className="action_link" onClick={this.handleExternalLink}><span className="glyphicons glyphicons-new-window"></span>Open</div>
+            </div>
+          </div>
+        ); 
+      }
       return (
         <div className="content_bottom_view_link">
           <div className="content_center">
@@ -744,24 +731,23 @@ export default class App extends Component {
         </div>
       );
     }
-    else {
-      return (
-        <div className="content_bottom_view_link">
-          <div className="content_center">
-            <div className="action_link" onClick={this.copyValueToClipboard}><span className="glyphicons glyphicons-more-items"></span>Copy to Clipboard</div>
-          </div>
+
+    return (
+      <div className="content_bottom_view_link">
+        <div className="content_center">
+          <div className="action_link" onClick={this.copyValueToClipboard}><span className="glyphicons glyphicons-more-items"></span>Copy to Clipboard</div>
         </div>
-      );
-    }
+      </div>
+    );
   }
 
-  helpscoutRenderAssigned(assigned, status) {
-    status = status.toLowerCase();
-    if (status == 'active' || status == 'pending'){
+  helpscoutRenderAssigned(assigned, state) {
+    let cleanState = state.toLowerCase();
+    if (cleanState == 'active' || cleanState == 'pending') {
       return assigned + '&nbsp;/&nbsp;';
     }
-    else 
-      return '';
+
+    return '';
   }
 
   handleSidebarIntegrationClick(integration) {
