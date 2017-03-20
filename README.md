@@ -1,5 +1,5 @@
 `NOTE`: Cuely was a startup idea that was part of [Founders](https://founders.as) incubator. Unfortunately, idea failed to gain traction, so it never went
-past prototype/discovery phase. If you want to do anything with the code, use it or extend it, feel free to contact me [@jangnezda](https://twitter.com/@jangnezda) or open a Github issue.
+past prototype/discovery phase. If you want to do anything with the code, use it or extend it, and need any help, then feel free to contact me [@jangnezda](https://twitter.com/@jangnezda) or open a Github issue.
 
 # Cuely search app
 This repo contains the code and configurations to run Cuely frontend/desktop app. Currently, it only works well on macOS.
@@ -26,7 +26,7 @@ to get the certificate used for signing the app. Self signed certificates or cer
 There are different certificates needed, depending on intended use of the app. Simplest variant, installing and running the app outside of app store, requires `Developer ID Application`
 certificate. To have the app present in the app store involves other certificates as well as app review process by Apple, which is outside the scope of this README.
 
-To find out if there are any valid code signing certificates present, use `security find-identity` command::
+To find out if there are any valid code signing certificates present, use `security find-identity` command:
 ```
 $ security find-identity -v -p codesigning
 97387061A6DC060551BCC82123810ADC16E9ED18 "Developer ID Application: My company ltd. (D1273L56AC)"
