@@ -46,3 +46,7 @@ Cuely-*
 
 # Mac stuff
 .DS_Store
+
+env.js
+env_dev.js
+env_prod.js

@@ -6,11 +6,13 @@
   "productName": "Cuely",
   "author": "Pipetop Aps",
   "scripts": {
+		"env": "cp env_dev.js env.js",
+		"env:prod": "cp env_prod.js env.js",
     "start": "NODE_ENV=development electron .",
-    "dev": "concurrently -k 'babel-node server.js' 'BACKEND=development npm start'",
-    "dev:prod": "concurrently -k 'babel-node server.js' 'BACKEND=production npm start'",
-    "clean": "rm -rf ./dist ./Cuely-*",
-    "build": "npm run clean && webpack --config webpack.config.production.js && electron-packager . Cuely --platform=darwin --arch=all --app-bundle-id=com.cuely.search --app-version=$npm_package_version --build-version='1.0.100' --prune --overwrite --icon ./cuely_icon --osx-sign.identity=<certificate_id>",
+    "dev": "npm run env && concurrently -k 'babel-node server.js' 'BACKEND=development npm start'",
+    "dev:prod": "npm run env:prod && concurrently -k 'babel-node server.js' 'BACKEND=production npm start'",
+    "clean": "rm -rf ./dist ./Cuely-* ./env.js",
+    "build": "npm run clean && npm run env:prod && webpack --config webpack.config.production.js && electron-packager . Cuely --platform=darwin --arch=all --app-bundle-id=com.cuely.search --app-version=$npm_package_version --build-version='1.0.100' --prune --overwrite --icon ./cuely_icon --osx-sign.identity=17387061A6C06605513BCFC8123810ADC169ED18",
     "build:zip": "npm run build && zip -r -y -9 ./Cuely-darwin-x64/cuely-$npm_package_version-osx.zip ./Cuely-darwin-x64/Cuely.app",
     "deploy:version": "echo $npm_package_version > ./Cuely-darwin-x64/VERSION && aws s3 cp ./Cuely-darwin-x64/VERSION s3://updates.cuely.co/releases/osx/",
     "deploy": "npm run build:zip && npm run deploy:version && aws s3 cp ./Cuely-darwin-x64/cuely-$npm_package_version-osx.zip s3://updates.cuely.co/releases/osx/"

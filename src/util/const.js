@@ -1,6 +1,6 @@
-export const API_ROOT = (process.env.BACKEND === 'development') ? 'https://cuely-dev.ngrok.io' : 'https://backend.cuely.co';
-export const ALGOLIA_INDEX = (process.env.BACKEND === 'development') ? 'cuely_dev_documents' : 'cuely_documents';
-export const UPDATE_FEED_URL = (process.env.BACKEND === 'development') ? 'http://localhost:5123/updates/latest' : 'https://updates.cuely.co/updates/latest';
+export const API_ROOT = process.env.API_ROOT;
+export const ALGOLIA_INDEX = process.env.ALGOLIA_INDEX;
+export const UPDATE_FEED_URL = process.env.UPDATE_FEED_URL;
 
 export function isProduction() {
   return (process.env.NODE_ENV === 'production');
