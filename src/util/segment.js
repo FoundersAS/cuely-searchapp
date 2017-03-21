@@ -18,7 +18,6 @@ class SegmentConnector {
       // 24 users), we decided to bump DB id by 10000, except for first 24 users.
       return this.user.userid < 25 ? this.user.userid : this.user.userid + 10000;
     }
-    return isDevelopment() ? 'developer_' + this.user.email.split('@')[0] : this.user.userid;
   }
 
   identify() {
