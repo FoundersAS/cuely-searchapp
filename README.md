@@ -13,6 +13,9 @@ Cuely search app is an [Electron](https://electron.atom.io/) app that can be use
 can be run on all major operating system (Windows, Linux, macOS), however there are hard macOS dependencies in the Cuely code as well as building, signing and updating mechanisms.
 It would need some work to make it run properly on Windows or Linux.
 
+![](https://media.giphy.com/media/LyXO3FKhJmm6Q/giphy.gif)
+![](https://media.giphy.com/media/O5avvP1KAky7C/giphy.gif)
+
 The search app connects to Cuely backend for logging in, adding integrations, and so on, but uses [Algolia](https://www.algolia.com) to perform searches. While it would be pretty trivial to replace Algolia
 dependency with something else on the backend, it would be considerably harder to do it in this Electron app.
 
