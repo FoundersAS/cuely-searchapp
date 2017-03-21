@@ -12,4 +12,4 @@ var opbeat = require('opbeat').start({
 })
 
 require('babel-polyfill');
-require('./main');
+require('./main.js');
