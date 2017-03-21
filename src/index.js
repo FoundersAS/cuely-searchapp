@@ -31,7 +31,7 @@ const render = () => {
 render();
 
 if (module.hot) {
-  module.hot.accept('.', function() {
+  module.hot.accept('.', () => {
     render();
   });
 }
