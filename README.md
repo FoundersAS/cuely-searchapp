@@ -20,8 +20,9 @@ The search app connects to Cuely backend for logging in, adding integrations, an
 dependency with something else on the backend, it would be considerably harder to do it in this Electron app.
 
 ## Development
-Make sure that you have NodeJs installed (tested with v6.3.1) along with `npm`, then run `npm install` to get all the dependencies. For development the configuration is a bit complicated, because we want
-to have hot-reload of changed code/html/css. Luckily, all is hidden away in the `package.json` file, so to run the app just type: `npm run dev`.
+Make sure that you have NodeJs installed (tested with v6.3.1) along with `npm`, then run `npm install` to get all the dependencies. Then, copy `env_TEMPLATE.js` file to `env_dev.js` and `env_prod.js` and modify them according to your environment.
+
+For development the running setup is a bit complicated, because we want to have hot-reload of changed code/html/css. Luckily, all is hidden away in the `package.json` file, so to run the app just type: `npm run dev`.
 
 ## Production builds
 Making an app installable/usable at users' computers involves a bit more work. First, one needs to be a member of [Apple Developer Program](https://developer.apple.com/programs/)
