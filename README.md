@@ -40,7 +40,7 @@ npm run build
 After build is done, check if signature is correct by using `codesign` tool:
 ```
 $ codesign -dv Cuely-darwin-x64/Cuely.app
-Executable=/Users/jang/projects/cuely-search/Cuely-darwin-x64/Cuely.app/Contents/MacOS/Cuely
+Executable=.../cuely-search/Cuely-darwin-x64/Cuely.app/Contents/MacOS/Cuely
 Identifier=com.cuely.search
 Format=app bundle with Mach-O thin (x86_64)
 CodeDirectory v=20200 size=272 flags=0x0(none) hashes=3+3 location=embedded
@@ -55,12 +55,12 @@ Output shows correctly signed app details. If the output is something like `bund
 
 # Deploys/updates
 Updating the app once it's been installed at a user's machine is a multi-step process:
-1. One needs to setup `update` server, which must be capable of returning a proper response (either url to new version or nothing if version is unchanged)
+1. One needs to setup an `update` server, which must be capable of returning a proper response (either url to new version or nothing if version is unchanged)
 2. Cuely app then periodically pings this server for new updates.
 3. If a new update is available, then Cuely will download new version and restart.
 
 See sibling repository `cuely-updates` to see how the update server works. To make all pieces work, one needs also a place to upload new versions. `package.json` contains `deploy` directive
-which uses Amazon S3 to deploy the zipped build. Tailor this solution to your needs, if necessary. At the very least, you must change S3 bucket in the `deploy` directive.
+which uses Amazon S3 to deploy the zipped build. Tailor this solution to your needs/your environment. At the very least, you must change S3 bucket in the `deploy` directive.
 
 To deploy a new version:
 1. Bump the version in `package.json`

@@ -129,7 +129,7 @@ let searchCache = [];
 // Some APIs can only be used after this event occurs.
 app.on('ready', () => {
   if (!isDevelopment()) {
-    // this hack is needed, because Github oauth screen disables authorization button if NODE_ENV is not production
+    // this hack is needed, because Github oauth screen disables authorization button if NODE_ENV is not 'production'
     // (looks like a clash between electron variables and the variables in github's oauth javascript)
     process.env.NODE_ENV = 'production';
   }
@@ -1085,6 +1085,7 @@ function checkGlobalShortcut(shortcut) {
     globalShortcut.isRegistered(shortcut);
     return true;
   } catch(err) {
+
     console.log(err);
     // probably used a national character or some similar key that is rejected by native OS
     return false;
@@ -1127,12 +1128,15 @@ function checkKeywords(query, hits) {
     } else {
       let added = false;
       try {
-        let mathResult = math.eval(query);  
-        if (mathResult && typeof(mathResult) !== 'function' && String(mathResult) !== query && ('"' + String(mathResult) + '"' !== query)) {
+        let mathResult = math.eval(query);
+        console.log("math maria", mathResult);
+        let calculationDone = (mathResult || mathResult === 0 || mathResult === false || Number.isNaN(mathResult));
+        if (calculationDone && typeof(mathResult) !== 'function' && `${mathResult}` !== query && `"${mathResult}"` !== query) {
           itemsStart.unshift(getMathExpression(mathResult));
           added = true;
         }
-      } catch(err) {}
+      } catch(err) {
+      }
       if (!added) {
         // check currency
         let rates = currency.parseQuery(query);
@@ -1151,6 +1155,7 @@ function checkKeywords(query, hits) {
     }
   }
 
+  
   //add search google at the end of hits
   if (((hits.length + itemsStart.length + itemsEnd.length) < 2) && firstWord != 'google') {
     let items = KEYWORDS['google'](query);
