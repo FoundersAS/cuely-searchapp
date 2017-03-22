@@ -613,11 +613,20 @@ export default class App extends Component {
         }
       } else if (item.type === 'helpscout') {
         content = () => (<HelpscoutContent openExternalLink={this.openExternalLink} item={item} />);
-        if (item.metaInfo) {
+        if (item.metaInfo && item.metaInfo.mailbox) {
+          let assigned = '';
+          if (item.metaInfo.status) {
+            let cleanState = item.metaInfo.status.toLowerCase();
+            if (cleanState == 'active' || cleanState == 'pending') {
+              assigned = item.metaInfo.assigned + '&nbsp;/&nbsp;';
+            }
+            assigned = assigned + item.metaInfo.status;
+          }
+
           itemStatus = () => (
             <div className="meta_group">
               <div className="meta_icon glyphicons glyphicons-flag"></div>
-              <div className="meta_data text_overflow" dangerouslySetInnerHTML={{ __html: `${item.metaInfo.mailbox}:&nbsp;${this.helpscoutRenderAssigned(item.metaInfo.assigned, item.metaInfo.status)}${item.metaInfo.status}` }} />
+              <div className="meta_data text_overflow" dangerouslySetInnerHTML={{ __html: `${item.metaInfo.mailbox}:&nbsp;${assigned}` }} />
             </div>
           );
         }
@@ -739,15 +748,6 @@ export default class App extends Component {
         </div>
       </div>
     );
-  }
-
-  helpscoutRenderAssigned(assigned, state) {
-    let cleanState = state.toLowerCase();
-    if (cleanState == 'active' || cleanState == 'pending') {
-      return assigned + '&nbsp;/&nbsp;';
-    }
-
-    return '';
   }
 
   handleSidebarIntegrationClick(integration) {

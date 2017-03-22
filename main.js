@@ -1129,7 +1129,6 @@ function checkKeywords(query, hits) {
       let added = false;
       try {
         let mathResult = math.eval(query);
-        console.log("math maria", mathResult);
         let calculationDone = (mathResult || mathResult === 0 || mathResult === false || Number.isNaN(mathResult));
         if (calculationDone && typeof(mathResult) !== 'function' && `${mathResult}` !== query && `"${mathResult}"` !== query) {
           itemsStart.unshift(getMathExpression(mathResult));
