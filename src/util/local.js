@@ -150,7 +150,11 @@ class LocalApps {
         removed = true;
         console.log(`Removing app ${cachedAppKey} from app cache`);
         if (cachedApps[cachedAppKey].cachedIcon) {
-          unlinkSync(cachedApps[cachedAppKey].cachedIcon);
+          try {
+            unlinkSync(cachedApps[cachedAppKey].cachedIcon);
+          } catch(err) {
+            console.log(err);
+          }
         }
         delete cachedApps[cachedAppKey];
       }
@@ -271,8 +275,10 @@ class LocalApps {
             cb(destIconPath);
             for (let iconFile of icons) {
               let rmPath = iconsetPath + '/' + iconFile;
-              if (existsSync(rmPath)) {
+              try {
                 unlinkSync(rmPath);
+              } catch(err) {
+                console.log(err);
               }
             }
 
