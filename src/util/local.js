@@ -194,6 +194,10 @@ class LocalApps {
 
   _saveIconInternal(apps, appKey) {
     let app = apps[appKey];
+    if(app === undefined) {
+      this.iconsCounter = this.iconsCounter - 1;
+      return;
+    }
     const filename = hash(app.name);
     const outPath = `${this.iconDir}/${filename}.iconset`;
     exec(`iconutil --convert iconset "${app.iconset}" --output "${outPath}"`, { timeout: 2000 }, (err) => {
