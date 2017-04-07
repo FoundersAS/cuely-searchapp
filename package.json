@@ -6,8 +6,8 @@
   "productName": "Cuely",
   "author": "Pipetop Aps",
   "scripts": {
-		"env": "cp env_dev.js env.js",
-		"env:prod": "cp env_prod.js env.js",
+    "env": "cp env_dev.js env.js",
+    "env:prod": "cp env_prod.js env.js",
     "start": "NODE_ENV=development electron .",
     "dev": "npm run env && concurrently -k 'babel-node server.js' 'BACKEND=development npm start'",
     "dev:prod": "npm run env:prod && concurrently -k 'babel-node server.js' 'BACKEND=production npm start'",
