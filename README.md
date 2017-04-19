@@ -13,13 +13,12 @@ It would need some work to make it run properly on Windows or Linux.
 ![](https://media.giphy.com/media/LyXO3FKhJmm6Q/giphy.gif)
 ![](https://media.giphy.com/media/O5avvP1KAky7C/giphy.gif)
 
-The search app connects to Cuely backend for logging in, adding integrations, and so on, but uses [Algolia](https://www.algolia.com) to perform searches. While it would be pretty trivial to replace Algolia
-dependency with something else on the backend, it would be considerably harder to do it in this Electron app.
+The search app connects to Cuely backend for logging in, adding integrations, and so on, but uses [Algolia](https://www.algolia.com) to perform searches. To replace Algolia with another search engine there would be some work to do both here in the app code as well as backend code.
 
 ## Development
 Make sure that you have NodeJs installed (tested with v6.3.1) along with `npm`, then run `npm install` to get all the dependencies. Then, copy `env_TEMPLATE.js` file to `env_dev.js` and `env_prod.js` and modify them according to your environment.
 
-For development the running setup is a bit complicated, because we want to have hot-reload of changed code/html/css. Luckily, all is hidden away in the `package.json` file, so to run the app just type: `npm run dev`.
+For development the running setup is a bit complicated, because we want to have hot-reload of changed code/html/css. Luckily, all is hidden away in the `package.json` file, so to run the app just type: `npm run dev`. Of course you also need Cuely backend instance up and running as well as Algolia account (there's a free tier available). 
 
 ## Production builds
 Making an app installable/usable at users' computers involves a bit more work. First, one needs to be a member of [Apple Developer Program](https://developer.apple.com/programs/)
@@ -54,7 +53,7 @@ Internal requirements count=1 size=176
 ```
 Output shows correctly signed app details. If the output is something like `bundle format unrecognized, invalid, or unsuitable` or `code object is not signed at all`, then signing of the app failed.
 
-# Deploys/updates
+## Deploys/updates
 Updating the app once it's been installed at a user's machine is a multi-step process:
 1. One needs to setup an `update` server, which must be capable of returning a proper response (either url to new version or nothing if version is unchanged)
 2. Cuely app then periodically pings this server for new updates.
